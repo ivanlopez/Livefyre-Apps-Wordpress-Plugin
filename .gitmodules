@@ -1,0 +1,3 @@
+[submodule "livefyre-comments/livefyre-api"]
+	path = livefyre-comments/livefyre-api
+	url = git@github.com:Livefyre/Livefyre-APIs.git
