@@ -598,6 +598,7 @@ class Livefyre_Admin {
         register_setting($settings_section, 'livefyre_profile_system');
         register_setting($settings_section, 'livefyre_wp_auth_hooks');
         register_setting($settings_section, 'livefyre_engage_appname');
+        register_setting($settings_section, 'livefyre_lfsp_source_url');
 
         add_settings_section('lf_domain_settings',
             'Livefyre Network Settings',
@@ -709,6 +710,7 @@ class Livefyre_Admin {
         $this->ext->update_network_option( 'livefyre_domain_key', $_POST[ 'livefyre_domain_key' ] );
         $this->ext->update_network_option( 'livefyre_use_backplane', $_POST[ 'livefyre_use_backplane' ] );
         $this->ext->update_network_option( 'livefyre_engage_appname', $_POST[ 'livefyre_engage_appname' ] );
+        $this->ext->update_network_option( 'livefyre_lfsp_source_url', $_POST[ 'livefyre_lfsp_source_url' ] );
         $this->ext->update_network_option( 'livefyre_wp_auth_hooks', $_POST[ 'livefyre_wp_auth_hooks' ] );
         $this->ext->update_network_option( 'livefyre_profile_system', $_POST[ 'livefyre_profile_system' ] );
         wp_redirect( add_query_arg( array( 'page' => 'livefyre_network', 'updated' => 'true' ), network_admin_url( 'settings.php' ) ) );
@@ -814,6 +816,7 @@ class Livefyre_Admin {
                         
                         <tr><td colspan="2"><input type="radio" <?php echo $disable_opt ?> name="livefyre_profile_system" value="lfsp" <?php echo $profile_system == 'lfsp' ? 'checked ' : '' ?>/> use the Livefyre Simple Profiles system (extra setup is required, only select this when instructed to)</td></tr>
                         <tr><td></td><td><input name='livefyre_engage_appname' type='text' value='<?php echo $this->ext->get_network_option('livefyre_engage_appname', '') ?>'/> Enter your Engage application name.</td></tr>
+                        <tr><td></td><td><input name='livefyre_lfsp_source_url' type='text' value='<?php echo $this->ext->get_network_option('livefyre_lfsp_source_url', '') ?>'/>  Enter the source URL for your Livefyre Simple Profiles Javascript file.</td></tr>
                     </table>
                     <?php
                     if ($this->allow_domain_settings()) {
@@ -903,7 +906,11 @@ class Livefyre_Display {
     
     function lf_embed_head_script() {
         global $wp_query;
-
+        $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
+        if ($profile_sys == 'lfsp') {
+                $lfsp_source_url = $this->ext->get_network_option( 'livefyre_lfsp_source_url', '' );
+                echo '<script type="text/javascript" src="' . $lfsp_source_url . '"></script>';
+        }
         if ( $this->ext->get_post_version( $wp_query->post->ID ) == '1' ) {
             echo $this->lf_core->lf_domain_object->source_js_v1();
         } else {
