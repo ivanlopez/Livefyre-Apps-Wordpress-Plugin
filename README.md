@@ -7,6 +7,7 @@ To build a livefyre.zip that you can install with the "upload" feature in wp-adm
 ./build.sh
 
 == Changelog ==
+
 == 3.50 ==
 * Added a trim() filter to remove any trailing space or control characters from the site secret key - improves Livefyre Comments V3 compatibility for very old installations.
-* Fix postback mechanism - the parent ID was being filtered out by a sanitizer. Added parent ID to the fields whitelist.
+* Reorganized code and applied coding standards to PHP plugin architecture.
