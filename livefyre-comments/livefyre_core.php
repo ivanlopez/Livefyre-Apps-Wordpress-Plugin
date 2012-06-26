@@ -284,7 +284,7 @@ class Livefyre_Sync {
                     'comment_author_email'  => $json->author_email,
                     'comment_author_url'  => $json->author_url,
                     'comment_type'  => '', 
-                    'lf_comment_parent'  => $json->lf_parent_id,
+                    'lf_comment_parent'  => $json->lf_parent_comment_id,
                     'lf_comment_id'  => $json->lf_comment_id,
                     'user_id'  => null,
                     'comment_author_IP'  => $json->author_ip,
