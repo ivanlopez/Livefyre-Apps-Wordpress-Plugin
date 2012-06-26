@@ -350,7 +350,7 @@ class Livefyre_Application {
                 'article_title' => $record->post_title,
                 'sig_created' => $sig_created,
                 'tags' => $tagStr,
-                'sig' => getHmacsha1Signature(base64_decode(get_option('livefyre_site_key')), "sig_created=$sig_created")
+                'sig' => getHmacsha1Signature(base64_decode(trim(get_option('livefyre_site_key'))), "sig_created=$sig_created")
             );
             $http = $this->lf_core->lf_domain_object->http;
             $http->request( $url, array( 'data' => $postdata, 'method' => 'POST' ) );
@@ -937,7 +937,7 @@ class Livefyre_Display {
                 }
             }
             $domain = $this->lf_core->lf_domain_object;
-            $site = $domain->site( $this->ext->get_option( 'livefyre_site_id' ), $this->ext->get_option( 'livefyre_site_key' ), '' );
+            $site = $domain->site( $this->ext->get_option( 'livefyre_site_id' ), trim( $this->ext->get_option( 'livefyre_site_key' ) ), '' );
             $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id) );
             $conv = $article->conversation();
             $use_backplane = $this->ext->get_network_option( 'livefyre_use_backplane', false );
