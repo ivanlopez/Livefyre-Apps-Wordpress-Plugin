@@ -400,7 +400,8 @@ class Livefyre_Application {
         "comment_content",
         "comment_ID",
         "comment_post_ID",
-        "comment_parent"
+        "comment_parent",
+        "comment_approved"
     );
     
     function sanitize_inputs ( $data ) {
