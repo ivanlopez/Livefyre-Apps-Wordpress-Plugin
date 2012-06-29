@@ -19,16 +19,12 @@ define( 'LF_DEFAULT_HTTP_LIBRARY', 'Livefyre_Http_Extension' );
 define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
 define( 'LF_POST_META_KEY', 'livefyre_version' );
 define( 'LF_POST_META_DEFAULT_DISPLAY_VALUE', '1' );
-define( 'LF_POST_META_DEFAULT_POST_VALUE', '3' );
 
 class Livefyre_Application {
 
     function __construct( $lf_core ) {
     
         $this->lf_core = $lf_core;
-        
-        add_action('publish_page', array(&$this, 'handle_page_publish'));
-        add_action('publish_post', array(&$this, 'handle_post_publish'));
 
     }
 
@@ -101,22 +97,6 @@ class Livefyre_Application {
             $this->update_post_option( $postId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
         }
         return $version;
-    }
-
-    /**
-     * Set an property on the post telling it which version of the Livefyre widget to load.
-     * $postId: The ID of the post to set the property on.
-     */
-    function handle_post_publish( $postId ) {
-        $this->update_post_option( $postId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
-    }
-
-    /**
-     * Set an property on the page telling it which version of the Livefyre widget to load.
-     * $pageId: The ID of the page to set the property on.
-     */
-    function handle_page_publish( $pageId ) {
-        $this->update_post_option( $pageId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
     }
     
     function reset_caches() {
