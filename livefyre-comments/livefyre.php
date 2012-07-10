@@ -939,7 +939,7 @@ class Livefyre_Display {
                 }
             }
             $domain = $this->lf_core->lf_domain_object;
-            $site = $domain->site( $this->ext->get_option( 'livefyre_site_id' ), trim( $this->ext->get_option( 'livefyre_site_key' ) ), '' );
+            $site = $this->lf_core->site;
             $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id) );
             $conv = $article->conversation();
             $use_backplane = $this->ext->get_network_option( 'livefyre_use_backplane', false );
