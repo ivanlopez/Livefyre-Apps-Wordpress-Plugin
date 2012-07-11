@@ -676,12 +676,8 @@ class Livefyre_Admin {
                         if ( !$this->allow_domain_settings() ) {
                             $this->network_options_page();
                         }
-                        settings_fields( 'livefyre_site_options' );
-                        do_settings_sections( 'livefyre' );
+                        include( dirname(__FILE__) . '/settings-template.php');
                     ?>
-                    <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
-                    </p>
                 </form>
             </div>
         <?php
