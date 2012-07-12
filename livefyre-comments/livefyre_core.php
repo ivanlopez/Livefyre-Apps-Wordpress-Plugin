@@ -59,10 +59,14 @@ class Livefyre_core {
         $this->bootstrap_url = "http://bootstrap.$this->top_domain";
         
         // for non-production environments, we use a dev url and prefix the path with env name
-        $bootstrap_subdomain = ( $uses_default_tld ? 'bootstrap-v2-json' : 'bootstrap-json-dev' );
-        $environment = ( $uses_default_tld ? '' : $dopts['livefyre_tld'] . '/' );
-        
-        $this->bootstrap_url_v3 = "http://$bootstrap_subdomain.s3.amazonaws.com/$environment$profile_domain/$site_id";
+        $bootstrap_domain = 'bootstrap-json-dev.s3.amazonaws.com';
+        $environment = $dopts['livefyre_tld'] . '/';
+        if ( $uses_default_tld ) {
+            $bootstrap_domain = 'data.bootstrap.fyre.co';
+            $environment = '';
+        }
+
+        $this->bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
         
         $this->home_url = $this->ext->home_url();
         $this->plugin_version = LF_PLUGIN_VERSION;
