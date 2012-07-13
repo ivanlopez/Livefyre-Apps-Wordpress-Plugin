@@ -12,6 +12,11 @@ class Livefyre_Import {
         $this->ext->setup_import( $this );
 
     }
+
+    static function skip_trackback_filter($c) {
+        if ($c->comment_type == 'trackback' || $c->comment_type == 'pingback') { return false; }
+        return true;
+    }
     
     public function admin_import_notice() {
         return; //todo: re-enable this
@@ -44,12 +49,11 @@ class Livefyre_Import {
             $message = $json->message;
         }
 
-        if ($status != 'error') {
-            $this->ext->update_option('livefyre_import_status', 'started');
-        } else {
+        if ($status == 'error') {
             $this->ext->update_option('livefyre_import_status', 'error');
             $this->ext->update_option('livefyre_import_message', $message);
-            $this->report_error('Error requesting import session, message: ' . $message);
+        } else {
+            $this->ext->update_option('livefyre_import_status', 'started');
         }
     }
 
@@ -71,6 +75,8 @@ class Livefyre_Import {
         }
         $this->ext->update_option('livefyre_activity_id', $rowparts[0]);
         $this->ext->update_option('livefyre_import_status', 'csv_uploaded');
+        $date_formatted = 'Completed on ' . date('d/m/Y') . ' at ' . date('h:i a');
+        $this->ext->update_option('livefyre_import_message', $date_formatted);
         echo "ok";
         exit;
     }
@@ -81,14 +87,13 @@ class Livefyre_Import {
             return;
         }
         // Get the decoded sig values from the $_POST object
-        $sig = urldecode($_POST['sig']);
+        $sig = $_POST['sig'];
         $sig_created = urldecode($_POST['sig_created']);
         // Check the signature
         $this->log_debug('comment import req received from livefyre');
         $key = $this->ext->get_option('livefyre_site_key');
         $string = 'import|' . $_GET['offset'] . '|' . $sig_created;
         $this->log_debug(' -comment import req sig inputs: ' . $string . ' input sig:' . $sig);
-
         if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created-time()) > 259200) {
             $this->log_debug(' -sig failed');
             echo 'sig-failure';
@@ -175,7 +180,7 @@ class Livefyre_Import {
                     $newArticle .= '<created>' . preg_replace('/\s/', 'T', $post->post_date_gmt) . 'Z</created>';
                 }
                 $comment_array = get_approved_comments($post->ID);
-                $comment_array = array_filter($comment_array, 'livefyre_skip_trackback_filter');
+                $comment_array = array_filter($comment_array, array(Livefyre_Import, 'skip_trackback_filter'));
                 foreach ($comment_array as $comment) {
                     $comment_content = $this->comment_data_filter($comment->comment_content);
                     if ($comment_content == "") {
@@ -238,13 +243,6 @@ class Livefyre_Import {
         $this->lf_core->lf_domain_object->http->request($url . '/error', $args);
     }
 
-    function skip_trackback_filter( $c ) {
-        if ($c->comment_type == 'trackback' || $c->comment_type == 'pingback' || $c->comment_agent == 'Livefyre, Inc. Comments Agent') {
-            return false;
-        }
-        return true;
-    }
-
     function unicode_code_to_utf8( $unicode_list ) {
         $result = "";
         foreach ($unicode_list as $key => $value) {
@@ -264,5 +262,7 @@ class Livefyre_Import {
     }
 
 }
+
+
 
 ?>
