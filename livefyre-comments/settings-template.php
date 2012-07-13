@@ -107,21 +107,6 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
     $import_status = get_option('livefyre_import_status','');
     if (get_option('livefyre_site_id','') == '') {
         // Don't allow the status sections if there isn't a site.
-    } else if ($import_status == '') {
-        ?>
-        <div class="fyre-container-base" id="fyre-start">
-            <div class="fyre-container">
-                <div class="fyre-header">
-                    <div class="fyre-status"></div>
-
-                    <span class="fyre-subtext">
-                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.
-                    </span>
-                    <a href="?page=livefyre&livefyre_import_begin=1" class="green fyre-button">Import comments</a>
-                </div>
-            </div>
-        </div>
-        <?php
     } else if ($import_status == 'error') {
         ?>
         <div class="fyre-container-base" id="fyre-failure">
@@ -132,6 +117,7 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
                     <span class="fyre-subtext">
                         <?php echo get_option('livefyre_import_message','') ?>
                     </span>
+                    <a href="?page=livefyre&livefyre_import_begin=1" class="green fyre-button">Re-attempt comment import</a>
                 </div>
             </div>
         </div>
@@ -150,22 +136,40 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
             </div>
         </div>
         <?php
-    } else if ($import_status != 'error' ) {
+    } else if ($import_status == '') {
         ?>
-        <div class="fyre-container-base" id="fyre-in-progress">
+        <div class="fyre-container-base" id="fyre-start">
             <div class="fyre-container">
                 <div class="fyre-header">
                     <div class="fyre-status slate"></div>
                     <span id="fyre-progress-title" class="fyre-title"></span>
+
                     <span class="fyre-subtext">
-                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.
+                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.  As your comments are being imported the status will be displayed bere.   If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed by Livefyre.
+                    </span>
+                    <a href="?page=livefyre&livefyre_import_begin=1" class="green fyre-button">Import comments</a>
+                </div>
+            </div>
+        </div>
+        <?php
+    } else {
+        ?>
+        <div class="fyre-container-base" id="fyre-start">
+            <div class="fyre-container">
+                <div class="fyre-header">
+                    <div class="fyre-status"></div>
+                    <span id="fyre-progress-title" class="fyre-title"></span>
+
+                    <span class="fyre-subtext">
+                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.  As your comments are being imported the status will be displayed bere.   If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed by Livefyre.
                     </span>
                     <div class="fyre-progress-bar-container">
                         <div id="fyre-progress-bar" class="fyre-progress-bar"></div>
                     </div>
                 </div>
             </div>
-        </div><?php 
+        </div><?php
+         
     } 
     ?>
 </div>
