@@ -972,7 +972,7 @@ class Livefyre_Display {
                 echo $conv->to_initjs_v3('comments', $initcfg, $use_backplane);
             }
         } else if ( !is_single() ) {
-            echo '<script type="text/javascript" data-lf-domain=" ' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
+            echo '<script type="text/javascript" data-lf-domain="' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
         }
 
     }
