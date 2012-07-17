@@ -21,6 +21,24 @@
             if ( is_array( $result ) && isset($result['response']) && $result['response']['code'] == 200 && strlen($result['body']) > 0 ) {
                 $cached_html = $result['body'];
             }
+            // v3 bootstrap currently returns a valid HTML document,
+            // so we tease out the relevent pieces
+            $v3_head = "<!DOCTYPE html>\n<html>\n<head>\n";
+            $v3_head_replace = '';
+            
+            $v3_body = "</script>\n</head>\n<body>";
+            $v3_body_replace = '</script>';
+            
+            $v3_foot = "</body>\n<html>";
+            $v3_foot_replace = '';
+            
+            if (strpos($cached_html, $v3_head) !== false) {
+                $cached_html = str_replace($v3_head, $v3_head_replace, $cached_html);
+                $cached_html = str_replace($v3_body, $v3_body_replace, $cached_html);
+                $cached_html = str_replace($v3_foot, $v3_foot_replace, $cached_html);
+            }
+            
+            // now check out the rest of the HTML, make sure it looks valid.
             if (strpos($cached_html, '<div') === false) {
                 // if we don't see the required container,
                 // something is wrong with the response
