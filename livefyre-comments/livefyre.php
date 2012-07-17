@@ -27,8 +27,8 @@ class Livefyre_Application {
     
         $this->lf_core = $lf_core;
         
-        add_action('publish_page', array(&$this, 'handle_page_publish'));
-        add_action('publish_post', array(&$this, 'handle_post_publish'));
+        add_action('publish_page', array(&$this, 'handle_publish'));
+        add_action('publish_post', array(&$this, 'handle_publish'));
 
     }
 
@@ -107,16 +107,20 @@ class Livefyre_Application {
      * Set an property on the post telling it which version of the Livefyre widget to load.
      * $postId: The ID of the post to set the property on.
      */
-    function handle_post_publish( $postId ) {
-        $this->update_post_option( $postId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
-    }
-
-    /**
-     * Set an property on the page telling it which version of the Livefyre widget to load.
-     * $pageId: The ID of the page to set the property on.
-     */
-    function handle_page_publish( $pageId ) {
-        $this->update_post_option( $pageId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
+    function handle_publish( $post_id ) {
+        global $wpdb;
+        if ( $parent_id = wp_is_post_revision( $post_id ) ) {
+            $post_id = $parent_id;
+        }
+        // find list of states in DB
+        $qry = "SELECT UNIX_TIMESTAMP(post_date_gmt) as `post_date_timestamp` FROM $wpdb->posts WHERE ID = %d;";
+        $results = $wpdb->get_results( $wpdb->prepare($qry, $post_id) );
+        $result = $results[0];
+        $published = $result->post_date_timestamp;
+        $installed = (int) $this->get_option('livefyre_v3_installed', 0);
+        if ( $installed < $published ) {
+            $this->update_post_option( $post_id, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
+        }
     }
     
     function reset_caches() {
