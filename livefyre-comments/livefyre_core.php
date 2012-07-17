@@ -160,6 +160,9 @@ class Livefyre_Activation {
             // Initialize default profile domain i.e. livefyre.com
             $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         }
+        if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
+            $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp', 1) );
+        }
     
     }
 
