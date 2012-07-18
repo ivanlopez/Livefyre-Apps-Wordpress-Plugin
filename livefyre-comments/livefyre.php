@@ -976,7 +976,7 @@ class Livefyre_Display {
             $use_backplane = $this->ext->get_network_option( 'livefyre_use_backplane', false );
             $initcfg = array();
             $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
-            $initcfg['betaBanner'] = ($profile_sys == 'livefyre' ? true : false);
+            $initcfg['betaBanner'] = ($profile_sys == 'livefyre');
             if ( !$use_backplane && $network != LF_DEFAULT_PROFILE_DOMAIN) {
                 if ( is_user_logged_in() && $profile_sys == 'wordpress' ) {
                     echo $domain->authenticate_js_v3( '?livefyre_token_request=1', '/' );
