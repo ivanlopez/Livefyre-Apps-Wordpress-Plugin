@@ -52,8 +52,10 @@ class Livefyre_Import {
         if ($status == 'error') {
             $this->ext->update_option('livefyre_import_status', 'error');
             $this->ext->update_option('livefyre_import_message', $message);
+            $this->ext->delete_option('livefyre_v3_notify_installed');
         } else {
             $this->ext->update_option('livefyre_import_status', 'started');
+            $this->ext->delete_option('livefyre_v3_notify_installed');
         }
     }
 
@@ -77,6 +79,7 @@ class Livefyre_Import {
         $this->ext->update_option('livefyre_import_status', 'csv_uploaded');
         $date_formatted = 'Completed on ' . date('d/m/Y') . ' at ' . date('h:i a');
         $this->ext->update_option('livefyre_import_message', $date_formatted);
+        $this->ext->delete_option('livefyre_v3_notify_installed');
         echo "ok";
         exit;
     }
