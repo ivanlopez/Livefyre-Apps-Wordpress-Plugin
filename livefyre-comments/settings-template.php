@@ -12,6 +12,9 @@ if (isset($_GET['status'])) {
     if (isset($_GET['message'])) {
         update_option('livefyre_import_message', urldecode($_GET['message']));
     }
+} elseif (isset($_GET['livefyre_reset_v3_notes'])) {
+    delete_option('livefyre_v3_notify_installed');
+    delete_option('livefyre_v3_notify_upgraded');
 }
 ?>
 
@@ -104,8 +107,9 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
 
     <?php
     $import_status = get_option('livefyre_import_status','');
-    if (get_option('livefyre_site_id','') == '') {
-        // Don't allow the status sections if there isn't a site.
+    if (get_option('livefyre_site_id','') == '' || get_option( 'livefyre_v3_installed', null) != 0) {
+        // Don't allow the status sections if there isn't a site
+        // The second condition hides the button to start an import, if this was an upgrade from V2
     } else if ($import_status == 'error') {
         ?>
         <div class="fyre-container-base" id="fyre-failure">

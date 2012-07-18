@@ -154,16 +154,35 @@ class Livefyre_Activation {
     }
 
     function activate() {
-    
-        $blogname = $this->ext->get_option( 'livefyre_site_id', null );
+        $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
+        if ( $existing_blogname ) {
+            $site_id = $existing_blogname;
+            $existing_key = $this->ext->get_option( 'livefyre_secret', false );
+            $this->ext->update_option( 'livefyre_site_id', $site_id );
+            $this->ext->delete_option( 'livefyre_blogname' );
+            $this->ext->update_option( 'livefyre_site_key', $existing_key );
+            $this->ext->delete_option( 'livefyre_secret' );
+        } else {
+            $site_id = $this->ext->get_option( 'livefyre_site_id', false );
+        }
         if ( !$this->ext->get_network_option( 'livefyre_domain_name', false ) ) {
             // Initialize default profile domain i.e. livefyre.com
             $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         }
         if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
-            $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp', 1) );
+            // Set a flag to show the 'hey you just upgraded' (or installed) flash message
+            // Set the timestamp so we know which posts use V2 vs V3
+            if ( $site_id ) {
+                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp', 1) );
+                $this->ext->update_option( 'livefyre_v3_notify_upgraded', 1 );
+            } else {
+                // !IMPORTANT
+                // livefyre_v3_installed == 0 is used elsewhere to determine if this
+                // installation was derived from a former V2 installation
+                $this->ext->update_option( 'livefyre_v3_installed', 0 );
+                $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
+            }
         }
-    
     }
 
     function reset_caches() {
