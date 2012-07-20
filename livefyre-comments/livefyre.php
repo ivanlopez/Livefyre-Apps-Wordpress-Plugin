@@ -18,8 +18,8 @@ define( 'LF_AMETA_PREFIX', 'livefyre_amap_' );
 define( 'LF_DEFAULT_HTTP_LIBRARY', 'Livefyre_Http_Extension' );
 define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
 define( 'LF_POST_META_KEY', 'livefyre_version' );
-define( 'LF_POST_META_DEFAULT_DISPLAY_VALUE', '1' );
-define( 'LF_POST_META_DEFAULT_POST_VALUE', '3' );
+define( 'LF_POST_META_USE_V1', '1' );
+define( 'LF_POST_META_USE_V3', '3' );
 
 class Livefyre_Application {
 
@@ -94,18 +94,29 @@ class Livefyre_Application {
         $installed = (int) $this->get_option('livefyre_v3_installed', 0);
         if ( $installed == 0 ) {
             // $installed == 0 means they never used V2 - short-circuit the check
-            return LF_POST_META_DEFAULT_POST_VALUE;
+            return LF_POST_META_USE_V3;
         }
-        $version = $this->get_post_option( $postId, LF_POST_META_KEY );
+        $version = $this->get_post_option( $postId, LF_POST_META_KEY, '' );
+        $update = false;
         if ( $version == '' ) {
-            $version = LF_POST_META_DEFAULT_DISPLAY_VALUE;
+            $version = ( $this->post_uses_v3( $postId ) ? LF_POST_META_USE_V3 : LF_POST_META_USE_V1 );
+            $update = true;
         } else if ( $version == 'LF_POST_META_DEFAULT_VALUE' ) {
             // MarkD: This is to fix a previous version that was setting the post value to a
             // non-existent variable, thus making all widgets use v1.
-            $version = LF_POST_META_DEFAULT_POST_VALUE;
+            $version = LF_POST_META_USE_V3;
+            $update = true;
+        }
+        if ($update) {
             $this->update_post_option( $postId, LF_POST_META_KEY, $version );
         }
         return $version;
+    }
+    
+    function post_uses_v3($post_id) {
+        $published = (int) get_the_time( 'U', $post_id );
+        $installed = (int) $this->get_option( 'livefyre_v3_installed', 0 );
+        return ( $installed < $published );
     }
 
     /**
@@ -113,18 +124,11 @@ class Livefyre_Application {
      * $postId: The ID of the post to set the property on.
      */
     function handle_publish( $post_id ) {
-        global $wpdb;
         if ( $parent_id = wp_is_post_revision( $post_id ) ) {
             $post_id = $parent_id;
         }
-        // find list of states in DB
-        $qry = "SELECT UNIX_TIMESTAMP(post_date_gmt) as `post_date_timestamp` FROM $wpdb->posts WHERE ID = %d;";
-        $results = $wpdb->get_results( $wpdb->prepare($qry, $post_id) );
-        $result = $results[0];
-        $published = $result->post_date_timestamp;
-        $installed = (int) $this->get_option('livefyre_v3_installed', 0);
-        if ( $installed < $published ) {
-            $this->update_post_option( $post_id, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
+        if ( $this->post_uses_v3($post_id) ) {
+            $this->update_post_option( $post_id, LF_POST_META_KEY, LF_POST_META_USE_V3 );
         }
     }
     
@@ -893,7 +897,7 @@ class Livefyre_Admin {
                     $message = "Thanks for upgrading to the latest Livefyre plugin. Create a new post to try out the new features in Livefyre Comments 3.";
                 }
                 if ($message) {
-                    $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks! (hide this message)</a>';
+                    $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
                 }
             } elseif (!$this->returned_from_setup()) {
                 $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.$livefyre_http_url.'/installation/logout?site_url='.urlencode($home_url).'&domain='.$livefyre_site_domain.'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';

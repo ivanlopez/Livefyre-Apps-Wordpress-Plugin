@@ -173,7 +173,7 @@ class Livefyre_Activation {
             // Set a flag to show the 'hey you just upgraded' (or installed) flash message
             // Set the timestamp so we know which posts use V2 vs V3
             if ( $site_id ) {
-                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp', 1) );
+                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp') );
                 $this->ext->update_option( 'livefyre_v3_notify_upgraded', 1 );
             } else {
                 // !IMPORTANT
