@@ -439,20 +439,38 @@ class Livefyre_Application {
 
     function insert_comment( $data ) {
 
-        return wp_insert_comment( $this->sanitize_inputs( $data ) );
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_insert_comment', array( $sanitary_data ) );
 
     }
 
     function update_comment( $data ) {
 
-        return wp_update_comment( $this->sanitize_inputs( $data ) );
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_update_comment', array( $sanitary_data ) );
 
+    }
+    
+    function without_wp_notifications( $func_name, $args ) {
+    
+        $old_notify_setting = get_option('comments_notify', false);
+        if ($old_notify_setting !== false) {
+            update_option('comments_notify', '');
+        }
+        $ret_val = call_user_func_array( $func_name, $args );
+        if ($old_notify_setting !== false) {
+            update_option('comments_notify', $old_notify_setting);
+        }
+        return $ret_val;
+    
     }
     
     function update_comment_status( $app_comment_id, $status ) {
     
         // Livefyre says unapproved, WordPress says hold.
-        wp_set_comment_status( $app_comment_id, ( $status == 'unapproved' ? 'hold' : $status) );
+        $wp_status = ( $status == 'unapproved' ? 'hold' : $status );
+        $args = array( $app_comment_id, $wp_status );
+        $this->without_wp_notifications( 'wp_set_comment_status', $args );
     
     }
 
