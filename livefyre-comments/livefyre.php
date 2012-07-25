@@ -453,13 +453,13 @@ class Livefyre_Application {
     
     function without_wp_notifications( $func_name, $args ) {
     
-        $old_notify_setting = get_option('comments_notify', false);
-        if ($old_notify_setting !== false) {
-            update_option('comments_notify', '');
+        $old_notify_setting = get_option( 'comments_notify', false );
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', '' );
         }
         $ret_val = call_user_func_array( $func_name, $args );
-        if ($old_notify_setting !== false) {
-            update_option('comments_notify', $old_notify_setting);
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', $old_notify_setting );
         }
         return $ret_val;
     
