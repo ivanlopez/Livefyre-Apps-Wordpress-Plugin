@@ -509,6 +509,7 @@ class Livefyre_Admin {
         add_action( 'admin_notices', array( &$this, 'lf_install_warning') );
         add_action( 'admin_notices', array( &$this->lf_core->Import, 'admin_import_notice' ) );
         add_action( 'admin_init', array( &$this, 'site_options_init' ) );
+        add_action( 'admin_init', array( &$this->lf_core->Admin, 'plugin_upgrade' ) );
         /*
          * Removing this for V2.0.1
         add_action( 'admin_init', array( &$this, 'network_options_init' ) );
@@ -525,6 +526,18 @@ class Livefyre_Admin {
         add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
         add_action( 'edit_user_profile_update', array( &$this, 'edit_user_profile_update' ) );
         */
+    }
+    
+    function plugin_upgrade() {
+    
+        // We have to way to hook into an action that happens on auto-upgrade.
+        // This is the work-around for that.
+        if ( get_option( 'livefyre_v3_installed', false ) === false ) {
+           $this->lf_core->Activation->activate();
+        } else if ( get_option( 'livefyre_blogname', false ) !== false ) {
+           $this->lf_core->Activation->activate();
+        }
+    
     }
 
     function get_notify_default( $notify_type ) {
