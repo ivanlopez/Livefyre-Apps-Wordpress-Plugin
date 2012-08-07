@@ -1,0 +1,281 @@
+.fyre-settings .fyre-list{
+	margin:0;
+}
+
+.fyre-settings > .fyre-container-base{
+	width: 100%;
+	background:#fff;
+	border-radius: 8px;	
+	overflow:hidden;
+	margin-bottom:16px;
+	padding:1px;
+	background: #999;
+	box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+}
+.fyre-settings .fyre-container{
+	width:100%;
+	height: auto;
+	display:block;
+	border-radius:7px;
+	background: #fff;
+}
+.fyre-settings ul{
+	
+}
+
+.fyre-settings li{
+	height:32px;
+	font: 12px/32px "Helvetica Neue";
+	border-bottom:1px solid #999;
+	list-style:none;
+	background:#fff;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	padding:0px 6px;
+}
+.fyre-settings li:first-child{
+	border-radius:7px 7px 0px 0px;
+}
+.fyre-settings li:last-child{
+	border-bottom: none;
+}
+.fyre-settings .fyre-button{
+	background-color:#f2f2f2;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(242, 242, 242)),to(rgb(218, 218, 218)));
+	background-image: -webkit-linear-gradient(top, rgb(242, 242, 242), rgb(218, 218, 218));
+	background-image: -moz-linear-gradient(top, rgb(242, 242, 242), rgb(218, 218, 218));
+	background-image: -o-linear-gradient(top, rgb(242, 242, 242), rgb(218, 218, 218));
+	background-image: -ms-linear-gradient(top, rgb(242, 242, 242), rgb(218, 218, 218));
+	background-image: linear-gradient(top, rgb(242, 242, 242), rgb(218, 218, 218));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#f2f2f2', EndColorStr='#dadada');
+	border:1px solid #8c8c8c;
+	color: #666;
+	text-shadow: 0px 1px #e9e9e9;
+	height:24px;
+	font: 12px/22px "Helvetica Neue";
+	padding: 0px 6px;
+	text-decoration:none;
+	width:auto;
+	border: 1px solid #999;
+	box-shadow: inset 0px 1px rgba(255,255,255,0.35), 0px 1px rgba(255,255,255,0.2);
+	-webkit-box-shadow: inset 0px 1px rgba(255,255,255,0.35), 0px 1px rgba(255,255,255,0.2);
+	-moz-box-shadow: inset 0px 1px rgba(255,255,255,0.35), 0px 1px rgba(255,255,255,0.2);
+	border-radius:4px;
+	box-sizing: border-box;
+	display:inline-block;
+	margin-top:6px;
+    cursor: pointer;
+}
+
+.fyre-settings .fyre-button:active{
+	background-color: #e6e6e6;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(230, 230, 230)),to(rgb(203, 203, 203)));
+	background-image: -webkit-linear-gradient(top, rgb(230, 230, 230), rgb(203, 203, 203));
+	background-image: -moz-linear-gradient(top, rgb(230, 230, 230), rgb(203, 203, 203));
+	background-image: -o-linear-gradient(top, rgb(230, 230, 230), rgb(203, 203, 203));
+	background-image: -ms-linear-gradient(top, rgb(230, 230, 230), rgb(203, 203, 203));
+	background-image: linear-gradient(top, rgb(230, 230, 230), rgb(203, 203, 203));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#e6e6e6', EndColorStr='#cbcbcb');
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1), 0px 1px rgba(255,255,255,0.2);
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1), 0px 1px rgba(255,255,255,0.2);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1), 0px 1px rgba(255,255,255,0.2);
+	text-shadow: 0px 1px rgba(255,255,255,0.25), 0px 1px rgba(255,255,255,0.2);
+
+}
+
+.fyre-settings .fyre-button.green{
+	background-color:#499515;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(134, 194, 94)),to(rgb(90, 169, 41)));
+	background-image: -webkit-linear-gradient(top, rgb(134, 194, 94), rgb(90, 169, 41));
+	background-image: -moz-linear-gradient(top, rgb(134, 194, 94), rgb(90, 169, 41));
+	background-image: -o-linear-gradient(top, rgb(134, 194, 94), rgb(90, 169, 41));
+	background-image: -ms-linear-gradient(top, rgb(134, 194, 94), rgb(90, 169, 41));
+	background-image: linear-gradient(top, rgb(134, 194, 94), rgb(90, 169, 41));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#86c25e', EndColorStr='#5aa929');
+	border:1px solid #2f7907;
+	color: #fff;
+	text-shadow: 0px -1px rgba(0,0,0,0.2);
+	cursor:default;
+
+}
+
+.fyre-settings .fyre-button.green:active{
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1);
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.1);
+	background-color: #41900a;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(123, 177, 84)),to(rgb(67, 144, 23)));
+	background-image: -webkit-linear-gradient(top, rgb(123, 177, 84), rgb(67, 144, 23));
+	background-image: -moz-linear-gradient(top, rgb(123, 177, 84), rgb(67, 144, 23));
+	background-image: -o-linear-gradient(top, rgb(123, 177, 84), rgb(67, 144, 23));
+	background-image: -ms-linear-gradient(top, rgb(123, 177, 84), rgb(67, 144, 23));
+	background-image: linear-gradient(top, rgb(123, 177, 84), rgb(67, 144, 23));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#7bb154', EndColorStr='#439017');
+	border:1px solid #2c7207;
+	text-shadow:0px 1px 1px rgba(0,0,0,0.2);
+}
+.fyre-settings .fyre-status{
+	background-color: #f9f9f9;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(249, 249, 249)),to(rgb(226, 225, 226)));
+	background-image: -webkit-linear-gradient(top, rgb(249, 249, 249), rgb(226, 225, 226));
+	background-image: -moz-linear-gradient(top, rgb(249, 249, 249), rgb(226, 225, 226));
+	background-image: -o-linear-gradient(top, rgb(249, 249, 249), rgb(226, 225, 226));
+	background-image: -ms-linear-gradient(top, rgb(249, 249, 249), rgb(226, 225, 226));
+	background-image: linear-gradient(top, rgb(249, 249, 249), rgb(226, 225, 226));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#f9f9f9', EndColorStr='#e2e1e2');
+	border: 1px solid #999;
+	height: 16px;
+	width: 16px;
+	font: bold 14px/26px "Helvetica Neue";
+	border-radius: 50%;
+	box-shadow: inset 0px 1px rgba(255,255,255,0.2), 0px 1px 1px rgba(0,0,0,0.15);
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	display:inline-block;
+	float:left;
+	margin:0px 4px 0px 0px;
+	text-align: center;
+}
+.fyre-settings .fyre-status.slate{
+	background-color: #bbc5d6;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(187, 197, 214)),to(rgb(147, 160, 184)));
+	background-image: -webkit-linear-gradient(top, rgb(187, 197, 214), rgb(147, 160, 184));
+	background-image: -moz-linear-gradient(top, rgb(187, 197, 214), rgb(147, 160, 184));
+	background-image: -o-linear-gradient(top, rgb(187, 197, 214), rgb(147, 160, 184));
+	background-image: -ms-linear-gradient(top, rgb(187, 197, 214), rgb(147, 160, 184));
+	background-image: linear-gradient(top, rgb(187, 197, 214), rgb(147, 160, 184));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#bbc5d6', EndColorStr='#93a0b8');
+	border: 1px solid #65747f;
+	color: #445273;
+	text-shadow: 0px 1px rgba(255,255,255,0.15);
+
+}
+.fyre-settings .fyre-status.green {
+	background-color: #85c55d;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(133, 197, 93)),to(rgb(91, 169, 42)));
+	background-image: -webkit-linear-gradient(top, rgb(133, 197, 93), rgb(91, 169, 42));
+	background-image: -moz-linear-gradient(top, rgb(133, 197, 93), rgb(91, 169, 42));
+	background-image: -o-linear-gradient(top, rgb(133, 197, 93), rgb(91, 169, 42));
+	background-image: -ms-linear-gradient(top, rgb(133, 197, 93), rgb(91, 169, 42));
+	background-image: linear-gradient(top, rgb(133, 197, 93), rgb(91, 169, 42));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#85c55d', EndColorStr='#5ba92a');
+	border: 1px solid #3f7032;
+	color:#ffffff;
+	text-shadow: 0px 1px 1px rgba(0,0,0,0.35);
+}
+.fyre-settings .fyre-status.red{
+    background-color: #e75646;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(231, 86, 70)),to(rgb(185, 29, 18)));
+    background-image: -webkit-linear-gradient(top, rgb(231, 86, 70), rgb(185, 29, 18));
+    background-image: -moz-linear-gradient(top, rgb(231, 86, 70), rgb(185, 29, 18));
+    background-image: -o-linear-gradient(top, rgb(231, 86, 70), rgb(185, 29, 18));
+    background-image: -ms-linear-gradient(top, rgb(231, 86, 70), rgb(185, 29, 18));
+    background-image: linear-gradient(top, rgb(231, 86, 70), rgb(185, 29, 18));
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#e75646', EndColorStr='#b91d12');
+    border: 1px solid #950c0c;
+}
+.fyre-settings .fyre-header{
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.00)),to(rgba(0, 0, 0, 0.12)));
+	background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.12));
+	background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.12));
+	background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.12));
+	background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.12));
+	background-image: linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.12));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#000000', EndColorStr='#000000');
+	min-height:48px;
+	border-radius:6px 6px 0px 0px;
+	padding:8px;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-shadow: inset 0px 1px rgba(255,255,255,0.5);
+}
+
+.fyre-settings .fyre-footer{
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.00)),to(rgba(0, 0, 0, 0.07)));
+	background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.07));
+	background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.07));
+	background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.07));
+	background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.07));
+	background-image: linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.07));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#000000', EndColorStr='#000000');
+	padding: 0 0 0 6px;
+	border-top: 1px solid #999;
+	height:36px;
+	
+}
+.fyre-settings .fyre-title{
+	display:block;
+	font: bold 14px/16px "Helvetica Neue";
+	color: #444;
+	text-shadow: 0px 1px rgba(255,255,255,0.75);
+	
+}
+.fyre-settings .fyre-subtext{
+	display:block;
+	font: 12px/18px "Helvetica Neue";
+	color: #666;
+	text-shadow: 0px 1px rgba(255,255,255,0.75);
+}
+.fyre-settings .fyre-textfield{
+	height: 22px;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-khtml-appearance: none;
+	appearance: none;
+	border-radius: 4px;
+	border: 1px solid #a0a0a0;
+	background: #fff;
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.075), 0px 1px rgba(255,255,255,0.2);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.075), 0px 1px rgba(255,255,255,0.2);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.075), 0px 1px rgba(255,255,255,0.2);
+	outline: none;
+	font: 12px/12px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	margin: 0px 0px 0px 8px;
+	text-align: left;
+	padding: 0px 4px;
+	box-sizing:border-box;
+}
+.fyre-settings .fyre-progress-bar-container{
+	background-color: #8f8f8f;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(143, 143, 143)),to(rgb(167, 167, 167)));
+	background-image: -webkit-linear-gradient(top, rgb(143, 143, 143), rgb(167, 167, 167));
+	background-image: -moz-linear-gradient(top, rgb(143, 143, 143), rgb(167, 167, 167));
+	background-image: -o-linear-gradient(top, rgb(143, 143, 143), rgb(167, 167, 167));
+	background-image: -ms-linear-gradient(top, rgb(143, 143, 143), rgb(167, 167, 167));
+	background-image: linear-gradient(top, rgb(143, 143, 143), rgb(167, 167, 167));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#8f8f8f', EndColorStr='#a7a7a7');
+	width: 100%;
+	display:inline-block;
+	height: 12px;
+	border-radius: 6px;
+	margin-top: 8px;
+	border: 1px solid #777;
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.2), 0px 1px rgba(255,255,255,0.15);
+	box-sizing: border-box;
+}
+.fyre-settings .fyre-progress-bar{
+	background-color: #9edd83;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(158, 221, 131)),to(rgb(98, 204, 65)));
+	background-image: -webkit-linear-gradient(top, rgb(158, 221, 131), rgb(98, 204, 65));
+	background-image: -moz-linear-gradient(top, rgb(158, 221, 131), rgb(98, 204, 65));
+	background-image: -o-linear-gradient(top, rgb(158, 221, 131), rgb(98, 204, 65));
+	background-image: -ms-linear-gradient(top, rgb(158, 221, 131), rgb(98, 204, 65));
+	background-image: linear-gradient(top, rgb(158, 221, 131), rgb(98, 204, 65));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#9edd83', EndColorStr='#62cc41');
+	height: 12px;
+	width: 0;
+	position:relative;
+	top:-3px;
+	left:-1px;
+	border-radius: 6px;
+	border: none;
+	display:inline-block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-shadow: inset 0px 1px rgba(255,255,255,0.2), 0px 1px rgba(0,0,0,0.1);
+}

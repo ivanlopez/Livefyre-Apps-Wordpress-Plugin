@@ -15,7 +15,7 @@ define( 'LF_SYNC_MAX_INSERTS', 25 );
 define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
 define( 'LF_SYNC_MORE', 'more-data' );
 define( 'LF_SYNC_ERROR', 'error' );
-define( 'LF_PLUGIN_VERSION', '3.17' );
+define( 'LF_PLUGIN_VERSION', '3.51' );
 
 global $livefyre;
 
@@ -42,16 +42,32 @@ class Livefyre_core {
         $dopts = array(
             'livefyre_tld' => LF_DEFAULT_TLD
         );
+        $uses_default_tld = (strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0);
         $this->lf_domain_object = new Livefyre_Domain( $profile_domain, $client_key, null, $dopts);
+        $site_id = $this->ext->get_option( 'livefyre_site_id' );
+        $this->site = $this->lf_domain_object->site( 
+            $site_id, 
+            trim( $this->ext->get_option( 'livefyre_site_key' ) )
+        );
         $this->debug_mode = false;
         $this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? LF_DEFAULT_TLD : $profile_domain );
-
-        $this->http_url = ( strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0 ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
+        $this->http_url = ( $uses_default_tld ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
         $this->api_url = "http://api.$this->top_domain";
         $this->quill_url = "http://quill.$this->top_domain";
         $this->admin_url = "http://admin.$this->top_domain";
         $this->assets_url = "http://zor." . LF_DEFAULT_TLD;
         $this->bootstrap_url = "http://bootstrap.$this->top_domain";
+        
+        // for non-production environments, we use a dev url and prefix the path with env name
+        $bootstrap_domain = 'bootstrap-json-dev.s3.amazonaws.com';
+        $environment = $dopts['livefyre_tld'] . '/';
+        if ( $uses_default_tld ) {
+            $bootstrap_domain = 'data.bootstrap.fyre.co';
+            $environment = '';
+        }
+
+        $this->bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
+        
         $this->home_url = $this->ext->home_url();
         $this->plugin_version = LF_PLUGIN_VERSION;
 
@@ -138,13 +154,35 @@ class Livefyre_Activation {
     }
 
     function activate() {
-    
-        $blogname = $this->ext->get_option( 'livefyre_site_id', null );
+        $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
+        if ( $existing_blogname ) {
+            $site_id = $existing_blogname;
+            $existing_key = $this->ext->get_option( 'livefyre_secret', false );
+            $this->ext->update_option( 'livefyre_site_id', $site_id );
+            $this->ext->delete_option( 'livefyre_blogname' );
+            $this->ext->update_option( 'livefyre_site_key', $existing_key );
+            $this->ext->delete_option( 'livefyre_secret' );
+        } else {
+            $site_id = $this->ext->get_option( 'livefyre_site_id', false );
+        }
         if ( !$this->ext->get_network_option( 'livefyre_domain_name', false ) ) {
             // Initialize default profile domain i.e. livefyre.com
             $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         }
-    
+        if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
+            // Set a flag to show the 'hey you just upgraded' (or installed) flash message
+            // Set the timestamp so we know which posts use V2 vs V3
+            if ( $site_id ) {
+                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp') );
+                $this->ext->update_option( 'livefyre_v3_notify_upgraded', 1 );
+            } else {
+                // !IMPORTANT
+                // livefyre_v3_installed == 0 is used elsewhere to determine if this
+                // installation was derived from a former V2 installation
+                $this->ext->update_option( 'livefyre_v3_installed', 0 );
+                $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
+            }
+        }
     }
 
     function reset_caches() {

@@ -49,6 +49,8 @@ Visit the [Livefyre FAQ](http://support.livefyre.com) or e-mail us at
 support@livefyre.com.
 
 == Changelog ==
+= 3.52 =
+* Fixes some issues with comment count, increases site sync request timeout to improve reliability.
 = 3.50 =
 * Implements the Livefyre V3 comments platform Beta.
 = 3.12 =

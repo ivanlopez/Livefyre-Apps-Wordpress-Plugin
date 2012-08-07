@@ -18,8 +18,8 @@ define( 'LF_AMETA_PREFIX', 'livefyre_amap_' );
 define( 'LF_DEFAULT_HTTP_LIBRARY', 'Livefyre_Http_Extension' );
 define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
 define( 'LF_POST_META_KEY', 'livefyre_version' );
-define( 'LF_POST_META_DEFAULT_DISPLAY_VALUE', '1' );
-define( 'LF_POST_META_DEFAULT_POST_VALUE', '3' );
+define( 'LF_POST_META_USE_V1', '1' );
+define( 'LF_POST_META_USE_V3', '3' );
 
 class Livefyre_Application {
 
@@ -27,8 +27,8 @@ class Livefyre_Application {
     
         $this->lf_core = $lf_core;
         
-        add_action('publish_page', array(&$this, 'handle_page_publish'));
-        add_action('publish_post', array(&$this, 'handle_post_publish'));
+        add_action('publish_page', array(&$this, 'handle_publish'));
+        add_action('publish_post', array(&$this, 'handle_publish'));
 
     }
 
@@ -91,32 +91,45 @@ class Livefyre_Application {
     }
 
     function get_post_version( $postId ) {
-        $version = $this->get_post_option( $postId, LF_POST_META_KEY );
+        $installed = (int) $this->get_option('livefyre_v3_installed', 0);
+        if ( $installed == 0 ) {
+            // $installed == 0 means they never used V2 - short-circuit the check
+            return LF_POST_META_USE_V3;
+        }
+        $version = $this->get_post_option( $postId, LF_POST_META_KEY, '' );
+        $update = false;
         if ( $version == '' ) {
-            $version = LF_POST_META_DEFAULT_DISPLAY_VALUE;
+            $version = ( $this->post_uses_v3( $postId ) ? LF_POST_META_USE_V3 : LF_POST_META_USE_V1 );
+            $update = true;
         } else if ( $version == 'LF_POST_META_DEFAULT_VALUE' ) {
             // MarkD: This is to fix a previous version that was setting the post value to a
             // non-existent variable, thus making all widgets use v1.
-            $version = LF_POST_META_DEFAULT_POST_VALUE;
-            $this->update_post_option( $postId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
+            $version = LF_POST_META_USE_V3;
+            $update = true;
+        }
+        if ($update) {
+            $this->update_post_option( $postId, LF_POST_META_KEY, $version );
         }
         return $version;
+    }
+    
+    function post_uses_v3($post_id) {
+        $published = (int) get_the_time( 'U', $post_id );
+        $installed = (int) $this->get_option( 'livefyre_v3_installed', 0 );
+        return ( $installed < $published );
     }
 
     /**
      * Set an property on the post telling it which version of the Livefyre widget to load.
      * $postId: The ID of the post to set the property on.
      */
-    function handle_post_publish( $postId ) {
-        $this->update_post_option( $postId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
-    }
-
-    /**
-     * Set an property on the page telling it which version of the Livefyre widget to load.
-     * $pageId: The ID of the page to set the property on.
-     */
-    function handle_page_publish( $pageId ) {
-        $this->update_post_option( $pageId, LF_POST_META_KEY, LF_POST_META_DEFAULT_POST_VALUE );
+    function handle_publish( $post_id ) {
+        if ( $parent_id = wp_is_post_revision( $post_id ) ) {
+            $post_id = $parent_id;
+        }
+        if ( $this->post_uses_v3($post_id) ) {
+            $this->update_post_option( $post_id, LF_POST_META_KEY, LF_POST_META_USE_V3 );
+        }
     }
     
     function reset_caches() {
@@ -427,20 +440,38 @@ class Livefyre_Application {
 
     function insert_comment( $data ) {
 
-        return wp_insert_comment( $this->sanitize_inputs( $data ) );
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_insert_comment', array( $sanitary_data ) );
 
     }
 
     function update_comment( $data ) {
 
-        return wp_update_comment( $this->sanitize_inputs( $data ) );
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_update_comment', array( $sanitary_data ) );
 
+    }
+    
+    function without_wp_notifications( $func_name, $args ) {
+    
+        $old_notify_setting = get_option( 'comments_notify', false );
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', '' );
+        }
+        $ret_val = call_user_func_array( $func_name, $args );
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', $old_notify_setting );
+        }
+        return $ret_val;
+    
     }
     
     function update_comment_status( $app_comment_id, $status ) {
     
         // Livefyre says unapproved, WordPress says hold.
-        wp_set_comment_status( $app_comment_id, ( $status == 'unapproved' ? 'hold' : $status) );
+        $wp_status = ( $status == 'unapproved' ? 'hold' : $status );
+        $args = array( $app_comment_id, $wp_status );
+        $this->without_wp_notifications( 'wp_set_comment_status', $args );
     
     }
 
@@ -479,6 +510,7 @@ class Livefyre_Admin {
         add_action( 'admin_notices', array( &$this, 'lf_install_warning') );
         add_action( 'admin_notices', array( &$this->lf_core->Import, 'admin_import_notice' ) );
         add_action( 'admin_init', array( &$this, 'site_options_init' ) );
+        add_action( 'admin_init', array( &$this->lf_core->Admin, 'plugin_upgrade' ) );
         /*
          * Removing this for V2.0.1
         add_action( 'admin_init', array( &$this, 'network_options_init' ) );
@@ -495,6 +527,18 @@ class Livefyre_Admin {
         add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
         add_action( 'edit_user_profile_update', array( &$this, 'edit_user_profile_update' ) );
         */
+    }
+    
+    function plugin_upgrade() {
+    
+        // We have to way to hook into an action that happens on auto-upgrade.
+        // This is the work-around for that.
+        if ( get_option( 'livefyre_v3_installed', false ) === false ) {
+           $this->lf_core->Activation->activate();
+        } else if ( get_option( 'livefyre_blogname', false ) !== false ) {
+           $this->lf_core->Activation->activate();
+        }
+    
     }
 
     function get_notify_default( $notify_type ) {
@@ -636,7 +680,7 @@ class Livefyre_Admin {
         register_setting($settings_section, 'livefyre_site_id');
         register_setting($settings_section, 'livefyre_site_key');
         
-        if( $this->livefyre_returned_from_setup() )
+        if( $this->returned_from_setup() )
         {
             $this->ext->update_network_option("livefyre_site_id", $_GET["site_id"] );
             $this->ext->update_network_option("livefyre_site_key", $_GET["secretkey"] );
@@ -677,12 +721,8 @@ class Livefyre_Admin {
                         if ( !$this->allow_domain_settings() ) {
                             $this->network_options_page();
                         }
-                        settings_fields( 'livefyre_site_options' );
-                        do_settings_sections( 'livefyre' );
+                        include( dirname(__FILE__) . '/settings-template.php');
                     ?>
-                    <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
-                    </p>
                 </form>
             </div>
         <?php
@@ -861,6 +901,10 @@ class Livefyre_Admin {
 
     }
     
+    static function lf_warning_display( $message ) {
+        echo '<div id="livefyre-warning" class="updated fade"><p>' . $message . '</p></div>';
+    }
+    
     function lf_install_warning() {
         $livefyre_http_url = $this->lf_core->http_url;
         $livefyre_site_domain = "rooms." . LF_DEFAULT_PROFILE_DOMAIN;
@@ -870,16 +914,38 @@ class Livefyre_Admin {
         } else {
             $home_url=$this->ext->get_option('home');
         }
-        if (is_admin() && $_GET["page"] === "livefyre")
+        
+        if ( is_admin() )
         {
-            if ( $this->ext->get_option('livefyre_site_id', null) == null && !$this->livefyre_returned_from_setup()) {
-                echo "<div id='livefyre-warning' class='updated fade'><p><strong>" . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.$livefyre_http_url.'/installation/logout?site_url='.urlencode($home_url).'&domain='.$livefyre_site_domain.'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.'  . '</p></div>';
+            $site_settings = $this->ext->get_option('livefyre_site_id', false);
+            $message = false;
+            if ( $site_settings ) {
+                if ( $this->is_settings_page() ) {
+                    return;
+                }
+                if ( $this->ext->get_option('livefyre_v3_notify_installed', false) ) {
+                    $message = "Thanks for installing the new Livefyre plugin featuring Livefyre Comments 3! Visit your <a href=\"./options-general.php?page=livefyre\">Livefyre settings</a> to import your old comments.";
+                } elseif ( $this->ext->get_option('livefyre_v3_notify_upgraded', false) ) {
+                    $message = "Thanks for upgrading to the latest Livefyre plugin. Create a new post to try out the new features in Livefyre Comments 3.";
+                }
+                if ($message) {
+                    $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
+                }
+            } elseif (!$this->returned_from_setup()) {
+                $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.$livefyre_http_url.'/installation/logout?site_url='.urlencode($home_url).'&domain='.$livefyre_site_domain.'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
+            }
+            if ($message) {
+                echo Livefyre_Admin::lf_warning_display($message);
             }
         }
     }
     
-    function livefyre_returned_from_setup() {
+    function returned_from_setup() {
         return (isset($_GET['lf_login_complete']) && $_GET['lf_login_complete']=='1');
+    }
+    
+    function is_settings_page() {
+        return (isset($_GET['page']) && $_GET['page'] == 'livefyre');
     }
 
 }
@@ -940,12 +1006,13 @@ class Livefyre_Display {
                 }
             }
             $domain = $this->lf_core->lf_domain_object;
-            $site = $domain->site( $this->ext->get_option( 'livefyre_site_id' ), trim( $this->ext->get_option( 'livefyre_site_key' ) ), '' );
+            $site = $this->lf_core->site;
             $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id) );
             $conv = $article->conversation();
             $use_backplane = $this->ext->get_network_option( 'livefyre_use_backplane', false );
             $initcfg = array();
             $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
+            $initcfg['betaBanner'] = ($profile_sys == 'livefyre');
             if ( !$use_backplane && $network != LF_DEFAULT_PROFILE_DOMAIN) {
                 if ( is_user_logged_in() && $profile_sys == 'wordpress' ) {
                     echo $domain->authenticate_js_v3( '?livefyre_token_request=1', '/' );
