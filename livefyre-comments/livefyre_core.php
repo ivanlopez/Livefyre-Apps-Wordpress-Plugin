@@ -276,7 +276,7 @@ class Livefyre_Sync {
         $qstring = 'page_size=' . $inserts_remaining . '&sig_created=' . time();
         $key = $this->ext->get_option( 'livefyre_site_key' );
         $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
-        $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 15) );
+        $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 120) );
         if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
             $str_comments = $http_result['body'];
         } else {
