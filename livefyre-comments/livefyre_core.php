@@ -8,7 +8,7 @@ Author: Livefyre, Inc.
 Author URI: http://livefyre.com/
 */
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
-define( 'LF_DEFAULT_TLD', 'livefyre.com' );
+define( 'LF_DEFAULT_TLD', 'usea1d6.livefyre.com' );
 define( 'LF_SYNC_LONG_TIMEOUT', 25200 );
 define( 'LF_SYNC_SHORT_TIMEOUT', 3 );
 define( 'LF_SYNC_MAX_INSERTS', 25 );
@@ -37,8 +37,8 @@ class Livefyre_core {
             'livefyre_site_key' // - shared key used to sign requests to/from livefyre
         );
 
-        $client_key = $this->ext->get_network_option( 'livefyre_domain_key', '' );
-        $profile_domain = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+        $client_key = $this->ext->get_option( 'livefyre_domain_key', '' );
+        $profile_domain = $this->ext->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         $dopts = array(
             'livefyre_tld' => LF_DEFAULT_TLD
         );
@@ -93,10 +93,8 @@ class Livefyre_core {
         $this->Health_Check = new Livefyre_Health_Check( $this );
         $this->Activation = new Livefyre_Activation( $this );
         $this->Sync = new Livefyre_Sync( $this );
-        $this->Import = new Livefyre_Import( $this );
         $this->Admin = new Livefyre_Admin( $this );
         $this->Display = new Livefyre_Display( $this );
-        $this->Federation = new Livefyre_Federation( $this );
 
     }
 
@@ -154,35 +152,13 @@ class Livefyre_Activation {
     }
 
     function activate() {
-        $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
-        if ( $existing_blogname ) {
-            $site_id = $existing_blogname;
-            $existing_key = $this->ext->get_option( 'livefyre_secret', false );
-            $this->ext->update_option( 'livefyre_site_id', $site_id );
-            $this->ext->delete_option( 'livefyre_blogname' );
-            $this->ext->update_option( 'livefyre_site_key', $existing_key );
-            $this->ext->delete_option( 'livefyre_secret' );
-        } else {
-            $site_id = $this->ext->get_option( 'livefyre_site_id', false );
-        }
-        if ( !$this->ext->get_network_option( 'livefyre_domain_name', false ) ) {
+    
+        if ( !$this->ext->get_option( 'livefyre_domain_name', false ) ) {
             // Initialize default profile domain i.e. livefyre.com
-            $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+            $this->ext->update_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         }
-        if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
-            // Set a flag to show the 'hey you just upgraded' (or installed) flash message
-            // Set the timestamp so we know which posts use V2 vs V3
-            if ( $site_id ) {
-                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp') );
-                $this->ext->update_option( 'livefyre_v3_notify_upgraded', 1 );
-            } else {
-                // !IMPORTANT
-                // livefyre_v3_installed == 0 is used elsewhere to determine if this
-                // installation was derived from a former V2 installation
-                $this->ext->update_option( 'livefyre_v3_installed', 0 );
-                $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
-            }
-        }
+        $this->reset_caches();
+    
     }
 
     function reset_caches() {
@@ -192,54 +168,6 @@ class Livefyre_Activation {
     }
 
 }
-
-/* START: This code not approved by automattic, yet */
-class Livefyre_Federation {
-    
-    function __construct( $lf_core ) {
-
-        $this->lf_core = $lf_core;
-        $this->ext = $lf_core->ext;
-        $this->ext->setup_federation( $this );
-
-    }
-    
-    function token_request_handler() {
-    
-         // If the request signature matches what we expect, 
-         // echo a token for the currently logged-in user and die()
-         if ( !isset( $_GET[ 'livefyre_token_request' ] ) ) {
-              return;
-         }
-         
-         if ( isset( $_GET[ 'callback' ] ) ) {
-              header( "Content-type: text/javascript" );
-              echo $_GET[ 'callback' ] . '(' . $this->userauth_json() . ')';
-         } else {
-              header( "Content-type: application/json" );
-              echo $this->userauth_json();
-         }
-         die();
-         
-    }
-    
-    function userauth_json() {
-
-        $domain = $this->lf_core->lf_domain_object;
-        $user_id = $this->ext->get_current_user_attr( "id" );
-        $display_name = $this->ext->get_current_user_attr( "display_name" );
-        if ( $user_id == null ) {
-            // Someone asked for a token but they're not logged in,
-            // respond empty since there is no token to render
-            return null;
-        }
-        $user = $domain->user( $user_id, $display_name );
-        return $user->auth_json();
-
-    }
-    
-}
-/* END: This code not approved by automattic, yet */
 
 class Livefyre_Sync {
     
@@ -368,40 +296,6 @@ class Livefyre_Sync {
         }
     
     }
-    
-    /* START: This code not approved by automattic, yet */
-    function profile_update( $user_id ) {
-        
-        $systemuser = $this->lf_core->lf_domain_object->user( 'system' );
-        $systemuser->push( $this->ext->profile_update_data( $user_id ) );
-
-    }
-
-    function check_profile_pull() {
-
-        if ( ! $this->is_signed_profile_pull() )
-            return;
-
-        $domain = $this->lf_core->lf_domain_object;
-        $server_token = base64_decode( $_GET[ 'server_token' ] );
-        header( 'Content-type: application/json' );
-        if ( $domain->validate_server_token( $server_token ) ) {
-            // Everything looks good, we respond with the current user's details.
-            $lf_user_info = $this->ext->profile_pull_data();
-            echo json_encode($lf_user_info);
-        } else {
-            echo '{"error":"Invalid Signature using PSK."}';
-        }
-        exit();
-
-    }
-    /* END: This code not approved by automattic, yet */
-
-    function save_post( $post_id ) {
-
-        $this->ext->save_post( $post_id );
-    
-    }
 
     function post_param( $name, $plain_to_html = false, $default = null ) {
 
@@ -415,20 +309,6 @@ class Livefyre_Sync {
 
     }
     
-    /* START: This code not approved by automattic, yet */
-    function is_signed_profile_pull() {
-    
-        return ( 
-            isset( $_GET[ 'lf_profile_pull_request' ] )
-            && 
-            ( $_GET[ 'lf_profile_pull_request' ] == '1' )
-            &&
-            isset( $_GET[ 'server_token' ] )
-        );
-    
-    }
-    /* END: This code not approved by automattic, yet */
-
     function site_rest_url() {
 
         return $this->lf_core->http_url . '/site/' . $this->ext->get_option( 'livefyre_site_id' );
