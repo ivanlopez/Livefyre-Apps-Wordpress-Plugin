@@ -8,14 +8,14 @@ Author: Livefyre, Inc.
 Author URI: http://livefyre.com/
 */
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
-define( 'LF_DEFAULT_TLD', 'usea1d6.livefyre.com' );
+define( 'LF_DEFAULT_TLD', 'livefyre.com' );
 define( 'LF_SYNC_LONG_TIMEOUT', 25200 );
 define( 'LF_SYNC_SHORT_TIMEOUT', 3 );
 define( 'LF_SYNC_MAX_INSERTS', 25 );
 define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
 define( 'LF_SYNC_MORE', 'more-data' );
 define( 'LF_SYNC_ERROR', 'error' );
-define( 'LF_PLUGIN_VERSION', '3.51' );
+define( 'LF_PLUGIN_VERSION', '1.0' );
 
 global $livefyre;
 

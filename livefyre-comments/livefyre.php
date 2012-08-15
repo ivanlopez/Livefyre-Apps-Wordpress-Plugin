@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: Livefyre Realtime Comments
+Plugin Name: Livefyre Comments 3
 Plugin URI: http://livefyre.com/wordpress#
-Description: Implements livefyre realtime comments for WordPress
+Description: Implements Livefyre Comments 3 for WordPress VIP
 Author: Livefyre, Inc.
-Version: 3.52
+Version: 1.0
 Author URI: http://livefyre.com/
 */
 
@@ -15,10 +15,6 @@ require_once( dirname( __FILE__ ) . "/livefyre_core.php" );
 define( 'LF_CMETA_PREFIX', 'livefyre_cmap_' );
 define( 'LF_AMETA_PREFIX', 'livefyre_amap_' );
 define( 'LF_DEFAULT_HTTP_LIBRARY', 'Livefyre_Http_Extension' );
-define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
-define( 'LF_POST_META_KEY', 'livefyre_version' );
-define( 'LF_POST_META_USE_V1', '1' );
-define( 'LF_POST_META_USE_V3', '3' );
 
 class Livefyre_Application {
 
