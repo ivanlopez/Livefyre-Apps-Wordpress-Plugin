@@ -1,8 +1,12 @@
-#! /bin/sh
+#! /bin/bash
+
+echo "$@" | grep -o -- '--force' && ARG_FORCE=true || ARG_FORCE=false
 
 # Check output file
 OUTPUTFILE="livefyre-`sed 's/\./_/' version`.zip"
-if [ -f $OUTPUTFILE ]; then
+if $ARG_FORCE; then
+    echo "Forcing overwrite of $OUTPUTFILE."
+elif [ -f $OUTPUTFILE ]; then
     echo "Cannot overwrite, please remove existing plugin:"
     echo "(eg: rm $OUTPUTFILE)"
     exit 1
