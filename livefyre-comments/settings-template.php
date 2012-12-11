@@ -101,6 +101,7 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
             <ul class="fyre-list">
                 <li class="fyre-list">Livefyre Site ID: <strong><?php echo get_option('livefyre_site_id') ?></strong></li>
                 <li class="fyre-list">Livefyre Site Key: <strong><?php echo get_option('livefyre_site_key') ?></strong></li>
+                <li class="fyre-list">Livefyre Admin URL: <a href="http://livefyre.com/admin">Admin Panel</a></li>
             </ul>
         </div>
     </div>
