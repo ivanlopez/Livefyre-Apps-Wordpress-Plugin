@@ -69,7 +69,6 @@ function checkStatusLF(){
                     message = "Still working here. Thanks for your patience.";
                 }
                 document.getElementById("livefyre-import-text").innerHTML = stub + message;
-                document.getElementById("livefyre-test-time").innerHTML = "seconds: " + ((count-1)*5);
         }
         if (status === 'complete') {
             window.location.href = window.location.href.split('?')[0] + '?page=livefyre';
@@ -179,8 +178,7 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
                         <div id="circleG_3" class="circleG"></div>
                         <div style="clear:both"></div>
                     </div>
-                    <p id="livefyre-import-text">Importing Comments!</p>
-                    <p id="livefyre-test-time">Before</p>
+                    <p id="livefyre-import-text">Warming up the engine...</p>
 
                 </div>
             </div>
