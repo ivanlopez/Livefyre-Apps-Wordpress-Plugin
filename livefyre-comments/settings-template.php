@@ -89,7 +89,6 @@ function livefyre_start_ajax(iv) {
 
 <?php
 $status = get_option('livefyre_import_status','');
-$status = "test";
 if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
     //only report status of the import
     ?>
