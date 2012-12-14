@@ -22,7 +22,7 @@ if (isset($_GET['status'])) {
 //Lightweight JSONP fetcher - www.nonobtrusive.com
 var JSONP=(function(){var a=0,c,f,b,d=this;function e(j){var i=document.createElement("script"),h=false;i.src=j;i.async=true;i.onload=i.onreadystatechange=function(){if(!h&&(!this.readyState||this.readyState==="loaded"||this.readyState==="complete")){h=true;i.onload=i.onreadystatechange=null;if(i&&i.parentNode){i.parentNode.removeChild(i)}}};if(!c){c=document.getElementsByTagName("head")[0]}c.appendChild(i)}function g(h,j,k){f="?";j=j||{};for(b in j){if(j.hasOwnProperty(b)){f+=b+"="+j[b]+"&"}}var i="json"+(++a);d[i]=function(l){k(l);d[i]=null;try{delete d[i]}catch(m){}};e(h+f+"callback="+i);return i}return{get:g}}());
 
-var count = 0;
+var secondsPassed = 0;
 var stub = "Progress: ";
 
 function checkStatusLF(){
@@ -43,26 +43,26 @@ function checkStatusLF(){
                 break;
             
             default:
-                count++;
-                if(count <= 4) {
+                secondsPassed++;
+                if(secondsPassed <= 20) {
                     message = "Warming up the engine...";
                 }
-                else if(count >= 4 && count < 12) {
+                else if(secondsPassed >= 20 && secondsPassed < 60) {
                     message = "Starting the move...";
                 }
-                else if(count >= 12 && count < 60) {
+                else if(secondsPassed >= 60 && secondsPassed < 30) {
                     message = "Hang tight, work in progress...";
                 }
-                else if(count >= 60 && count < 120) {
+                else if(secondsPassed >= 300 && secondsPassed < 600) {
                     message = "We're still cranking away!";
                 }
-                else if(count >= 120 && count < 360) {
+                else if(secondsPassed >= 600 && secondsPassed < 1800) {
                     message = "Maybe it's time for a candy bar.";
                 }
-                else if(count >= 360 && count < 540) {
+                else if(secondsPassed >= 1800 && secondsPassed < 2700) {
                     message = 'In the meantime, check out our Facebook page at <a href="http://www.facebook.com/livefyre">facebook.com/livefyre</a>';
                 }
-                else if(count >= 540 && count < 720) {
+                else if(secondsPassed >= 2700 && secondsPassed < 3600) {
                     message = "Boy, you have one popular website...";
                 }
                 else {
@@ -93,7 +93,7 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
     //only report status of the import
     ?>
     <script type="text/javascript">
-        livefyre_start_ajax(5000);
+        livefyre_start_ajax(1000);
     </script>
     <?php
 }
