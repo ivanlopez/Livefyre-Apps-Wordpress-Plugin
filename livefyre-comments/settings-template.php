@@ -172,13 +172,13 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
                     <span class="fyre-subtext">
                         Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.  As your comments are being imported the status will be displayed bere.   If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed by Livefyre.
                     </span>
+                    <p id="livefyre-import-text">Warming up the engine...</p>
                     <div id="circleG">
                         <div id="circleG_1" class="circleG"></div>
                         <div id="circleG_2" class="circleG"></div>
                         <div id="circleG_3" class="circleG"></div>
                         <div style="clear:both"></div>
                     </div>
-                    <p id="livefyre-import-text">Warming up the engine...</p>
 
                 </div>
             </div>
