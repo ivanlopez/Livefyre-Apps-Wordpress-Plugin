@@ -722,19 +722,19 @@ class Livefyre_Admin {
 
     function site_id_callback() {
     
-        echo "<input name='livefyre_site_id' value='" . get_option( 'livefyre_site_id' ) ."' />";
+        echo "<input name='livefyre_site_id' value='" . get_option( 'livefyre_site_id' ) . "' />";
         
     }
     
     function site_key_callback() { 
     
-        echo "<input name='livefyre_site_key' value='" . get_option( 'livefyre_site_key' ) ."' />";
+        echo "<input name='livefyre_site_key' value='" . get_option( 'livefyre_site_key' ) . "' />";
         
     }
 
     function site_admin_url_callback() {
 
-        echo "<input name='livefyre_admin_url' value=livefyre.com/admin/>";
+        echo "<input name='livefyre_admin_url' value=" . $this->lf_core->lf_domain_object.get_livefyre_tld() . "/>";
 
     }
 
