@@ -102,7 +102,7 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
 
 <div class="fyre-settings">
     <div class="fyre-container-base">
-        <div class="fyre-container">
+        <div class="fyre-container-list">
             <ul class="fyre-list">
                 <li class="fyre-list">Livefyre Site ID: <strong><?php echo get_option('livefyre_site_id') ?></strong></li>
                 <li class="fyre-list">Livefyre Site Key: <strong><?php echo get_option('livefyre_site_key') ?></strong></li>
