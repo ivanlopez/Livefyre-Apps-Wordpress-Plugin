@@ -183,6 +183,7 @@ class Livefyre_Activation {
                 $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
             }
         }
+        $this->ext->setup_sync_check( $this );
     }
 
     function reset_caches() {
