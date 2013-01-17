@@ -140,20 +140,20 @@ class Livefyre_Application {
     /*
     * To alleviate site_syncs not firing, check to make sure they are set up
     */
-    function setup_sync_check( $Obj ) {
+    function setup_sync_check() {
         
-        add_action('check_for_sync', 'check_site_sync');
-        wp_schedule_event(time(), 'hourly', 'check_for_sync');
+        add_action( 'check_for_sync', 'check_site_sync' );
+        wp_schedule_event( time(), 'hourly', 'check_for_sync' );
     }
 
     /*
     * Is there a site sync scheduled? (There should be...) If not schedule one for 7 hours down the road
     */
-    function check_site_sync ( $Obj ) {
+    function check_site_sync() {
 
         $hook = 'livefyre_sync';
-        $this->debug_log( time() . " checking for a site sync");
-        if ( !wp_next_scheduled($hook) ) {
+        $this->debug_log( time() . " checking for a site sync" );
+        if ( !wp_next_scheduled( $hook ) ) {
             $this->debug_log( time() . " missed a site_sync for some reason. Rescheduling sync to occur in $timeout" );
             wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
         }
