@@ -148,7 +148,7 @@ class Livefyre_Activation {
     }
 
     function deactivate() {
-
+        $this->ext->update_option( 'livefyre_import_status', "" );
         $this->reset_caches();
 
     }
