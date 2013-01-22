@@ -369,7 +369,7 @@ class Livefyre_Application {
                 'tags' => $tagStr,
                 'sig' => getHmacsha1Signature(base64_decode(trim(get_option('livefyre_site_key'))), "sig_created=$sig_created")
             );
-            $http = $this->lf_core->lf_domain_object->http;
+            $http = $this->lf_core->lf_domain_object->http; 
             $http->request( $url, array( 'data' => $postdata, 'method' => 'POST' ) );
         }
     
@@ -1115,3 +1115,5 @@ class Livefyre_Http_Extension {
 
 
 $livefyre = new Livefyre_core;
+
+?>
