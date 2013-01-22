@@ -113,7 +113,8 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
     </div>
 
     <?php
-    $import_status = get_option('livefyre_import_status','');
+    $import_status = get_option( 'livefyre_import_status', '' );
+    $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
     if (get_option('livefyre_site_id','') == '' || get_option( 'livefyre_v3_installed', null) != 0) {
         // Don't allow the status sections if there isn't a site
         // The second condition hides the button to start an import, if this was an upgrade from V2
@@ -179,6 +180,23 @@ if (!in_array($status, array('', 'error', 'csv_uploaded'))) {
             </div>
         </div>
         <?php
+        if ($upgrade_status == 'success') {
+            update_option( 'livefyre_backend_upgrade', 'sent' );
+            ?>
+            <div class="fyre-container-base" id="fyre-start">
+                <div class="fyre-container">
+                    <div class="fyre-header">
+                        <div class="fyre-status slate"></div>
+                        <span id="fyre-progress-title" class="fyre-title"></span>
+
+                        <span class="fyre-subtext">
+                            We are transfering over old Comments 2 conversations and comments to be upgraded into Comments 3. Please note that conversations on Comments 2 created before July 2012 will need to be upgraded.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        <?php
+        }
     } else {
         ?>
         <div class="fyre-container-base" id="fyre-start">
