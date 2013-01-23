@@ -27,6 +27,7 @@ class Livefyre_Application {
     
         $this->lf_core = $lf_core;
         
+        add_action( 'livefyre_check_for_sync', 'check_site_sync' );
         add_action('publish_page', array(&$this, 'handle_publish'));
         add_action('publish_post', array(&$this, 'handle_publish'));
 
@@ -137,7 +138,7 @@ class Livefyre_Application {
 
     }
 
-    add_action( 'livefyre_check_for_sync', 'check_site_sync' );
+
     /*
     * To alleviate site_syncs not firing, check to make sure they are set up
     */
