@@ -185,22 +185,22 @@ class Livefyre_Activation {
         }
 
         $backend_upgrade = $this->ext->get_option('livefyre_backend_upgrade', 'not_started');
-        if ( $backend_upgrade == 'not_started') {
+        if ( $backend_upgrade == 'not_started' ) {
             # Need to upgrade the backend for this plugin. It's never been done for this site.
             # Since this only happens once, notify the user and then run it.
             $url = $this->lf_core->quill_url . '/import/wordpress/' . $site_id . '/upgrade';
             $http = $this->lf_core->lf_domain_object->http;
 
-            $resp = $http->request($url);
-            if (is_wp_error($resp)) {
-                update_option( 'livefyre_backend_upgrade', 'error');
-                update_option( 'livefyre_backend_msg', $response->get_error_message());
+            $resp = $http->request( $url, array( 'timeout' => 10 ) );
+            if ( is_wp_error( $resp ) ) {
+                update_option( 'livefyre_backend_upgrade', 'error' );
+                update_option( 'livefyre_backend_msg', $resp->get_error_message() );
             } else {
-                $json = json_decode($resp);
+                $json = json_decode( $resp );
                 $status = $json->status;
                 $message = $json->msg;
-                update_option( 'livefyre_backend_upgrade', $status);
-                update_option( 'livefyre_backend_msg', $message);
+                update_option( 'livefyre_backend_upgrade', $status );
+                update_option( 'livefyre_backend_msg', $message );
             }
         }
         $this->ext->setup_sync_check();
