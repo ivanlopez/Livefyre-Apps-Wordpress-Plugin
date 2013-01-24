@@ -3,6 +3,18 @@
 global $livefyre_comment_filter_enabled;
 global $wpdb;
 
+if ( !function_exists( 'debug_log' ) ) {
+    function debug_log( $message ) {
+        if ( WP_DEBUG === true ) {
+            if ( is_array( $message ) || is_object( $message ) ) {
+                error_log( print_r( $message, true ) );
+            } else {
+                error_log( $message );
+            }
+        }
+    }
+}
+
 class Livefyre_Import {
     
     function __construct( $lf_core ) {
@@ -29,6 +41,9 @@ class Livefyre_Import {
     }
 
     public function begin() {
+
+        debug_log( "Livefyre: Beginning an import process." );
+
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
             return;
         }
