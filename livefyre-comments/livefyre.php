@@ -21,15 +21,25 @@ define( 'LF_POST_META_KEY', 'livefyre_version' );
 define( 'LF_POST_META_USE_V1', '1' );
 define( 'LF_POST_META_USE_V3', '3' );
 
+if ( !function_exists( 'debug_log' ) ) {
+    function debug_log( $message ) {
+        if ( WP_DEBUG === true ) {
+            if ( is_array( $message ) || is_object( $message ) ) {
+                error_log( print_r( $message, true ) );
+            } else {
+                error_log( $message );
+            }
+        }
+    }
+}
+
 class Livefyre_Application {
 
     function __construct( $lf_core ) {
     
         $this->lf_core = $lf_core;
-        
-        add_action( 'livefyre_check_for_sync', 'check_site_sync' );
-        add_action('publish_page', array(&$this, 'handle_publish'));
-        add_action('publish_post', array(&$this, 'handle_publish'));
+        add_action( 'publish_page', array( &$this, 'handle_publish' ) );
+        add_action( 'publish_post', array( &$this, 'handle_publish' ) );
 
     }
 
@@ -138,28 +148,6 @@ class Livefyre_Application {
 
     }
 
-
-    /*
-    * To alleviate site_syncs not firing, check to make sure they are set up
-    */
-    function setup_sync_check() {
-        
-        wp_schedule_event( time(), 'hourly', 'livefyre_check_for_sync' );
-    }
-
-    /*
-    * Is there a site sync scheduled? (There should be...) If not schedule one for 7 hours down the road
-    */
-    function check_site_sync() {
-
-        $hook = 'livefyre_sync';
-        $this->debug_log( time() . " checking for a site sync" );
-        if ( !wp_next_scheduled( $hook ) ) {
-            $this->debug_log( time() . " missed a site_sync for some reason. Rescheduling sync to occur in $timeout" );
-            wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
-        }
-    }
-
     function setup_sync( $obj ) {
 
         add_action( 'livefyre_sync', array( &$obj, 'do_sync' ) );
@@ -223,16 +211,6 @@ class Livefyre_Application {
         
     }
     /* END: Public Plugin Only */
-
-    function debug_log( $debugStr ) {
-
-        if ( $this->lf_core->debug_mode ) {
-            // disabled for production
-            return true;
-        }
-        return false;
-    
-    }
 
     /* START: Public Plugin Only */
     
@@ -400,12 +378,10 @@ class Livefyre_Application {
     }
     
     function schedule_sync( $timeout ) {
-    
         $hook = 'livefyre_sync';
         
         // try to clear the hook, for race condition safety
         wp_clear_scheduled_hook( $hook );
-        $this->debug_log( time() . " scheduling sync to occur in $timeout" );
         wp_schedule_single_event( time() + $timeout, $hook );
     
     }
@@ -1114,7 +1090,32 @@ class Livefyre_Http_Extension {
     }
 }
 
-
 $livefyre = new Livefyre_core;
+
+add_action( 'livefyre_check_for_sync', 'check_site_sync' );
+/*
+* To alleviate site_syncs not firing, check to make sure they are set up
+*/
+function setup_sync_check() {
+
+    if ( !wp_next_scheduled( $hook ) ) {
+        debug_log( "Livefyre: Setting up a the check interval." );
+        wp_schedule_event( time(), 'hourly', 'livefyre_check_for_sync' );
+    }
+}
+
+/*
+* Is there a site sync scheduled? (There should be...) If not schedule one for 7 hours down the road
+*/
+function check_site_sync() {
+    $hook = 'livefyre_sync';
+    debug_log( "Livefyre: Checking for a site sync." );
+    if ( !wp_next_scheduled( $hook ) ) {
+        debug_log( "Livefyre: Missed a site_sync for some reason. Rescheduling sync to occur in " . LF_SYNC_LONG_TIMEOUT . " seconds.");
+        wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
+    }
+}
+
+setup_sync_check();
 
 ?>
