@@ -19,6 +19,18 @@ define( 'LF_PLUGIN_VERSION', '4.0' );
 
 global $livefyre;
 
+if ( !function_exists( 'debug_log' ) ) {
+    function debug_log( $message ) {
+        if ( WP_DEBUG === true ) {
+            if ( is_array( $message ) || is_object( $message ) ) {
+                error_log( print_r( $message, true ) );
+            } else {
+                error_log( $message );
+            }
+        }
+    }
+}
+
 class Livefyre_core {
 
     function __construct() { 
@@ -203,7 +215,6 @@ class Livefyre_Activation {
                 update_option( 'livefyre_backend_msg', $message );
             }
         }
-        $this->ext->setup_sync_check();
     }
 
     function reset_caches() {
@@ -273,7 +284,7 @@ class Livefyre_Sync {
     }
 
     function do_sync() {
-    
+        debug_log( "Livefyre: Running a site sync." );
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
             Schedule the next sync if we got >50 or the server says "more-data".
@@ -286,7 +297,6 @@ class Livefyre_Sync {
             'activities-handled' => 0
         );
         $inserts_remaining = LF_SYNC_MAX_INSERTS;
-        $this->ext->debug_log( time() . ' livefyre synched' );
         $max_activity = $this->ext->get_option( 'livefyre_activity_id', '0' );
         if ( $max_activity == '0' ) {
             $final_path_seg = '';
