@@ -150,6 +150,7 @@ class Livefyre_Application {
 
     function setup_sync( $obj ) {
 
+        debug_log( "Livefyre: Setting up actions for a Sync. " . time() );
         add_action( 'livefyre_sync', array( &$obj, 'do_sync' ) );
         add_action( 'init', array( &$obj, 'comment_update' ) );
         /*
@@ -172,6 +173,7 @@ class Livefyre_Application {
     
     function setup_import( $obj ) {
     
+        debug_log( "Livefyre: Setting up actions for an Import. " . time() );
         add_action('init', array(&$obj, 'check_import'));
         add_action('init', array(&$obj, 'check_activity_map_import'));
         add_action('init', array(&$obj, 'begin'));
@@ -378,8 +380,10 @@ class Livefyre_Application {
     }
     
     function schedule_sync( $timeout ) {
-        $hook = 'livefyre_sync';
         
+        debug_log( "Livefyre: Scheduling a Sync. " . time() );
+        $hook = 'livefyre_sync';
+
         // try to clear the hook, for race condition safety
         wp_clear_scheduled_hook( $hook );
         wp_schedule_single_event( time() + $timeout, $hook );
