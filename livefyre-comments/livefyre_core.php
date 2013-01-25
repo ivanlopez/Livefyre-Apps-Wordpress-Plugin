@@ -162,6 +162,7 @@ class Livefyre_Activation {
     function deactivate() {
 
         $this->reset_caches();
+        $this->ext->update_option( 'livefyre_import_status', 'Deactivated: ' . time() );
 
     }
 
@@ -208,11 +209,8 @@ class Livefyre_Activation {
                 update_option( 'livefyre_backend_upgrade', 'error' );
                 update_option( 'livefyre_backend_msg', $resp->get_error_message() );
             } else {
-                $json = json_decode( $resp );
-                $status = $json->status;
-                $message = $json->msg;
-                update_option( 'livefyre_backend_upgrade', $status );
-                update_option( 'livefyre_backend_msg', $message );
+                update_option( 'livefyre_backend_upgrade', 'success' );
+                update_option( 'livefyre_backend_msg', 'Request for Comments 2 upgrade has been sent' );
             }
         }
     }
@@ -284,7 +282,7 @@ class Livefyre_Sync {
     }
 
     function do_sync() {
-        debug_log( "Livefyre: Running a site sync." );
+        debug_log( "Livefyre: Running a site sync. " . time() );
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
             Schedule the next sync if we got >50 or the server says "more-data".
