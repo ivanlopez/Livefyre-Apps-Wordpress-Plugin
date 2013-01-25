@@ -115,7 +115,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
     <?php
     $import_status = get_option( 'livefyre_import_status', '' );
     $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
-    if ( get_option( 'livefyre_site_id', '' ) == '' || get_option( 'livefyre_v3_installed', null ) != 0 ) {
+    if ( get_option( 'livefyre_site_id', '' ) == '' || strpos( $import_status, 'deactivated' ) !== false ) {
         // Don't allow the status sections if there isn't a site
         // The second condition hides the button to start an import, if this was an upgrade from V2
     } else if ( $import_status == 'error' ) {
