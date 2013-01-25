@@ -1097,9 +1097,9 @@ add_action( 'livefyre_check_for_sync', 'check_site_sync' );
 * To alleviate site_syncs not firing, check to make sure they are set up
 */
 function setup_sync_check() {
-
+    $hook = 'livefyre_check_for_sync';
     if ( !wp_next_scheduled( $hook ) ) {
-        debug_log( "Livefyre: Setting up a the check interval." );
+        debug_log( "Livefyre: Setting up a the check interval. " . time() );
         wp_schedule_event( time(), 'hourly', 'livefyre_check_for_sync' );
     }
 }
@@ -1109,9 +1109,9 @@ function setup_sync_check() {
 */
 function check_site_sync() {
     $hook = 'livefyre_sync';
-    debug_log( "Livefyre: Checking for a site sync." );
+    debug_log( "Livefyre: Checking for a site sync. " . time() );
     if ( !wp_next_scheduled( $hook ) ) {
-        debug_log( "Livefyre: Missed a site_sync for some reason. Rescheduling sync to occur in " . LF_SYNC_LONG_TIMEOUT . " seconds.");
+        debug_log( "Livefyre: Missed a site_sync for some reason. Rescheduling sync to occur in " . LF_SYNC_LONG_TIMEOUT . " seconds. " . time() );
         wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
     }
 }
