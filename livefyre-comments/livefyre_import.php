@@ -100,6 +100,8 @@ class Livefyre_Import {
     }
 
     public function check_import() {
+
+        debug_log( "Livefyre: Checking on an import. " . time() );
         // Make sure we're allowed to import comments
         if (!isset($_GET['livefyre_comment_import']) || !isset($_GET['offset'])) {
             return;
@@ -166,6 +168,8 @@ class Livefyre_Import {
     }
 
     function extract_xml( $siteId, $offset=0 ) {
+
+        debug_log( "Livefyre: Extracting XML. " . time() );
         $maxqueries = 50;
         $maxlength = 500000;
         $index = $offset;
