@@ -35,6 +35,7 @@ class Livefyre_core {
 
     function __construct() { 
 
+        debug_log( "Livefyre: Constructing a Livefyre_core. " . time() );
         $this->add_extension();
         $this->require_php_api();
         $this->define_globals();
@@ -126,6 +127,8 @@ class Livefyre_Health_Check {
 
     function livefyre_health_check() {
 
+        debug_log( "Livefyre: Making a health check. " . time() );
+
         if ( !isset( $_GET[ 'livefyre_ping_hash' ] ) )
             return;
 
@@ -167,6 +170,7 @@ class Livefyre_Activation {
     }
 
     function activate() {
+        debug_log( "Livefyre: Activated. " . time() );
         $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
         if ( $existing_blogname ) {
             $site_id = $existing_blogname;
@@ -205,12 +209,28 @@ class Livefyre_Activation {
             $http = $this->lf_core->lf_domain_object->http;
 
             $resp = $http->request( $url, array( 'timeout' => 10 ) );
+            $resp_code = $resp['response']['code'];
+            $resp_message = $resp['response']['message'];
+
+            debug_log( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message ". " . time() );
             if ( is_wp_error( $resp ) ) {
+                debug_log( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
                 update_option( 'livefyre_backend_upgrade', 'error' );
                 update_option( 'livefyre_backend_msg', $resp->get_error_message() );
-            } else {
+            } else if ( $resp_code == '404' ) {
+                debug_log( "Livefyre: Backend response failed. Resetting $backend_upgrade. " . time() );
+                update_option( 'livefyre_backend_upgrade', 'not_started' );
+            } else if ( $resp_code == '200' ) {
+                $json_data = json_decode( $resp['body'] );
+                $backfill_status = $json_data->status;
+                $backfill_msg = $json_data->msg;
+
+                debug_log( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . ". " . time() );
                 update_option( 'livefyre_backend_upgrade', 'success' );
                 update_option( 'livefyre_backend_msg', 'Request for Comments 2 upgrade has been sent' );
+            } else {
+                debug_log( "Livefyre: Unknown error in backfill request. " . $resp );
+                update_option( 'livefyre_backend_upgrade', 'error' );
             }
         }
     }
