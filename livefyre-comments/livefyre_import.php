@@ -42,7 +42,7 @@ class Livefyre_Import {
 
     public function begin() {
 
-        debug_log( "Livefyre: Beginning an import process." );
+        debug_log( "Livefyre: Beginning an import process. " . time() );
 
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
             return;
