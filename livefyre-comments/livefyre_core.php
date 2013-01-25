@@ -162,7 +162,7 @@ class Livefyre_Activation {
     function deactivate() {
 
         $this->reset_caches();
-        $this->ext->update_option( 'livefyre_import_status', 'Deactivated: ' . time() );
+        $this->ext->update_option( 'livefyre_deactivated', 'Deactivated: ' . time() );
 
     }
 
