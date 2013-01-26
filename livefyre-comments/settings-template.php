@@ -31,7 +31,6 @@ function checkStatusLF(){
         var status = data['status'],
             loc = '?page=livefyre';
 
-        if ( ( strpos( get_option( 'livefyre_import_status', 'deactivated' ) !== false ) ) {
         switch(status) {
             case 'aborted':
             case 'failed':
