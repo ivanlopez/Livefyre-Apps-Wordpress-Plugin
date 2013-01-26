@@ -21,18 +21,6 @@ define( 'LF_POST_META_KEY', 'livefyre_version' );
 define( 'LF_POST_META_USE_V1', '1' );
 define( 'LF_POST_META_USE_V3', '3' );
 
-if ( !function_exists( 'debug_log' ) ) {
-    function debug_log( $message ) {
-        if ( WP_DEBUG === true ) {
-            if ( is_array( $message ) || is_object( $message ) ) {
-                error_log( print_r( $message, true ) );
-            } else {
-                error_log( $message );
-            }
-        }
-    }
-}
-
 class Livefyre_Application {
 
     function __construct( $lf_core ) {
@@ -150,7 +138,7 @@ class Livefyre_Application {
 
     function setup_sync( $obj ) {
 
-        debug_log( "Livefyre: Setting up actions for a Sync. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Setting up actions for a Sync. " . time() );
         add_action( 'livefyre_sync', array( &$obj, 'do_sync' ) );
         add_action( 'init', array( &$obj, 'comment_update' ) );
         /*
@@ -173,7 +161,7 @@ class Livefyre_Application {
     
     function setup_import( $obj ) {
     
-        debug_log( "Livefyre: Setting up actions for an Import. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Setting up actions for an Import. " . time() );
         add_action('init', array(&$obj, 'check_import'));
         add_action('init', array(&$obj, 'check_activity_map_import'));
         add_action('init', array(&$obj, 'begin'));
@@ -381,7 +369,7 @@ class Livefyre_Application {
     
     function schedule_sync( $timeout ) {
         
-        debug_log( "Livefyre: Scheduling a Sync. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Scheduling a Sync. " . time() );
         $hook = 'livefyre_sync';
 
         // try to clear the hook, for race condition safety
@@ -1103,7 +1091,7 @@ add_action( 'livefyre_check_for_sync', 'check_site_sync' );
 function setup_sync_check() {
     $hook = 'livefyre_check_for_sync';
     if ( !wp_next_scheduled( $hook ) ) {
-        debug_log( "Livefyre: Setting up a the check interval. " . time() );
+        $livefyre->debug_log( "Livefyre: Setting up a the check interval. " . time() );
         wp_schedule_event( time(), 'hourly', 'livefyre_check_for_sync' );
     }
 }
@@ -1113,9 +1101,9 @@ function setup_sync_check() {
 */
 function check_site_sync() {
     $hook = 'livefyre_sync';
-    debug_log( "Livefyre: Checking for a site sync. " . time() );
+    $livefyre->debug_log( "Livefyre: Checking for a site sync. " . time() );
     if ( !wp_next_scheduled( $hook ) ) {
-        debug_log( "Livefyre: Missed a site_sync for some reason. Rescheduling sync to occur in " . LF_SYNC_LONG_TIMEOUT . " seconds. " . time() );
+        $livefyre->debug_log( "Livefyre: Missed a site_sync for some reason. Rescheduling sync to occur in " . LF_SYNC_LONG_TIMEOUT . " seconds. " . time() );
         wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
     }
 }
