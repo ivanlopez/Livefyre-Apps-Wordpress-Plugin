@@ -3,18 +3,6 @@
 global $livefyre_comment_filter_enabled;
 global $wpdb;
 
-if ( !function_exists( 'debug_log' ) ) {
-    function debug_log( $message ) {
-        if ( WP_DEBUG === true ) {
-            if ( is_array( $message ) || is_object( $message ) ) {
-                error_log( print_r( $message, true ) );
-            } else {
-                error_log( $message );
-            }
-        }
-    }
-}
-
 class Livefyre_Import {
     
     function __construct( $lf_core ) {
@@ -42,7 +30,7 @@ class Livefyre_Import {
 
     public function begin() {
 
-        debug_log( "Livefyre: Beginning an import process. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Beginning an import process. " . time() );
 
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
             return;
@@ -101,7 +89,7 @@ class Livefyre_Import {
 
     public function check_import() {
 
-        debug_log( "Livefyre: Checking on an import. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Checking on an import. " . time() );
         // Make sure we're allowed to import comments
         if (!isset($_GET['livefyre_comment_import']) || !isset($_GET['offset'])) {
             return;
@@ -169,7 +157,7 @@ class Livefyre_Import {
 
     function extract_xml( $siteId, $offset=0 ) {
 
-        debug_log( "Livefyre: Extracting XML. " . time() );
+        $this->lf_core->debug_log( "Livefyre: Extracting XML. " . time() );
         $maxqueries = 50;
         $maxlength = 500000;
         $index = $offset;
