@@ -115,7 +115,10 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
     <?php
     $import_status = get_option( 'livefyre_import_status', '' );
     $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
-    if ( wp_count_comments()->total_comments > 100000 ) {
+    if ( get_option( 'livefyre_site_id', '' ) == '' || get_option( 'livefyre_v3_installed', null ) != 0 ) {
+        // Don't allow the status sections if there isn't a site
+        // The second condition hides the button to start an import, if this was an upgrade from V2
+    } else if ( wp_count_comments()->total_comments > 100000 ) {
         ?>
         <div class="fyre-container-base" id="fyre-start">
             <div class="fyre-container">
