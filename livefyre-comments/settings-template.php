@@ -115,9 +115,19 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
     <?php
     $import_status = get_option( 'livefyre_import_status', '' );
     $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
-    if ( get_option( 'livefyre_site_id', '' ) == '' || get_option( 'livefyre_v3_installed', null ) != 0 ) {
-        // Don't allow the status sections if there isn't a site
-        // The second condition hides the button to start an import, if this was an upgrade from V2
+    if ( wp_count_comments()->total_comments > 100000 ) {
+        ?>
+        <div class="fyre-container-base" id="fyre-start">
+            <div class="fyre-container">
+                <div class="fyre-header">
+                    <div class="fyre-status yellow"></div>
+                    <span id="fyre-progress-title" class="fyre-title">Import Status</span>
+                    <span class="fyre-subtext">
+                        Oh snap, it looks like you're pretty popular! You've got a really large amount of comment data that will need some extra attention from our support team to make sure that all of your comments end up properly imported. If you wouldn't mind dropping a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> with your site's URL, we'll get the ball rolling on completing your import and making sure that you're well taken care of.</span>
+                </div>
+            </div>
+        </div>
+        <?php
     } else if ( $import_status == 'error' ) {
         ?>
         <div class="fyre-container-base" id="fyre-failure">
@@ -128,7 +138,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
                     <span class="fyre-subtext">
                         <?php echo "Message: " . get_option( 'livefyre_import_message', '' ) ?>
                         <p>Please reattempt the import process by hitting the green button below. If that proceeds to fail, please 
-                            e-mail Livefyre at <a href="support@livefyre.com">support@livefyre.com</a> with the following:</p>
+                            e-mail Livefyre at <a href="mailto:support@livefyre.com">support@livefyre.com</a> with the following:</p>
                         <ul>
                             <li>An .XML file of your Wordpress Blog:</li>
                                 <ol>
@@ -206,7 +216,8 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
                     <span id="fyre-progress-title" class="fyre-title">Importing Comments</span>
 
                     <span class="fyre-subtext">
-                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.  As your comments are being imported the status will be displayed bere.   If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed by Livefyre.
+                        Import your existing WordPress comments so that they show up in Livefyre Comments and in the Livefyre Admin.  As your comments are being imported the status will be displayed bere.   
+                        If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed by Livefyre.
                     </span>
                     <p id="livefyre-import-text">Warming up the engine...</p>
                     <div id="circleG">
