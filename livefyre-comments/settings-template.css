@@ -19,26 +19,30 @@
 	height: auto;
 	display:block;
 	border-radius:7px;
-	background: #fff;
 	border: 1px solid #999;
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
 	margin-bottom:16px;
-}
-.fyre-settings ul{
 	
 }
 
-.fyre-settings li{
+.fyre-settings li.fyre-list {
 	height:32px;
 	width: 350px;
 	font: 12px/32px "Helvetica Neue";
 	border-bottom:1px solid #999;
 	list-style:none;
-	background:#fff;
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	padding:0px 6px;
+	background-color: #f5f5f5;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#ebebeb));
+	background-image: -webkit-linear-gradient(top, #ffffff, #ebebeb);
+	background-image: -moz-linear-gradient(top, #ffffff, #ebebeb);
+	background-image: -o-linear-gradient(top, #ffffff, #ebebeb);
+	background-image: -ms-linear-gradient(top, #ffffff, #ebebeb);
+	background-image: linear-gradient(top, #ffffff, #ebebeb);
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#ffffff', EndColorStr='#ebebeb');
 }
 .fyre-settings li:first-child{
 	border-radius:7px 7px 0px 0px;
@@ -258,8 +262,16 @@
 	padding: 0px 4px;
 	box-sizing:border-box;
 }
+
+#livefyre-import-text {
+    text-align: center;
+    font-style: italic;
+    font-size: 14px;
+}
+
 #circleG{
-    width:149.33333333333334px;
+    width: 150px;
+    margin: 0 auto;
 }
 .circleG{
     float:left;
