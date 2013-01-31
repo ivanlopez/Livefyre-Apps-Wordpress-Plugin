@@ -74,7 +74,7 @@ class Livefyre_Import {
 
         foreach ($rows as $row) {
             $rowparts = explode(",", $row);
-            $this->lf_core->Logger->add_database_log( "comment import req received from livefyre, inserting: $rowparts[0], $rowparts[1], $rowparts[2]" );
+            $this->lf_core->Logger->add( "comment import req received from livefyre, inserting: $rowparts[0], $rowparts[1], $rowparts[2]", true );
             $this->ext->activity_log( $rowparts[0], $rowparts[1], $rowparts[2] );
             $i++;
         }
@@ -98,23 +98,23 @@ class Livefyre_Import {
         $sig = $_POST['sig'];
         $sig_created = urldecode($_POST['sig_created']);
         // Check the signature
-        $this->lf_core->Logger->add_database_log( 'comment import req received from livefyre' );
+        $this->lf_core->Logger->add( 'comment import req received from livefyre', true );
         $key = $this->ext->get_option('livefyre_site_key');
         $string = 'import|' . $_GET['offset'] . '|' . $sig_created;
-        $this->lf_core->Logger->add_database_log( ' -comment import req sig inputs: ' . $string . ' input sig:' . $sig );
+        $this->lf_core->Logger->add( ' -comment import req sig inputs: ' . $string . ' input sig:' . $sig, true );
         if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created-time()) > 259200) {
-            $this->lf_core->Logger->add_database_log( ' -sig failed' );
+            $this->lf_core->Logger->add( ' -sig failed', true );
             echo 'sig-failure';
             exit;
         } else {
-            $this->lf_core->Logger->add_database_log( ' -sig correct, rendering' );
+            $this->lf_core->Logger->add( ' -sig correct, rendering', true );
             $siteId = $this->ext->get_option('livefyre_site_id', '');
             if ($siteId != '') {
                 $response = $this->extract_xml($siteId, intval($_GET['offset']));
                 echo $response;
                 exit;
             } else {
-                $this->lf_core->Logger->add_database_log( ' -tried to render, but no blogid' );
+                $this->lf_core->Logger->add( ' -tried to render, but no blogid', true );
                 echo 'missing-blog-id';
                 exit;
             }
