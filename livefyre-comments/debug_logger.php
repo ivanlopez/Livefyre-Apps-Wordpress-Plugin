@@ -1,6 +1,5 @@
 <?php
 
-
 class Debug_Logger {
     
     function __construct() {
