@@ -23,11 +23,12 @@ class Livefyre_core {
 
     function __construct() { 
 
-        $this->debug_log( "Livefyre: Constructing a Livefyre_core. " . time() );
         $this->add_extension();
         $this->require_php_api();
+        $this->require_logger();
         $this->define_globals();
         $this->require_subclasses();
+        $this->Logger->add_log( "Livefyre: Constructing a Livefyre_core." );
         
     }
     
@@ -80,6 +81,12 @@ class Livefyre_core {
 
     }
 
+    function require_logger() {
+
+        require_once(dirname(__FILE__) . "/debug_logger.php");
+
+    }
+
     function add_extension() {
 
         if ( class_exists( 'Livefyre_Application' ) ) {
@@ -98,17 +105,7 @@ class Livefyre_core {
         $this->Admin = new Livefyre_Admin( $this );
         $this->Display = new Livefyre_Display( $this );
         $this->Federation = new Livefyre_Federation( $this );
-
-    }
-
-    function debug_log( $message ) {
-        if ( WP_DEBUG === true ) {
-            if ( is_array( $message ) || is_object( $message ) ) {
-                error_log( print_r( $message, true ) );
-            } else {
-                error_log( $message );
-            }
-        }
+        $this->Logger = new Debug_Logger( );
     }
 
 } //  Livefyre_core
@@ -125,7 +122,7 @@ class Livefyre_Health_Check {
 
     function livefyre_health_check() {
 
-        $this->lf_core->debug_log( "Livefyre: Making a health check. " . time() );
+        $this->lf_core->Logger->add_log( "Livefyre: Making a health check." );
 
         if ( !isset( $_GET[ 'livefyre_ping_hash' ] ) )
             return;
@@ -168,7 +165,7 @@ class Livefyre_Activation {
     }
 
     function activate() {
-        $this->lf_core->debug_log( "Livefyre: Activated. " . time() );
+        $this->lf_core->Logger->add_log( "Livefyre: Activated." );
         $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
         if ( $existing_blogname ) {
             $site_id = $existing_blogname;
@@ -210,13 +207,13 @@ class Livefyre_Activation {
             $resp_code = $resp['response']['code'];
             $resp_message = $resp['response']['message'];
 
-            $this->lf_core->debug_log( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message . ". " . time() );
+            $this->lf_core->Logger->add_log( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message . "." );
             if ( is_wp_error( $resp ) ) {
-                $this->lf_core->debug_log( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
+                $this->lf_core->Logger->add_log( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
                 update_option( 'livefyre_backend_upgrade', 'error' );
                 update_option( 'livefyre_backend_msg', $resp->get_error_message() );
             } else if ( $resp_code == '404' ) {
-                $this->lf_core->debug_log( "Livefyre: Backend response failed. Resetting $backend_upgrade. " . time() );
+                $this->lf_core->Logger->add_log( "Livefyre: Backend response failed. Resetting $backend_upgrade." );
                 update_option( 'livefyre_backend_upgrade', 'not_started' );
             } else if ( $resp_code == '200' ) {
                 $json_data = json_decode( $resp['body'] );
@@ -224,7 +221,7 @@ class Livefyre_Activation {
                 $backfill_msg = $json_data->msg;
 
                 update_option( 'livefyre_backend_upgrade', $backfill_status );
-                $this->lf_core->debug_log( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . ". " . time() );
+                $this->lf_core->Logger->add_log( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . "." );
                 if ( $backfill_status == 'success' ) {
                     update_option( 'livefyre_backend_msg', 'Request for Comments 2 upgrade has been sent' );
                 }
@@ -232,7 +229,7 @@ class Livefyre_Activation {
                     update_option( 'livefyre_backend_msg', $backfill_msg );
                 }
             } else {
-                $this->lf_core->debug_log( "Livefyre: Unknown error in backfill request. " . $resp );
+                $this->lf_core->Logger->add_log( "Livefyre: Unknown error in backfill request. " . $resp );
                 update_option( 'livefyre_backend_upgrade', 'error' );
             }
         }
@@ -305,7 +302,7 @@ class Livefyre_Sync {
     }
 
     function do_sync() {
-        $this->lf_core->debug_log( "Livefyre: Running a site sync. " . time() );
+        $this->lf_core->Logger->add_log( "Livefyre: Running a site sync." );
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
             Schedule the next sync if we got >50 or the server says "more-data".
