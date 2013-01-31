@@ -138,7 +138,6 @@ class Livefyre_Application {
 
     function setup_sync( $obj ) {
 
-        $this->lf_core->debug_log( "Livefyre: Setting up actions for a Sync. " . time() );
         add_action( 'livefyre_sync', array( &$obj, 'do_sync' ) );
         add_action( 'init', array( &$obj, 'comment_update' ) );
         /*
@@ -160,8 +159,7 @@ class Livefyre_Application {
     }
     
     function setup_import( $obj ) {
-    
-        $this->lf_core->debug_log( "Livefyre: Setting up actions for an Import. " . time() );
+
         add_action('init', array(&$obj, 'check_import'));
         add_action('init', array(&$obj, 'check_activity_map_import'));
         add_action('init', array(&$obj, 'begin'));
@@ -369,7 +367,7 @@ class Livefyre_Application {
     
     function schedule_sync( $timeout ) {
         
-        $this->lf_core->debug_log( "Livefyre: Scheduling a Sync. " . time() );
+        $this->lf_core->Logger->add_log( "Livefyre: Scheduling a Sync." );
         $hook = 'livefyre_sync';
 
         // try to clear the hook, for race condition safety
@@ -1089,8 +1087,11 @@ add_action( 'livefyre_check_for_sync', 'check_site_sync' );
 * To alleviate site_syncs not firing, check to make sure they are set up
 */
 function setup_sync_check() {
+    require_once(dirname(__FILE__) . "/debug_logger.php");
+    $logger = new Debug_Logger( );
     $hook = 'livefyre_check_for_sync';
     if ( !wp_next_scheduled( $hook ) ) {
+        $logger->add_log( "Livefyre: Setting up sync_check." );
         wp_schedule_event( time(), 'hourly', 'livefyre_check_for_sync' );
     }
 }
@@ -1099,8 +1100,12 @@ function setup_sync_check() {
 * Is there a site sync scheduled? (There should be...) If not schedule one for 7 hours down the road
 */
 function check_site_sync() {
+    require_once(dirname(__FILE__) . "/debug_logger.php");
+    $logger = new Debug_Logger( );
     $hook = 'livefyre_sync';
+    $logger->add_log( "Checking for a site sync." );
     if ( !wp_next_scheduled( $hook ) ) {
+        $logger->add_log( "Livefyre: Scheduling a site sync. Don't know why one is not scheduled." );
         wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
     }
 }
