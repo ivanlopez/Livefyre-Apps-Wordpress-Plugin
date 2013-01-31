@@ -30,7 +30,7 @@ class Livefyre_Import {
 
     public function begin() {
 
-        $this->lf_core->Logger->add_log( "Livefyre: Beginning an import process." );
+        $this->lf_core->Logger->add( "Livefyre: Beginning an import process." );
 
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
             return;
@@ -89,7 +89,7 @@ class Livefyre_Import {
 
     public function check_import() {
 
-        $this->lf_core->Logger->add_log( "Livefyre: Checking on an import." );
+        $this->lf_core->Logger->add( "Livefyre: Checking on an import." );
         // Make sure we're allowed to import comments
         if (!isset($_GET['livefyre_comment_import']) || !isset($_GET['offset'])) {
             return;
@@ -157,7 +157,7 @@ class Livefyre_Import {
 
     function extract_xml( $siteId, $offset=0 ) {
 
-        $this->lf_core->Logger->add_log( "Livefyre: Extracting XML." );
+        $this->lf_core->Logger->add( "Livefyre: Extracting XML." );
         $maxqueries = 50;
         $maxlength = 500000;
         $index = $offset;
