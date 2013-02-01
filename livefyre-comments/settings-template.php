@@ -200,7 +200,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
             <div class="fyre-container-base" id="fyre-start">
                 <div class="fyre-container">
                     <div class="fyre-header">
-                        <div class="fyre-status slate">Start Your Import</div>
+                        <div class="fyre-status slate"></div>
                         <span id="fyre-progress-title" class="fyre-title">Start Your Import</span>
 
                         <span class="fyre-subtext">
