@@ -218,7 +218,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
                     <div class="fyre-container">
                         <div class="fyre-header">
                             <div class="fyre-status slate"></div>
-                            <span id="fyre-progress-title" class="fyre-title"></span>
+                            <span id="fyre-progress-title" class="fyre-title">Backend Upgrade</span>
 
                             <span class="fyre-subtext">
                                 We are transfering over old Comments 2 conversations and comments to be upgraded into Comments 3. Please note that conversations on Comments 2 created before July 2012 will need to be upgraded.
