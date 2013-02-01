@@ -166,18 +166,18 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
         <?php
     } else if ( $import_status == '' ) {
         if ( wp_count_comments()->total_comments > 100000 ) {
-            ?>
+        ?>
             <div class="fyre-container-base" id="fyre-start">
-            <div class="fyre-container">
-                <div class="fyre-header">
-                    <div class="fyre-status yellow"></div>
-                    <span id="fyre-progress-title" class="fyre-title">Import Status</span>
-                    <span class="fyre-subtext">
-                        Oh snap, it looks like you're pretty popular! You've got a really large amount of comment data that will need some extra attention from our support team to make sure that all of your comments end up properly imported. If you wouldn't mind dropping a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> with your site's URL, we'll get the ball rolling on completing your import and making sure that you're well taken care of.</span>
+                <div class="fyre-container">
+                    <div class="fyre-header">
+                        <div class="fyre-status yellow"></div>
+                        <span id="fyre-progress-title" class="fyre-title">Import Status</span>
+                        <span class="fyre-subtext">
+                            Oh snap, it looks like you're pretty popular! You've got a really large amount of comment data that will need some extra attention from our support team to make sure that all of your comments end up properly imported. If you wouldn't mind dropping a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> with your site's URL, we'll get the ball rolling on completing your import and making sure that you're well taken care of.</span>
+                    </div>
                 </div>
             </div>
-            </div>
-            <?php
+        <?php
         }
         else {
         ?>
@@ -197,7 +197,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
             <?php
             if ( $upgrade_status == 'success' ) {
                 update_option( 'livefyre_backend_upgrade', 'sent' );
-                ?>
+            ?>
                 <div class="fyre-container-base" id="fyre-start">
                     <div class="fyre-container">
                         <div class="fyre-header">
@@ -210,7 +210,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
                         </div>
                     </div>
                 </div>
-            <?php
+        <?php
             }
         }
     } else {
