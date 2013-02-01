@@ -126,7 +126,7 @@ if ( !in_array( $status, array( '', 'error', 'csv_uploaded' ) ) ) {
                     <div class="fyre-status green"></div>
                     <span class="fyre-title">Deactivation</span>
                     <span class="fyre-subtext">
-                        You seem to have deactivated Livefyre recently. Please shoot us an e-mail at <a href="support@livefyre.com">support@livefyre.com</a> and we'll see what you've been up to since.
+                        You seem to have deactivated Livefyre recently. Please shoot us an e-mail at <a href="mailto:support@livefyre.com">support@livefyre.com</a> and we'll see what you've been up to since.
                     </span>
                 </div>
             </div>
