@@ -215,23 +215,22 @@ class Livefyre_Activation {
             $resp_message = $resp['response']['message'];
             $this->lf_core->Logger->add( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message . "." );
 
-            if ( $resp_code == '200' ) {
-                $json_data = json_decode( $resp['body'] );
-                $backfill_status = $json_data->status;
-                $backfill_msg = $json_data->msg;
-
-                update_option( 'livefyre_backend_upgrade', $backfill_status );
-                $this->lf_core->Logger->add( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . "." );
-                if ( $backfill_status == 'success' ) {
-                    update_option( 'livefyre_backend_msg', 'Request for Comments 2 upgrade has been sent' );
-                    return;
-                }
-                update_option( 'livefyre_backend_msg', $backfill_msg );
+            if ( $resp_code != '200' ) {
+                $this->lf_core->Logger->add( "Livefyre: Request returned an non successful value. " . $resp );
+                update_option( 'livefyre_backend_upgrade', 'error' );
                 return;
             }
 
-            $this->lf_core->Logger->add( "Livefyre: Request returned an non successful value. " . $resp );
-            update_option( 'livefyre_backend_upgrade', 'error' );
+            $json_data = json_decode( $resp['body'] );
+            $backfill_status = $json_data->status;
+            $backfill_msg = $json_data->msg;
+
+            $this->lf_core->Logger->add( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . "." );
+            if ( $backfill_status == 'success' ) {
+                $backfill_msg = 'Request for Comments 2 upgrade has been sent';
+            }
+            update_option( 'livefyre_backend_upgrade', $backfill_status );
+            update_option( 'livefyre_backend_msg', $backfill_msg );
         }
     }
 
