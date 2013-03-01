@@ -491,7 +491,7 @@ class Livefyre_Sync {
     }
 
     function livefyre_insert_activity( $data ) {
-
+        $this->lf_core->Logger->add('Livefyre: processing a site sync activity');
         if ( isset( $data[ 'lf_comment_parent' ] ) && $data[ 'lf_comment_parent' ]!= null ) {
             $app_comment_parent = $this->ext->get_app_comment_id( $data[ 'lf_comment_parent' ] );
             if ( $app_comment_parent == null ) {
@@ -507,10 +507,19 @@ class Livefyre_Sync {
         $action_types = array( 
             'comment-add', 
             'comment-moderate:mod-approve', 
-            'comment-moderate:mod-hide', 
-            'comment-update'
+            'comment-moderate:mod-hide',
+            'comment-moderate:mod-unapprove',
+            'comment-moderate:mod-mark-spam',
+            'comment-moderate:mod-bozo',
+            'comment-update',
+            'comment-delete'
         );
+        $this->lf_core->Logger->add('Livefyre comment data: ');
+        $this->lf_core->Logger->add($data);
+        $this->lf_core->Logger->add('Processing WP comment ID: ');
+        $this->lf_core->Logger->add($app_comment_id);
         if ( $app_comment_id > '' && in_array( $at, $action_types ) ) {
+
             // update existing comment
             $data[ 'comment_ID' ] = $app_comment_id;
             $at_parts = explode( ':', $at );
@@ -518,16 +527,28 @@ class Livefyre_Sync {
             $mod = count( $at_parts ) > 1 ? $at_parts[ 1 ] : '';
             if ( $action == 'comment-moderate' ) {
                 if ( $mod == 'mod-approve' ) {
+                    $this->lf_core->Logger->add('Livefyre: Site sync approving a comment');
                     $this->ext->update_comment_status( $app_comment_id, 'approve' );
                 } elseif ( $mod == 'mod-hide' && $data[ 'lf_state' ] == 'hidden' ) {
+                    $this->lf_core->Logger->add('Livefyre: Site sync mod-hide (soft delete) move to trash');
+                    $this->ext->delete_comment( $app_comment_id );
+                } elseif ( $mod == 'mod-unapprove') {
+                    $this->lf_core->Logger->add('Livefyre: Site sync unapproving a comment');
+                    $this->ext->update_comment_status( $app_comment_id, 'hold' );
+                } elseif ( $mod == 'mod-mark-spam' || $mod == 'mod-bozo') {
+                    $this->lf_core->Logger->add('Livefyre: Site sync marking comment as spam');
                     $this->ext->update_comment_status( $app_comment_id, 'spam' );
                 }
             } elseif ( ($action == 'comment-update' || $action == 'comment-add') && isset( $data[ 'comment_content' ] ) && $data[ 'comment_content' ] != '' ) {
                 // even if its supposed to be an "add", when we find the app comment ID, it must be an update
-                $this->ext->update_comment( $data );
+                $this->lf_core->Logger->add('Livefyre: Site sync comment update');
+                $ret_val = $this->ext->update_comment( $data );
                 if ( $data[ 'lf_state' ] == 'unapproved' ) {
                     $this->ext->update_comment_status( $app_comment_id, 'hold' );
                 }
+            } elseif ($action == 'comment-delete') {
+                $this->lf_core->Logger->add('Livefyre: Site sync moving comment to trash');
+                $this->ext->delete_comment( $app_comment_id );
             }
         } elseif ( in_array( $at, array( 'comment-add', 'comment-moderate:mod-approve' ) ) ) {
             // insert new comment
@@ -535,8 +556,10 @@ class Livefyre_Sync {
                 livefyre_report_error( 'comment_content missing for synched activity id:' . $data[ 'lf_activity_id' ] );
             }
             if ( $data[ 'lf_state' ] != 'deleted' && $data[ 'lf_state' ] != 'hidden' ) {
+                $this->lf_core->Logger->add('Livefyre: Site sync adding new comment');
                 $app_comment_id = $this->ext->insert_comment( $data );
                 if ( $data[ 'lf_state' ] == 'unapproved' ) {
+                    $this->lf_core->Logger->add('Livefyre: Site sync approving new comment');
                     $this->ext->update_comment_status( $app_comment_id, 'unapproved' );
                 }
             }

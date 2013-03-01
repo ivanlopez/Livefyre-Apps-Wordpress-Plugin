@@ -385,7 +385,8 @@ class Livefyre_Application {
         "comment_ID",
         "comment_post_ID",
         "comment_parent",
-        "comment_approved"
+        "comment_approved",
+        "comment_date"
     );
     
     function sanitize_inputs ( $data ) {
@@ -402,9 +403,9 @@ class Livefyre_Application {
         
     }
     
-    function delete_comment( $data ) {
+    function delete_comment( $id ) {
 
-        return wp_delete_comment( $this->sanitize_inputs( $data ) );
+        return wp_delete_comment( $id );
 
     }
 
@@ -1105,10 +1106,20 @@ function check_site_sync() {
         error_log( "Livefyre: Checking for a site sync." );
     }
     if ( !wp_next_scheduled( $hook ) ) {
+        // Nothing scheduled for site sync
         if ( WP_DEBUG === true ) {
             error_log( "Livefyre: Scheduling a site sync. Don't know why one is not scheduled." );
         }
         wp_schedule_single_event( time() + LF_SYNC_LONG_TIMEOUT, $hook );
+    }
+    elseif ( wp_next_scheduled( $hook ) < time() ) {
+        // Sync was scheduled, but now timestamp is now expired
+        if ( WP_DEBUG === true ) {
+            error_log( "Livefyre: Site sync cron job expired. Scheduling sync on short timeout" );
+        }
+        wp_clear_scheduled_hook( $hook );
+        wp_schedule_single_event( time() + LF_SYNC_SHORT_TIMEOUT, $hook );
+
     }
 }
 
