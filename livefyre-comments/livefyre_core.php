@@ -346,6 +346,7 @@ class Livefyre_Sync {
         $last_activity_id = 0;
         // By default, we don't queue an other near-term sync unless we discover the need to
         $timeout = LF_SYNC_LONG_TIMEOUT;
+        $first = true;
         foreach ( $json_array as $json ) {
             $mtype = $json->message_type;
             if ( $mtype == LF_SYNC_ERROR ) {
@@ -379,6 +380,11 @@ class Livefyre_Sync {
                     'comment_date'  => $comment_date,
                     'lf_state'  => $json->state
                 );
+                if($first) {
+                    $first_id_msg = 'Livefyre: Prcessing activity page starting with ' . $data['lf_activity_id'];
+                    $this->lf_core->Logger->add($first_id_msg);
+                    $first = false;
+                }
                 if ( isset( $json->body_text ) ) {
                     $data[ 'comment_content' ] = $json->body_text;
                 }
