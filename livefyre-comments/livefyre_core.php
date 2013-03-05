@@ -381,7 +381,7 @@ class Livefyre_Sync {
                     'lf_state'  => $json->state
                 );
                 if($first) {
-                    $first_id_msg = 'Livefyre: Prcessing activity page starting with ' . $data['lf_activity_id'];
+                    $first_id_msg = 'Livefyre: Processing activity page starting with ' . $data['lf_activity_id'];
                     $this->lf_core->Logger->add($first_id_msg);
                     $first = false;
                 }
