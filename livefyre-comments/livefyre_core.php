@@ -541,7 +541,7 @@ class Livefyre_Sync {
                 }
             } elseif ( ($action == 'comment-update' || $action == 'comment-add') && isset( $data[ 'comment_content' ] ) && $data[ 'comment_content' ] != '' ) {
                 // even if its supposed to be an "add", when we find the app comment ID, it must be an update
-                $ret_val = $this->ext->update_comment( $data );
+                $this->ext->update_comment( $data );
                 if ( $data[ 'lf_state' ] == 'unapproved' ) {
                     $this->ext->update_comment_status( $app_comment_id, 'hold' );
                 }
