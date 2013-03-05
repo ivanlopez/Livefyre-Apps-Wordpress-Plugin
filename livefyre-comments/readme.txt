@@ -1,5 +1,5 @@
 === Livefyre Comments 3 ===
-Contributors: Livefyre, Mike Soldner, Chris Becker
+Contributors: Livefyre, Mike Soldner, Michael Liao, Chris Becker
 Donate link: http://livefyre.com/
 Tags: comments, widget, community, social, profile, moderation, engagement, twitter, facebook, conversation, avatars, email notification, spam protection, rich-text, sharing
 Requires at least: 2.8
