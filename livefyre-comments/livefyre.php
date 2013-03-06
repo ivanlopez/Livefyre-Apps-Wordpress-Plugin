@@ -1122,7 +1122,7 @@ function check_site_sync() {
     elseif ( wp_next_scheduled( $hook ) < time() ) {
         // Sync was scheduled, but now timestamp is now expired
         $msg = "Livefyre: Site sync cron job expired. Scheduling sync on short timeout";
-        $timeout = LF_SYNC_SHORT_TIMEOUT;
+        $timeout += LF_SYNC_SHORT_TIMEOUT;
         wp_clear_scheduled_hook( $hook );
     }
     write_to_log( $msg );
