@@ -310,7 +310,7 @@ class Livefyre_Sync {
 
     function run_do_sync() {
         try {
-            do_sync();
+            $this->do_sync();
         }
         catch (Exception $e) {
             try {
@@ -318,7 +318,7 @@ class Livefyre_Sync {
                 $error_message = 'Livefyre: Exception occured during do_sync - ' . $e->getMessage();
                 $this->lf_core->Logger->add($error_message);
             }
-            catch {}
+            catch (Exception $f) {}
             throw $e;
         }
     }
