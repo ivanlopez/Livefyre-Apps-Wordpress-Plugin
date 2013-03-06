@@ -29,95 +29,114 @@ class Livefyre_Import {
     }
 
     public function begin() {
+        try {
 
-        $this->lf_core->Logger->add( "Livefyre: Beginning an import process." );
+            $this->lf_core->Logger->add( "Livefyre: Beginning an import process." );
 
-        if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
-            return;
+            if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
+                return;
+            }
+            $siteId = $this->ext->get_option('livefyre_site_id', '');
+            if ($siteId == '') {
+                return;
+            }
+            $url = $this->lf_core->quill_url . '/import/wordpress/' . $siteId . '/start';
+            $http = $this->lf_core->lf_domain_object->http;
+            $resp = $http->request($url, array('method' => 'POST'));
+
+            if (is_wp_error($resp)) {
+                $status = 'error';
+                $message = $resp->get_error_message();
+            } else {
+                $json = json_decode($response);
+                $status = $json->status;
+                $message = $json->message;
+            }
+
+            if ($status == 'error') {
+                $this->ext->update_option('livefyre_import_status', 'error');
+                $this->ext->update_option('livefyre_import_message', $message);
+                $this->ext->delete_option('livefyre_v3_notify_installed');
+            } else {
+                $this->ext->update_option('livefyre_import_status', 'started');
+                $this->ext->delete_option('livefyre_v3_notify_installed');
+            }
         }
-        $siteId = $this->ext->get_option('livefyre_site_id', '');
-        if ($siteId == '') {
-            return;
-        }
-        $url = $this->lf_core->quill_url . '/import/wordpress/' . $siteId . '/start';
-        $http = $this->lf_core->lf_domain_object->http;
-        $resp = $http->request($url, array('method' => 'POST'));
-
-        if (is_wp_error($resp)) {
-            $status = 'error';
-            $message = $resp->get_error_message();
-        } else {
-            $json = json_decode($response);
-            $status = $json->status;
-            $message = $json->message;
-        }
-
-        if ($status == 'error') {
-            $this->ext->update_option('livefyre_import_status', 'error');
-            $this->ext->update_option('livefyre_import_message', $message);
-            $this->ext->delete_option('livefyre_v3_notify_installed');
-        } else {
-            $this->ext->update_option('livefyre_import_status', 'started');
-            $this->ext->delete_option('livefyre_v3_notify_installed');
+        catch (Exception $e) {
+            $this->lf_core->Logger->add('Livefyre Import: Exception occured in begin - ' . $e->getMessage());
+            $this->lf_core->Raven->captureException($e);
         }
     }
 
     public function check_activity_map_import() {
-        if (!isset($_POST['activity_map'])) {
-            return;
-        }
+        try {
 
-        global $wpdb;
-        $activity_map = $_POST['activity_map'];
-        $rows = explode("\n", $activity_map);
-        $i = 0;
+            if (!isset($_POST['activity_map'])) {
+                return;
+            }
 
-        foreach ($rows as $row) {
-            $rowparts = explode(",", $row);
-            $this->lf_core->Logger->add( "comment import req received from livefyre, inserting: $rowparts[0], $rowparts[1], $rowparts[2]", true );
-            $this->ext->activity_log( $rowparts[0], $rowparts[1], $rowparts[2] );
-            $i++;
+            global $wpdb;
+            $activity_map = $_POST['activity_map'];
+            $rows = explode("\n", $activity_map);
+            $i = 0;
+
+            foreach ($rows as $row) {
+                $rowparts = explode(",", $row);
+                $this->lf_core->Logger->add( "comment import req received from livefyre, inserting: $rowparts[0], $rowparts[1], $rowparts[2]", true );
+                $this->ext->activity_log( $rowparts[0], $rowparts[1], $rowparts[2] );
+                $i++;
+            }
+            $this->ext->update_option('livefyre_activity_id', $rowparts[0]);
+            $this->ext->update_option('livefyre_import_status', 'csv_uploaded');
+            $date_formatted = 'Completed on ' . date('d/m/Y') . ' at ' . date('h:i a');
+            $this->ext->update_option('livefyre_import_message', $date_formatted);
+            $this->ext->delete_option('livefyre_v3_notify_installed');
+            echo "ok";
+            exit;
         }
-        $this->ext->update_option('livefyre_activity_id', $rowparts[0]);
-        $this->ext->update_option('livefyre_import_status', 'csv_uploaded');
-        $date_formatted = 'Completed on ' . date('d/m/Y') . ' at ' . date('h:i a');
-        $this->ext->update_option('livefyre_import_message', $date_formatted);
-        $this->ext->delete_option('livefyre_v3_notify_installed');
-        echo "ok";
-        exit;
+        catch (Exception $e) {
+            $this->lf_core->Logger->add('Livefyre Import : Exception occured in check_activity_map_import - ' . $e->getMessage());
+            $this->lf_core->Raven->captureException($e);
+        }
     }
 
     public function check_import() {
+        try {
 
-        $this->lf_core->Logger->add( "Livefyre: Checking on an import." );
-        // Make sure we're allowed to import comments
-        if (!isset($_GET['livefyre_comment_import']) || !isset($_GET['offset'])) {
-            return;
-        }
-        // Get the decoded sig values from the $_POST object
-        $sig = $_POST['sig'];
-        $sig_created = urldecode($_POST['sig_created']);
-        // Check the signature
-        $this->lf_core->Logger->add( 'comment import req received from livefyre', true );
-        $key = $this->ext->get_option('livefyre_site_key');
-        $string = 'import|' . $_GET['offset'] . '|' . $sig_created;
-        $this->lf_core->Logger->add( ' -comment import req sig inputs: ' . $string . ' input sig:' . $sig, true );
-        if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created-time()) > 259200) {
-            $this->lf_core->Logger->add( ' -sig failed', true );
-            echo 'sig-failure';
-            exit;
-        } else {
-            $this->lf_core->Logger->add( ' -sig correct, rendering', true );
-            $siteId = $this->ext->get_option('livefyre_site_id', '');
-            if ($siteId != '') {
-                $response = $this->extract_xml($siteId, intval($_GET['offset']));
-                echo $response;
+            $this->lf_core->Logger->add( "Livefyre: Checking on an import." );
+            // Make sure we're allowed to import comments
+            if (!isset($_GET['livefyre_comment_import']) || !isset($_GET['offset'])) {
+                return;
+            }
+            // Get the decoded sig values from the $_POST object
+            $sig = $_POST['sig'];
+            $sig_created = urldecode($_POST['sig_created']);
+            // Check the signature
+            $this->lf_core->Logger->add( 'comment import req received from livefyre', true );
+            $key = $this->ext->get_option('livefyre_site_key');
+            $string = 'import|' . $_GET['offset'] . '|' . $sig_created;
+            $this->lf_core->Logger->add( ' -comment import req sig inputs: ' . $string . ' input sig:' . $sig, true );
+            if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created-time()) > 259200) {
+                $this->lf_core->Logger->add( ' -sig failed', true );
+                echo 'sig-failure';
                 exit;
             } else {
-                $this->lf_core->Logger->add( ' -tried to render, but no blogid', true );
-                echo 'missing-blog-id';
-                exit;
+                $this->lf_core->Logger->add( ' -sig correct, rendering', true );
+                $siteId = $this->ext->get_option('livefyre_site_id', '');
+                if ($siteId != '') {
+                    $response = $this->extract_xml($siteId, intval($_GET['offset']));
+                    echo $response;
+                    exit;
+                } else {
+                    $this->lf_core->Logger->add( ' -tried to render, but no blogid', true );
+                    echo 'missing-blog-id';
+                    exit;
+                }
             }
+        }
+        catch (Exception $e) {
+            $this->lf_core->Logger->add('Livefyre Import: Exception occured in check_import - ' . $e->getMessage());
+            $this->lf_core->Raven->captureException($e);
         }
     }
 

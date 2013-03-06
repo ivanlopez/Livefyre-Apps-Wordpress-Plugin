@@ -28,6 +28,7 @@ class Livefyre_core {
         $this->require_logger();
         $this->define_globals();
         $this->require_subclasses();
+        $this->require_raven();
         $this->Logger->add( "Livefyre: Constructing a Livefyre_core." );
         
     }
@@ -85,6 +86,13 @@ class Livefyre_core {
 
         require_once(dirname(__FILE__) . "/logger.php");
 
+    }
+
+    function require_raven() {
+
+        require_once(dirname(__FILE__) . "/livefyre-api/libs/Raven/Autoloader.php");
+        Raven_Autoloader::register();
+        $this->Raven = new Raven_Client('http://0f5245e17ee1418a905268a6032ef829:3c1ef304db44449ab27988d6f0b4dfcf@sentry.livefyre.com:9000/3');
     }
 
     function add_extension() {
@@ -313,98 +321,109 @@ class Livefyre_Sync {
             'last-message-type' => null,
             'activities-handled' => 0
         );
-        $inserts_remaining = LF_SYNC_MAX_INSERTS;
-        $max_activity = $this->ext->get_option( 'livefyre_activity_id', '0' );
-        if ( $max_activity == '0' ) {
-            $final_path_seg = '';
-        } else {
-            $final_path_seg = $max_activity . '/';
-        }
-        $url = $this->site_rest_url() . '/sync/' . $final_path_seg;
-        $qstring = 'page_size=' . $inserts_remaining . '&sig_created=' . time();
-        $key = $this->ext->get_option( 'livefyre_site_key' );
-        $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
-        $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 120) );
-        if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
-            $str_comments = $http_result['body'];
-        } else {
-            $str_comments = '';
-        }
-        $json_array = json_decode( $str_comments );
-        if ( !is_array( $json_array ) ) {
-            $this->schedule_sync( LF_SYNC_LONG_TIMEOUT );
-            $error_message = 'Error during do_sync: Invalid response ( not a valid json array ) from sync request to url: ' . $url . ' it responded with: ' . $str_comments;
-            $this->lf_core->Logger->add( "Livefyre: Invalid response ( not a valid json array) from sync request." );
-            $this->livefyre_report_error( $error_message );
-            return array_merge(
-                $result,
-                array( 'status' => 'error', 'message' => $error_message )
-            );
-        }
-        $data = array();
-        // What to record for the "latest" id we know about, when done inserting
-        $last_activity_id = 0;
-        // By default, we don't queue an other near-term sync unless we discover the need to
-        $timeout = LF_SYNC_LONG_TIMEOUT;
-        $first = true;
-        foreach ( $json_array as $json ) {
-            $mtype = $json->message_type;
-            if ( $mtype == LF_SYNC_ERROR ) {
-                // An error was encountered, don't schedule next sync for near-term
-                $timeout = LF_SYNC_LONG_TIMEOUT;
-                break;
+        try {
+            $inserts_remaining = LF_SYNC_MAX_INSERTS;
+            $max_activity = $this->ext->get_option( 'livefyre_activity_id', '0' );
+            if ( $max_activity == '0' ) {
+                $final_path_seg = '';
+            } else {
+                $final_path_seg = $max_activity . '/';
             }
-            if ( $mtype == LF_SYNC_MORE ) {
-                // There is more data we need to sync, schedule next sync soon
-                $timeout = LF_SYNC_SHORT_TIMEOUT;
-                break;
+            $url = $this->site_rest_url() . '/sync/' . $final_path_seg;
+            $qstring = 'page_size=' . $inserts_remaining . '&sig_created=' . time();
+            $key = $this->ext->get_option( 'livefyre_site_key' );
+            $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
+            $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 120) );
+            if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
+                $str_comments = $http_result['body'];
+            } else {
+                $str_comments = '';
             }
-            if ( $mtype == LF_SYNC_ACTIVITY ) {
-                $last_activity_id = $json->activity_id;
-                $inserts_remaining--;
-                $comment_date  = (int) $json->created;
-                $comment_date = get_date_from_gmt( date( 'Y-m-d H:i:s', $comment_date ) );
-                $data = array( 
-                    'lf_activity_id'  =>  $json->activity_id,
-                    'lf_action_type'  => $json->activity_type,
-                    'comment_post_ID'  => $json->article_identifier,
-                    'comment_author'  => $json->author,
-                    'comment_author_email'  => $json->author_email,
-                    'comment_author_url'  => $json->author_url,
-                    'comment_type'  => '', 
-                    'lf_comment_parent'  => $json->lf_parent_comment_id,
-                    'lf_comment_id'  => $json->lf_comment_id,
-                    'user_id'  => null,
-                    'comment_author_IP'  => $json->author_ip,
-                    'comment_agent'  => 'Livefyre, Inc .  Comments Agent', 
-                    'comment_date'  => $comment_date,
-                    'lf_state'  => $json->state
+            $json_array = json_decode( $str_comments );
+            if ( !is_array( $json_array ) ) {
+                $this->schedule_sync( LF_SYNC_LONG_TIMEOUT );
+                $error_message = 'Error during do_sync: Invalid response ( not a valid json array ) from sync request to url: ' . $url . ' it responded with: ' . $str_comments;
+                $this->lf_core->Logger->add( "Livefyre: Invalid response ( not a valid json array) from sync request." );
+                $this->livefyre_report_error( $error_message );
+                return array_merge(
+                    $result,
+                    array( 'status' => 'error', 'message' => $error_message )
                 );
-                if($first) {
-                    $first_id_msg = 'Livefyre: Processing activity page starting with ' . $data['lf_activity_id'];
-                    $this->lf_core->Logger->add($first_id_msg);
-                    $first = false;
+            }
+            $data = array();
+            // What to record for the "latest" id we know about, when done inserting
+            $last_activity_id = 0;
+            // By default, we don't queue an other near-term sync unless we discover the need to
+            $timeout = LF_SYNC_LONG_TIMEOUT;
+            $first = true;
+            foreach ( $json_array as $json ) {
+                $mtype = $json->message_type;
+                if ( $mtype == LF_SYNC_ERROR ) {
+                    // An error was encountered, don't schedule next sync for near-term
+                    $timeout = LF_SYNC_LONG_TIMEOUT;
+                    break;
                 }
-                if ( isset( $json->body_text ) ) {
-                    $data[ 'comment_content' ] = $json->body_text;
-                }
-                $this->livefyre_insert_activity( $data );
-                if ( !$inserts_remaining ) {
+                if ( $mtype == LF_SYNC_MORE ) {
+                    // There is more data we need to sync, schedule next sync soon
                     $timeout = LF_SYNC_SHORT_TIMEOUT;
                     break;
                 }
+                if ( $mtype == LF_SYNC_ACTIVITY ) {
+                    $last_activity_id = $json->activity_id;
+                    $inserts_remaining--;
+                    $comment_date  = (int) $json->created;
+                    $comment_date = get_date_from_gmt( date( 'Y-m-d H:i:s', $comment_date ) );
+                    $data = array( 
+                        'lf_activity_id'  =>  $json->activity_id,
+                        'lf_action_type'  => $json->activity_type,
+                        'comment_post_ID'  => $json->article_identifier,
+                        'comment_author'  => $json->author,
+                        'comment_author_email'  => $json->author_email,
+                        'comment_author_url'  => $json->author_url,
+                        'comment_type'  => '', 
+                        'lf_comment_parent'  => $json->lf_parent_comment_id,
+                        'lf_comment_id'  => $json->lf_comment_id,
+                        'user_id'  => null,
+                        'comment_author_IP'  => $json->author_ip,
+                        'comment_agent'  => 'Livefyre, Inc .  Comments Agent', 
+                        'comment_date'  => $comment_date,
+                        'lf_state'  => $json->state
+                    );
+                    if($first) {
+                        $first_id_msg = 'Livefyre: Processing activity page starting with ' . $data['lf_activity_id'];
+                        $this->lf_core->Logger->add($first_id_msg);
+                        $first = false;
+                    }
+                    if ( isset( $json->body_text ) ) {
+                        $data[ 'comment_content' ] = $json->body_text;
+                    }
+                    $this->livefyre_insert_activity( $data );
+                    if ( !$inserts_remaining ) {
+                        $timeout = LF_SYNC_SHORT_TIMEOUT;
+                        break;
+                    }
+                }
             }
+            $result[ 'last-message-type' ] = $mtype;
+            $result[ 'activities-handled' ] = LF_SYNC_MAX_INSERTS - $inserts_remaining;
+            $result[ 'last-activity-id' ] = $last_activity_id;
+            if ( $last_activity_id ) {
+                $this->ext->update_option( 'livefyre_activity_id', $last_activity_id );
+                $last_id_msg = 'Livefyre: Set last activity ID processed to ' . $last_activity_id;
+                $this->lf_core->Logger->add($last_id_msg);
+            }
+            $this->schedule_sync( $timeout );
+            return $result;
         }
-        $result[ 'last-message-type' ] = $mtype;
-        $result[ 'activities-handled' ] = LF_SYNC_MAX_INSERTS - $inserts_remaining;
-        $result[ 'last-activity-id' ] = $last_activity_id;
-        if ( $last_activity_id ) {
-            $this->ext->update_option( 'livefyre_activity_id', $last_activity_id );
-            $last_id_msg = 'Livefyre: Set last activity ID processed to ' . $last_activity_id;
-            $this->lf_core->Logger->add($last_id_msg);
+        catch (Exception $e) {
+            $this->lf_core->Raven->captureException($e);
+            $error_message = 'Livefyre: Exception occured during do_sync - ' . $e->getMessage();
+            $this->lf_core->Logger->add($error_message);
+            return array_merge(
+                $result,
+                array( 'status' => 'error', 'message' => $error_message )
+            );    
         }
-        $this->schedule_sync( $timeout );
-        return $result;
     
     }
 
