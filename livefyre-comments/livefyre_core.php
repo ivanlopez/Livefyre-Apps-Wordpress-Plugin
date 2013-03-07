@@ -90,7 +90,7 @@ class Livefyre_core {
 
     function require_raven() {
 
-        require_once(dirname(__FILE__) . "/livefyre-api/libs/Raven/Autoloader.php");
+        require_once(dirname(__FILE__) . "/Raven/Autoloader.php");
         Raven_Autoloader::register();
         $this->Raven = new Raven_Client('http://0f5245e17ee1418a905268a6032ef829:3c1ef304db44449ab27988d6f0b4dfcf@sentry.livefyre.com:9000/3');
     }
