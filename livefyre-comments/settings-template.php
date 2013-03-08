@@ -198,26 +198,39 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 }
                 $plugins_count = count($bad_plugins);
                 $posts_count = count($no_comments_posts);
-                $status = Array('Eh-ish', 'yellow');
+                $status = Array('Warning, potential issues', 'yellow');
                 if( $plugins_count >= 1 ) {
-                    $status = Array('Bad', 'red');
+                    $status = Array('Error, conflicting plugins', 'red');
                 }
                 else if ( $posts_count + $plugins_count < 1 && $import_status == 'csv_uploaded' ) {
-                    $status = Array('Good', 'green');
+                    $status = Array('All systems go!', 'green');
                 }
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
-                echo '<h2>' .($plugins_count + $posts_count).($plugins_count + $posts_count == 1 ? ' issue' : ' issues'). ' require your attention</h2>';
+                echo '<h2>' .($plugins_count + $posts_count).($plugins_count + $posts_count == 1 ? ' issue' : ' issues'). ' require your attention, please see below</h2>';
                 ?>
             </div>
 
             <?php
+            if ( $upgrade_status == 'success' ) {
+                update_option( 'livefyre_backend_upgrade', 'sent' );
+            ?>
+                <div id="fyrestatus">
+                    <h1>Livefyre Upgrade Status: <span>Sent</span></h1>
+                    <p>It looks like your backend is in need of moving to the latest and greatest version of Livefyre! 
+                        To implement the Comments 3 plugin, all your data pre July of 2012 will need to be updated. Depending on the number of blog posts and comments you have, 
+                        this may take up to several hours and the comments will not show up on those conversations until the data upgrade is complete.
+                    </p>
+                </div>
+            <?php
+            }
+
             if( $import_status != 'csv_uploaded' ) {
             ?>
                 <div id="fyreimportstatus">
                     <?php
                     if ( $import_status == 'error' ) {
                     ?>
-                        <h1>Livefyre Import Status: Failed</h1>
+                        <h1>Livefyre Import Status: <span>Failed</span></h1>
                         <div id="import_toggle_button" onclick="import_toggle_less()" cursor="pointer">
                             <img id="import_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
                             <div id='import_toggle_text'>Less Info</div>
@@ -241,14 +254,14 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     else if ( $import_status == '' ) {
                         if ( wp_count_comments()->total_comments > 100000 ) {
                         ?>
-                            <h1>Livefyre Import: Status Questionable</h1>
+                            <h1>Livefyre Import: <span>Status Questionable</span></h1>
                             <p>Oh snap, it looks like you're pretty popular! You've got a really large amount of comment data that will need some extra attention from our support team to make sure that all of your comments end up properly imported. If you wouldn't mind dropping a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> 
                             with your site's URL, we'll get the ball rolling on completing your import and making sure that you're well taken care of.</p>
                         <?php
                         }
                         else {
                         ?>
-                            <h1>Livefyre Import Status: Uninitialized</h1>
+                            <h1>Livefyre Import Status: <span>Uninitialized</span></h1>
                             <p>You’ve got some comment data that hasn’t been imported into Livefyre yet. Click here to do that now!
                             As your comments are being imported the status will be displayed bere.
                             If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed on the Livefyre comment widgets. 
@@ -259,7 +272,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     }
                     else {
                     ?>
-                        <h1>Livefyre Import Status: Running</h1>
+                        <h1>Livefyre Import Status: <span>Running</span></h1>
                         <div id="gears">
                             <img src=<?php echo '"' .plugins_url( '/livefyre-comments/images/gear1.png', 'livefyre-comments' ). '"';?> class="gear1" alt="" />
                             <img src=<?php echo '"' .plugins_url( '/livefyre-comments/images/gear2.png', 'livefyre-comments' ). '"';?> class="gear2" alt="" />
