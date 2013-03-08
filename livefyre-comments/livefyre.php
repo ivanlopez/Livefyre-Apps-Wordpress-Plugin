@@ -531,8 +531,7 @@ class Livefyre_Admin {
 
     function register_admin_page() {
         
-        add_comments_page( 'Livefyre Settings', 'Livefyre', 'manage_options', 'livefyre', array( &$this, 'site_options_page' ) );
-
+        add_submenu_page( 'options-general.php', 'Livefyre Settings', 'Livefyre', 'manage_options', 'livefyre', array( &$this, 'site_options_page' ) );
     }
 
     function register_network_admin_page() {
@@ -699,20 +698,11 @@ class Livefyre_Admin {
 
     function site_options_page() {
 
-        ?>
-            <div class="wrap">
-                <h2>Livefyre Settings Page</h2>
-                <form method="post" action="options.php">
-                    <?php
-                        // is this a non-mu site? if so, call network_options_init()
-                        if ( !$this->allow_domain_settings() ) {
-                            $this->network_options_page();
-                        }
-                        include( dirname(__FILE__) . '/settings-template.php');
-                    ?>
-                </form>
-            </div>
-        <?php
+        // is this a non-mu site? if so, call network_options_init()
+        if ( !$this->allow_domain_settings() ) {
+            $this->network_options_page();
+        }
+        include( dirname(__FILE__) . '/settings-template.php');
     
     }
 
