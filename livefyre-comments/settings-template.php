@@ -141,7 +141,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             <?php
             $bad_plugins = Array();
             $all_bad_plugins = Array(
-                    'disqus-comment-system/disqus.php' => 'Disqus: Commenting widget.',
+                    'disqus-comment-system/disqus.php' => 'Disqus: Commenting plugin.',
                     'cloudflare/cloudflare.php' => 'Cloudflare: Impacts the look of the widget on the page.',
                     'spam-free-wordpress/tl-spam-free-wordpress.php' => 'Spam Free: Disables 3rd party commenting widgets.',
             );
@@ -206,7 +206,9 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     $status = Array('All systems go!', 'green');
                 }
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
-                echo '<h2>' .($plugins_count + $posts_count).($plugins_count + $posts_count == 1 ? ' issue' : ' issues'). ' require your attention, please see below</h2>';
+                if ( $plugins_count + $posts_count > 0 || $import_status != 'csv_uploaded' ) {
+                    echo '<h2>' .($plugins_count + $posts_count + ($import_status != 'csv_uploaded' ? 1 : 0)).(($import_status != 'csv_uploaded' ? 1 : 0) + $plugins_count + $posts_count == 1 ? ' issue requires' : ' issues require'). ' your attention, please see below</h2>';
+                }
                 ?>
             </div>
 
@@ -239,22 +241,21 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
                             <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                                 If you wouldn’t mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
-                                e-mail Livefyre at <a href="mailto:support@livefyre.com">support@livefyre.com</a> with the following:</p>
+                                E-mail Livefyre at <a href="mailto:support@livefyre.com">support@livefyre.com</a> with the following:</p>
                             <p>1. In your WP-Admin panel, click “Tools”<br />
                             2. Click “Export”<br />
                             3. Be sure that “All Content” is selected, and then click “Download Export File”<br />
-                            4. Attach and e-mail that .XML file that WordPress created to support@livefyre.com along with the URL of your blog.<br />
-                            <strong>Note:</strong> If you have multiple sites on your Wordpress that you would like to import comments for, please make note of that
-                            in the email</p>
-                            <p>Your blog will still run Livefyre, but your comments won't be imported.</p>
-                            <a href="?page=livefyre&livefyre_import_begin=1" class="fyreimportbutton">Re-import Comments</a>
+                            4. Attach and e-mail the .XML file that WordPress created to support@livefyre.com along with the URL of your blog.<br /><br />
+                            <strong>Note:</strong> If you have multiple sites on your WordPress that you would like to import comments for, please make note of that
+                            in the email.</p>
+                            <p>Livefyre will still be active and functional on your site, but your imported comments will not be displayed in the commment stream.</p>
                         </div>
                     <?php
                     }
                     else if ( $import_status == '' ) {
                         if ( wp_count_comments()->total_comments > 100000 ) {
                         ?>
-                            <h1>Livefyre Import: <span>Status Questionable</span></h1>
+                            <h1>Livefyre Import Status: <span>Pending</span></h1>
                             <p>Oh snap, it looks like you're pretty popular! You've got a really large amount of comment data that will need some extra attention from our support team to make sure that all of your comments end up properly imported. If you wouldn't mind dropping a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> 
                             with your site's URL, we'll get the ball rolling on completing your import and making sure that you're well taken care of.</p>
                         <?php
@@ -262,9 +263,9 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         else {
                         ?>
                             <h1>Livefyre Import Status: <span>Uninitialized</span></h1>
-                            <p>You’ve got some comment data that hasn’t been imported into Livefyre yet. Click here to do that now!
-                            As your comments are being imported the status will be displayed bere.
-                            If Livefyre is unable to import data, you can still use the plugin, but your existing comments will not be displayed on the Livefyre comment widgets. 
+                            <p>You’ve got some comment data that hasn’t been imported into Livefyre yet, please click the 'Import Comments' button below.
+                            As your comments are being imported the status will be displayed here.
+                            If Livefyre is unable to import your data, you can still use the plugin, but your existing comments will not be displayed in the Livefyre comment widget. 
                             Please e-mail <a href="mailto:support@livefyre.com">support@livefyre.com</a> with any issues as we’d be more than happy to help you resolve them.</p>
                             <span><a href="?page=livefyre&livefyre_import_begin=1" class="fyreimportbutton">Import Comments</a></span>
                         <?php
@@ -273,6 +274,8 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     else {
                     ?>
                         <h1>Livefyre Import Status: <span>Running</span></h1>
+                        <p>Depending on the amount of data imported, your comment data may not be immediately displayed after your import completes. If you have any questions,
+                            please e-mail <a href="mailto:support@livefyre.com">support@livefyre.com.</a></p>
                         <div id="gears">
                             <img src=<?php echo '"' .plugins_url( '/livefyre-comments/images/gear1.png', 'livefyre-comments' ). '"';?> class="gear1" alt="" />
                             <img src=<?php echo '"' .plugins_url( '/livefyre-comments/images/gear2.png', 'livefyre-comments' ). '"';?> class="gear2" alt="" />
@@ -293,7 +296,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     if ( $plugins_count ) {
                     ?>
                     <p>We found that the following plugins are active on your site, and unfortunately they will conflict with Livefyre Comments 3 and break our widget’s functionality. 
-                        To be sure that Comments 3 is running without a hitch, we recommend that you deactivate these plugins:</p>
+                        To be sure that Comments 3 is running without a hitch, it will be necessary to deactivate the following plugins:</p>
                     <ul>
                     <?php
                         foreach ( $bad_plugins as $plugin ) {
@@ -316,7 +319,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         ?>
                         <p>We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts listed below. 
                         This means that the Livefyre Comments 3 widget will not be functional on those posts. To be sure that the Livefyre Comments 3 widget functions properly on each post, just click on the “enable” button. 
-                        If you’d like to turn comments off on those posts, you can do so from your Livefyre admin panel under “Conversations.”</p>
+                        If you’d like to turn comments off on those posts, you can do so from your Livefyre admin panel by clicking the "Livefyre Admin" link to the right, then clicking “Conversations.”</p>
                         <div id="fyreallowheader">
                             <h1>Post:</h1>
                             <a href="?page=livefyre&allow_comments_id=all" text-decoration:"none">Enable All</a>
@@ -364,7 +367,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <div id="fyredeactivation">
                         <h1>Deactivation</h1>
                         <p class="lf_text">Welcome back! It looks like you’ve reactivated the Livefyre plugin recently. If you’ve had comments left on your site since deactivating Livefyre, 
-                            if you wouldn’t mind shooting a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> we’d be happy to help you get all of your comment data properly re-imported.
+                            please shoot a quick e-mail to <a href="mailto:support@livefyre.com">support@livefyre.com</a> and we’d be happy to help you get all of your comment data properly re-imported.
                     </div>
                 <?php
                 }
