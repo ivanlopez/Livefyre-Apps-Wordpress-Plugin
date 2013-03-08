@@ -283,16 +283,22 @@
     left: 0;
     top: 5px;
     -webkit-animation: spin 0.8s linear 0s infinite;
+    -moz-animation: spin 0.8s linear 0s infinite;
+    -o-animation: spin 0.8s linear 0s infinite;
 }
 .gear2 {
     left: 45px;
     top: 17px;
     -webkit-animation: spin 0.4s linear 0s infinite;
+    -moz-animation: spin 0.4s linear 0s infinite;
+    -o-animation: spin 0.4s linear 0s infinite;
 }
 .gear3 {
     left: 37px;
     top: 0;
     -webkit-animation: spin2 0.4s linear 0s infinite;
+    -moz-animation: spin2 0.4s linear 0s infinite;
+    -o-animation: spin2 0.4s linear 0s infinite;
 }
 @-webkit-keyframes spin {
     from{
@@ -308,5 +314,37 @@
     }
     to{
         -webkit-transform: rotate(-45deg);
+    }
+}
+@-moz-keyframes spin {
+    from{
+        -moz-transform: rotate(0deg);
+    }
+    to{
+        -moz-transform: rotate(45deg);
+    }
+}
+@-moz-keyframes spin2 {
+    from{
+        -moz-transform: rotate(0deg);
+    }
+    to{
+        -moz-transform: rotate(-45deg);
+    }
+}
+@-o-keyframes spin {
+    from{
+        -o-transform: rotate(0deg);
+    }
+    to{
+        -o-transform: rotate(45deg);
+    }
+}
+@-o-keyframes spin2 {
+    from{
+        -o-transform: rotate(0deg);
+    }
+    to{
+        -o-transform: rotate(-45deg);
     }
 }
