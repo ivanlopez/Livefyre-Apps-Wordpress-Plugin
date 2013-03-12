@@ -318,7 +318,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     if ( $posts_count ) {
                         ?>
                         <p>We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts listed below. 
-                        This means that the Livefyre Comments 3 widget will not be functional on those posts. To be sure that the Livefyre Comments 3 widget functions properly on each post, just click on the “enable” button. 
+                        This means that the Livefyre Comments 3 widget will not show up on these posts. To be sure that the Livefyre Comments 3 widget functions is visable on each post, just click on the “enable” button. 
                         If you’d like to turn comments off on those posts, you can do so from your Livefyre admin panel by clicking the "Livefyre Admin" link to the right, then clicking “Conversations.”</p>
                         <div id="fyreallowheader">
                             <h1>Post:</h1>
