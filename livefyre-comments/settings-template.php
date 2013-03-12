@@ -107,6 +107,43 @@ import_toggle_more = function() {
 
 <?php
 
+function update_posts ( $id, $post_type ) {
+    global $wpdb;
+    $db_prefix = $wpdb->base_prefix;
+    if( $id ) {
+        $query = "
+            UPDATE $wpdb->posts SET comment_status = 'open'
+            WHERE ID = " .$id. "
+                AND comment_status = 'closed' 
+                AND post_type IN ('page','post')
+                AND post_status = 'publish'
+            ";
+    }
+    else {
+        $query = "
+            UPDATE $wpdb->posts SET comment_status = 'open'
+            WHERE comment_status = 'closed'
+                AND post_type = '" .$post_type. "'
+                AND post_status = 'publish'
+            ";
+    }
+    return $wpdb->get_results( $query );
+}
+
+function select_posts ( $post_type ) {
+    global $wpdb;
+    $query = "
+        SELECT ID, post_title
+        FROM $wpdb->posts
+        WHERE comment_status = 'closed' 
+            AND post_type = '" .$post_type. "'
+            AND post_status = 'publish'
+        ORDER BY DATE(`post_date`) DESC
+        LIMIT 50
+        ";
+    return $wpdb->get_results( $query );
+}
+
 if (isset($_POST['textfield'])) {
     echo username();
     return;
@@ -152,52 +189,21 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 }
             }
             if( isset($_GET['allow_comments_id']) ) {
-                $db_prefix = $wpdb->base_prefix;
                 $allow_id = $_GET['allow_comments_id'];
-                $query = "
-                    UPDATE $wpdb->posts SET comment_status = 'open'
-                    WHERE ID = " .$allow_id. "
-                        AND comment_status = 'closed' 
-                        AND post_type IN ('page','post')
-                        AND post_status = 'publish'
-                    ";
+
                 if ( $allow_id == 'all_posts' ) {
-                    $query = "
-                    UPDATE $wpdb->posts SET comment_status = 'open'
-                    WHERE comment_status = 'closed'
-                        AND post_type = 'post'
-                        AND post_status = 'publish'
-                    ";
+                    update_posts( false, 'post' );
                 }
                 else if ( $allow_id == 'all_pages' ) {
-                    $query = "
-                    UPDATE $wpdb->posts SET comment_status = 'open'
-                    WHERE comment_status = 'closed'
-                        AND post_type = 'page'
-                        AND post_status = 'publish'
-                    ";
+                    update_posts( false, 'page' );
                 }
-                $wpdb->get_results( $query );
+                else {
+                    update_posts( $allow_id, false );
+                }
             }
             $db_prefix = $wpdb->base_prefix;
-            $no_comments_posts = $wpdb->get_results( 
-                "
-                SELECT ID, post_title
-                FROM $wpdb->posts
-                WHERE comment_status = 'closed' 
-                    AND post_type = 'post'
-                    AND post_status = 'publish'
-                "
-            );
-            $no_comments_pages = $wpdb->get_results( 
-                "
-                SELECT ID, post_title
-                FROM $wpdb->posts
-                WHERE comment_status = 'closed' 
-                    AND post_type = 'page'
-                    AND post_status = 'publish'
-                "
-            );
+            $no_comments_posts = select_posts( 'post' );
+            $no_comments_pages = select_posts( 'page' );
             ?>
             <div id="fyrestatus">
                 <?php
