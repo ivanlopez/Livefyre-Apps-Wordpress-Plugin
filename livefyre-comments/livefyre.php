@@ -1039,10 +1039,18 @@ class Livefyre_Display {
     }
 
     function livefyre_show_comments(){
+        
         global $post;
-        return (( is_single() && get_option('livefyre_display_posts') == 'true' ) || ( is_page() && get_option('livefyre_display_pages') == 'true' ))
+        /* Is this a post and is the settings checkbox on? */
+        $display_posts = ( is_single() && get_option('livefyre_display_posts') == 'true' );
+        /* Is this a page and is the settings checkbox on? */
+        $display_pages = ( is_page() && get_option('livefyre_display_pages') == 'true' );
+        /* Are comments open on this post/page? */
+        $comments_open = ( $post->comment_status == 'open' );
+        
+        return ( $display_posts || $display_pages )
             && !is_preview()
-            && $post->comment_status == 'open';
+            && $comments_open;
 
     }
 
