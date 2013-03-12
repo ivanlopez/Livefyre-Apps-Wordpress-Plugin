@@ -177,7 +177,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         AND post_status = 'publish'
                     ";
                 }
-                $no_comments_posts = $wpdb->get_results( $query );
+                $wpdb->get_results( $query );
             }
             $db_prefix = $wpdb->base_prefix;
             $no_comments_posts = $wpdb->get_results( 
