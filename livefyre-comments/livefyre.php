@@ -1039,8 +1039,10 @@ class Livefyre_Display {
     }
 
     function livefyre_show_comments(){
-
-        return ( is_single() && get_option('livefyre_display_posts') == 'true' ) || ( is_page() && get_option('livefyre_display_pages') == 'true' ) && ! is_preview();
+        global $post;
+        return (( is_single() && get_option('livefyre_display_posts') == 'true' ) || ( is_page() && get_option('livefyre_display_pages') == 'true' ))
+            && !is_preview()
+            && $post->comment_status == 'open';
 
     }
 
