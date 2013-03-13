@@ -144,6 +144,36 @@ function select_posts ( $post_type ) {
     return $wpdb->get_results( $query );
 }
 
+function display_no_allows ( $post_type, $list ) {
+
+    ?>
+    <div id="fyreallowheader">
+        <?php
+        if ( $post_type == 'post' ) {
+        ?>
+            <h1>Post:</h1>
+            <a href="?page=livefyre&allow_comments_id=all_posts" text-decoration:"none">Enable All</a>
+        <?php
+        }
+        else {
+        ?>
+            <h1>Page:</h1>
+            <a href="?page=livefyre&allow_comments_id=all_pages" text-decoration:"none">Enable All</a>
+        <?php
+        }
+        ?>
+    </div>
+    <ul>
+        <?php
+        foreach ( $list as $ncpost ) {
+            echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
+            echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a></li>';
+        }
+    ?>
+    <ul>
+    <?php
+}
+
 if (isset($_POST['textfield'])) {
     echo username();
     return;
@@ -222,18 +252,23 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 $plugins_count = count($bad_plugins);
                 $posts_count = count($no_comments_posts);
                 $pages_count = count($no_comments_pages);
+
+                $good_status = ( $posts_count + $pages_count + $plugins_count < 1 ) && $import_status == 'csv_uploaded';
+                $bad_status = $plugins_count >= 1;
                 $status = Array('Warning, potential issues', 'yellow');
-                if( $plugins_count >= 1 ) {
+                if( $bad_status ) {
                     $status = Array('Error, conflicting plugins', 'red');
                 }
-                else if ( $posts_count + $pages_count + $plugins_count < 1 && $import_status == 'csv_uploaded' ) {
+                else if ( $good_status ) {
                     $status = Array('All systems go!', 'green');
                 }
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
-                if ( $plugins_count + $pages_count + $posts_count > 0 || $import_status != 'csv_uploaded' ) {
+
+                $total_errors = ( $plugins_count + $pages_count + $posts_count + ($import_status != 'csv_uploaded' ? 1 : 0) );
+                if ( $total_errors > 0 ) {
                     echo '<h2>' 
-                    .($plugins_count + $pages_count + $posts_count + ($import_status != 'csv_uploaded' ? 1 : 0))
-                    .(($import_status != 'csv_uploaded' ? 1 : 0) + $plugins_count + $pages_count + $posts_count == 1 ? ' issue requires' : ' issues require')
+                    .$total_errors
+                    .($total_errors == 1 ? ' issue requires' : ' issues require')
                     .' your attention, please see below</h2>';
                 }
                 ?>
@@ -350,34 +385,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             clicking “Conversations", and then clicking "Stream Settings."</p>
                         <?php
                         if ( $posts_count ) {
-                        ?>
-                            <div id="fyreallowheader">
-                                <h1>Post:</h1>
-                                <a href="?page=livefyre&allow_comments_id=all_posts" text-decoration:"none">Enable All</a>
-                            </div>
-                            <ul>
-                            <?php
-                            foreach ( $no_comments_posts as $ncpost ) {
-                                echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
-                                echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a>';
-                            }
+                            display_no_allows( 'post', $no_comments_posts);
                         }
                         if ( $pages_count ) {
-                        ?>
-                            </ul>
-                            <div id="fyreallowheader">
-                                <h1>Pages:</h1>
-                                <a href="?page=livefyre&allow_comments_id=all_pages" text-decoration:"none">Enable All</a>
-                            </div>
-                            <ul>
-                            <?php
-                            foreach ( $no_comments_pages as $ncpost ) {
-                                echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
-                                echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a>';
-                            }
-                            ?>
-                            </ul>
-                        <?php
+                            display_no_allows( 'page', $no_comments_pages);
                         }
                     }
                     else {
