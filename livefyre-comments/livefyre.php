@@ -1042,9 +1042,9 @@ class Livefyre_Display {
         
         global $post;
         /* Is this a post and is the settings checkbox on? */
-        $display_posts = ( is_single() && get_option('livefyre_display_posts') == 'true' );
+        $display_posts = ( is_single() && get_option('livefyre_display_posts','true') == 'true' );
         /* Is this a page and is the settings checkbox on? */
-        $display_pages = ( is_page() && get_option('livefyre_display_pages') == 'true' );
+        $display_pages = ( is_page() && get_option('livefyre_display_pages','true') == 'true' );
         /* Are comments open on this post/page? */
         $comments_open = ( $post->comment_status == 'open' );
         
