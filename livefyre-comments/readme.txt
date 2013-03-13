@@ -4,7 +4,7 @@ Donate link: http://livefyre.com/
 Tags: comments, widget, community, social, profile, moderation, engagement, twitter, facebook, conversation, avatars, email notification, spam protection, rich-text, sharing
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 
 Livefyre Comments 3 replaces your default comments with real-time conversations. Our social integration features make it easy to capture all the conversations going on around your content across Twitter and Facebook, while pulling your friends into the conversation.
 
@@ -82,6 +82,8 @@ Visit the [Livefyre FAQ](http://support.livefyre.com) to access our entire Knowl
 support@livefyre.com with any questions you have.
 
 == Changelog ==
+= 4.0.2 =
+* Changed a option to automatically be set to true.
 = 4.0.1 =
 * Added an ability to turn off comments on pages or posts with a checkbox.
 * Renamed Logger to Livefyre_Logger to avoid a common name.
