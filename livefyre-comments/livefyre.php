@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Livefyre Realtime Comments
-Plugin URI: http://livefyre.com/wordpress#
+Plugin URI: http://livefyre.com
 Description: Implements Livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
 Version: 4.0.2
@@ -367,7 +367,7 @@ class Livefyre_Application {
     
     function schedule_sync( $timeout ) {
         
-        $this->lf_core->Logger->add( "Livefyre: Scheduling a Sync." );
+        $this->lf_core->Livefyre_Logger->add( "Livefyre: Scheduling a Sync." );
         $hook = 'livefyre_sync';
 
         // try to clear the hook, for race condition safety
@@ -1039,8 +1039,18 @@ class Livefyre_Display {
     }
 
     function livefyre_show_comments(){
-
-        return ( is_single() && get_option('livefyre_display_posts') == 'true' ) || ( is_page() && get_option('livefyre_display_pages') == 'true' ) && ! is_preview();
+        
+        global $post;
+        /* Is this a post and is the settings checkbox on? */
+        $display_posts = ( is_single() && get_option('livefyre_display_posts') == 'true' );
+        /* Is this a page and is the settings checkbox on? */
+        $display_pages = ( is_page() && get_option('livefyre_display_pages') == 'true' );
+        /* Are comments open on this post/page? */
+        $comments_open = ( $post->comment_status == 'open' );
+        
+        return ( $display_posts || $display_pages )
+            && !is_preview()
+            && $comments_open;
 
     }
 
@@ -1072,7 +1082,7 @@ class Livefyre_Http_Extension {
 
 $livefyre = new Livefyre_core;
 
-add_action( 'livefyre_check_for_sync', array( &$obj, 'check_site_sync' ) );
+add_action( 'livefyre_check_for_sync', 'check_site_sync' );
 
 function write_to_log( $msg ) {
     if ( WP_DEBUG === false ) {
