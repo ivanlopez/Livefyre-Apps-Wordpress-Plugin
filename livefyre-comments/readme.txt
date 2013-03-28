@@ -82,6 +82,9 @@ Visit the [Livefyre FAQ](http://support.livefyre.com) to access our entire Knowl
 support@livefyre.com with any questions you have.
 
 == Changelog ==
+= 4.0.4 =
+* Fixed multi-site blog registration.
+* Bumped up priority of the comments widget to support certain themes.
 = 4.0.3 =
 * Removed security plugins acting up with Raven.
 * Added some more CSS in the settings page.
