@@ -939,7 +939,8 @@ class Livefyre_Display {
         if ( ! $this->livefyre_comments_off() ) {
             add_action( 'wp_head', array( &$this, 'lf_embed_head_script' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
-            add_filter( 'comments_template', array( &$this, 'livefyre_comments' ), 11 );
+            // Set comments_template filter to maximum value to always override the default commenting widget
+            add_filter( 'comments_template', array( &$this, 'livefyre_comments' ), 99 );
             add_filter( 'comments_number', array( &$this, 'livefyre_comments_number' ), 10, 2 );
         }
     
