@@ -4,7 +4,7 @@ Plugin Name: Livefyre Realtime Comments
 Plugin URI: http://livefyre.com
 Description: Implements Livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
-Version: 4.0.3
+Version: 4.0.5
 Author URI: http://livefyre.com/
 */
 
@@ -72,8 +72,11 @@ class Livefyre_Application {
     }
     
     function update_network_option( $optionName, $defaultValue = '' ) {
-        // We want multi-sites to behave the same as normal sites
-        return update_option( $optionName, $defaultValue );
+        if ($this->use_site_option()) {
+            return update_site_option( $optionName, $defaultValue );
+        } else {
+            return update_option( $optionName, $defaultValue );
+        }
     }
 
     function get_post_option( $postId, $optionName ) {
@@ -647,8 +650,8 @@ class Livefyre_Admin {
         register_setting($settings_section, 'livefyre_support_url');
         
         if( $this->returned_from_setup() ) {
-            $this->ext->update_network_option("livefyre_site_id", $_GET["site_id"] );
-            $this->ext->update_network_option("livefyre_site_key", $_GET["secretkey"] );
+            $this->ext->update_option("livefyre_site_id", $_GET["site_id"] );
+            $this->ext->update_option("livefyre_site_key", $_GET["secretkey"] );
         }
         
         add_settings_section('lf_site_settings',
@@ -970,7 +973,7 @@ class Livefyre_Display {
 
         global $post, $current_user, $wp_query;
         $network = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
-        if ( comments_open() && $this->livefyre_show_comments() ) {// is this a post page?
+        if ( comments_open() && $this->livefyre_show_comments() ) {   // is this a post page?
             if( $parent_id = wp_is_post_revision( $wp_query->post->ID ) ) {
                 $original_id = $parent_id;
             } else {
@@ -1022,7 +1025,11 @@ class Livefyre_Display {
             } else {
                 echo $conv->to_initjs_v3('comments', $initcfg, $use_backplane);
             }
-        } else if ( !is_single() ) {
+        }
+        else if ( !$this->livefyre_show_comments() ) {
+            echo  '<p style="display:none">Livefyre JS not loading onto the page</p>';
+        } 
+        if ( !is_single() ) {
             echo '<script type="text/javascript" data-lf-domain="' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
         }
 
@@ -1048,9 +1055,11 @@ class Livefyre_Display {
             && !is_preview()
             && $comments_open;
 
+        /*
         if ( !$display ) {
             echo '<p style="display:none">Livefyre Not Displaying on this post</p>';
         }
+        */
         return $display;
 
     }
