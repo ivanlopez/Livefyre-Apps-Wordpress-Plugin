@@ -1056,7 +1056,6 @@ article-id: <?php echo $article_id . "\n"; ?>
 post-type: <?php echo $post_type . "\n"; ?>
 comments-open: <?php echo comments_open() ? "true\n" : "false\n"; ?>
 is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
-is-preview: <?php echo is_preview() ? "true\n" : "false\n"; ?>
 display-posts: <?php echo $display_posts . "\n"; ?>
 display-pages: <?php echo $display_pages . "\n"; ?>
 -->
