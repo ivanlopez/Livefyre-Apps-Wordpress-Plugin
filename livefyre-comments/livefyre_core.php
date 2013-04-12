@@ -113,7 +113,7 @@ class Livefyre_core {
         $this->Admin = new Livefyre_Admin( $this );
         $this->Display = new Livefyre_Display( $this );
         $this->Federation = new Livefyre_Federation( $this );
-        $this->Livefyre_Logger = new Livefyre_Logger( );
+        $this->Livefyre_Logger = new Livefyre_Logger();
     }
 
 } //  Livefyre_core

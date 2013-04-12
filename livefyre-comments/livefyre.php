@@ -55,7 +55,7 @@ class Livefyre_Application {
         
     }
     
-    static function use_site_option( ) {
+    static function use_site_option() {
     
         return is_multisite() && !defined( 'LF_WP_VIP' );
     
@@ -63,8 +63,9 @@ class Livefyre_Application {
 
     function get_network_option( $optionName, $defaultValue = '' ) {
     
-        if ($this->use_site_option()) 
+        if ($this->use_site_option()) {
             return get_site_option( $optionName, $defaultValue );
+        }
 
         return get_option( $optionName, $defaultValue );
     
@@ -72,8 +73,9 @@ class Livefyre_Application {
     
     function update_network_option( $optionName, $defaultValue = '' ) {
 
-        if ($this->use_site_option()) 
+        if ($this->use_site_option()) {
             return update_site_option( $optionName, $defaultValue );
+        }
         
         return update_option( $optionName, $defaultValue );
     }
@@ -547,7 +549,7 @@ class Livefyre_Admin {
     
     }
     
-    function show_user_profile( ) {
+    function show_user_profile() {
     
         $user = wp_get_current_user();
         $this->edit_user_profile( $user );
@@ -603,7 +605,7 @@ class Livefyre_Admin {
     
     }
 
-    function network_options_init($settings_section = 'livefyre_domain_options') {
+    function network_options_init( $settings_section = 'livefyre_domain_options' ) {
     
         register_setting($settings_section, 'livefyre_domain_name');
         register_setting($settings_section, 'livefyre_domain_key');
@@ -1068,7 +1070,7 @@ display-pages: <?php echo $display_pages . "\n"; ?>
 
     }
 
-    function livefyre_show_comments(){
+    function livefyre_show_comments() {
         
         global $post;
         /* Is this a post and is the settings checkbox on? */
