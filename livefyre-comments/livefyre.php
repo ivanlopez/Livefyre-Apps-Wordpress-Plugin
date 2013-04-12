@@ -1042,17 +1042,22 @@ class Livefyre_Display {
 
         global $post;
         $post_type = get_post_type( $post );
+        $article_id = $post->ID;
+        $site_id = get_option('livefyre_site_id','');
         $display_posts = get_option('livefyre_display_posts','true');
         $display_pages = get_option('livefyre_display_pages','true');
+        echo "\n";
         ?>
-        <!-- LF DEBUG 
-        post-type: <?php echo $post_type . "\n"; ?>
-        comments-open: <?php echo comments_open() ? "true\n" : "false\n"; ?>
-        is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
-        is-preview: <?php echo is_preview() ? "true\n" : "false\n"; ?>
-        display-posts: <?php echo $display_posts . "\n"; ?>
-        display-pages: <?php echo $display_pages . "\n"; ?>
-        -->
+<!-- LF DEBUG
+site-id: <?php echo $site_id . "\n"; ?>
+article-id: <?php echo $article_id . "\n"; ?>
+post-type: <?php echo $post_type . "\n"; ?>
+comments-open: <?php echo comments_open() ? "true\n" : "false\n"; ?>
+is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
+is-preview: <?php echo is_preview() ? "true\n" : "false\n"; ?>
+display-posts: <?php echo $display_posts . "\n"; ?>
+display-pages: <?php echo $display_pages . "\n"; ?>
+-->
         <?php
         
     }
