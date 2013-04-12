@@ -46,8 +46,6 @@
         }
         echo '<div id="comments">' . $cached_html . '</div>';
     }
-    else
-        echo '<p style="display:none">Livefyre Not Displaying on this post</p>';
 
     echo "<!-- Livefyre Comments Version: " . $livefyre->plugin_version."-->";
     if ( pings_open() ) {

@@ -63,20 +63,19 @@ class Livefyre_Application {
 
     function get_network_option( $optionName, $defaultValue = '' ) {
     
-        if ($this->use_site_option()) {
+        if ($this->use_site_option()) 
             return get_site_option( $optionName, $defaultValue );
-        } else {
-            return get_option( $optionName, $defaultValue );
-        }
+
+        return get_option( $optionName, $defaultValue );
     
     }
     
     function update_network_option( $optionName, $defaultValue = '' ) {
-        if ($this->use_site_option()) {
+
+        if ($this->use_site_option()) 
             return update_site_option( $optionName, $defaultValue );
-        } else {
-            return update_option( $optionName, $defaultValue );
-        }
+        
+        return update_option( $optionName, $defaultValue );
     }
 
     function get_post_option( $postId, $optionName ) {
@@ -942,6 +941,7 @@ class Livefyre_Display {
         if ( ! $this->livefyre_comments_off() ) {
             add_action( 'wp_head', array( &$this, 'lf_embed_head_script' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
+            add_action( 'wp_footer', array( &$this, 'lf_debug' ) );
             // Set comments_template filter to maximum value to always override the default commenting widget
             add_filter( 'comments_template', array( &$this, 'livefyre_comments' ), 99 );
             add_filter( 'comments_number', array( &$this, 'livefyre_comments_number' ), 10, 2 );
@@ -1031,13 +1031,30 @@ class Livefyre_Display {
                 echo $conv->to_initjs_v3('comments', $initcfg, $use_backplane);
             }
         }
-        else if ( !$this->livefyre_show_comments() ) {
-            echo  '<p style="display:none">Livefyre JS not loading onto the page</p>';
-        } 
+
         if ( !is_single() ) {
             echo '<script type="text/javascript" data-lf-domain="' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
         }
 
+    }
+
+    function lf_debug() {
+
+        global $post;
+        $post_type = get_post_type( $post );
+        $display_posts = get_option('livefyre_display_posts','true');
+        $display_pages = get_option('livefyre_display_pages','true');
+        ?>
+        <!-- LF DEBUG 
+        post-type: <?php echo $post_type . "\n"; ?>
+        comments-open: <?php echo comments_open() ? "true\n" : "false\n"; ?>
+        is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
+        is-preview: <?php echo is_preview() ? "true\n" : "false\n"; ?>
+        display-posts: <?php echo $display_posts . "\n"; ?>
+        display-pages: <?php echo $display_pages . "\n"; ?>
+        -->
+        <?php
+        
     }
 
     function livefyre_comments( $cmnts ) {
