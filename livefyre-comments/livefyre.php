@@ -63,7 +63,7 @@ class Livefyre_Application {
 
     function get_network_option( $optionName, $defaultValue = '' ) {
     
-        if ($this->use_site_option()) {
+        if ( $this->use_site_option() ) {
             return get_site_option( $optionName, $defaultValue );
         }
 
@@ -73,7 +73,7 @@ class Livefyre_Application {
     
     function update_network_option( $optionName, $defaultValue = '' ) {
 
-        if ($this->use_site_option()) {
+        if ( $this->use_site_option() ) {
             return update_site_option( $optionName, $defaultValue );
         }
         
@@ -106,7 +106,7 @@ class Livefyre_Application {
         if ( $parent_id = wp_is_post_revision( $post_id ) ) {
             $post_id = $parent_id;
         }
-        if ( $this->post_uses_v3($post_id) ) {
+        if ( $this->post_uses_v3( $post_id ) ) {
             $this->update_post_option( $post_id, LF_POST_META_KEY, LF_POST_META_USE_V3 );
         }
     }
@@ -159,9 +159,9 @@ class Livefyre_Application {
     
     function setup_import( $obj ) {
 
-        add_action('init', array(&$obj, 'run_check_import'));
-        add_action('init', array(&$obj, 'run_check_activity_map_import'));
-        add_action('init', array(&$obj, 'run_begin'));
+        add_action( 'init', array( &$obj, 'run_check_import' ) );
+        add_action( 'init', array( &$obj, 'run_check_activity_map_import' ) );
+        add_action( 'init', array( &$obj, 'run_begin' ) );
     
     }
     
@@ -232,7 +232,7 @@ class Livefyre_Application {
         $admin = $this->lf_core->Admin;
         foreach ( $admin->notify_types as $type => $desc ) {
             $meta_name = LF_NOTIFY_SETTING_PREFIX . $type;
-            $current_setting = get_user_meta($user_info->ID, $meta_name, true);
+            $current_setting = get_user_meta( $user_info->ID, $meta_name, true );
             if ( !$current_setting ) {
                 $current_setting = $admin->get_notify_default( $type );
             }
@@ -244,7 +244,7 @@ class Livefyre_Application {
             // get_avatar presumes that I am a template, but I am not
             // we have to unfortunately deal with this by parsing out src
             $matches = array();
-            $matched = preg_match("/src=[\'|\"]([^'|^\"]*)/", $avatar, $matches);
+            $matched = preg_match( "/src=[\'|\"]([^'|^\"]*)/", $avatar, $matches );
             if ( $matched ) {
                 if ( substr( $matches[1], 0, 4) != 'http' ) {
                     // seems this is a relative path, add the root
@@ -267,7 +267,7 @@ class Livefyre_Application {
         $http = $this->lf_core->lf_domain_object->http;
         $result = $http->request( $image_url );
         if ( is_array( $result ) && isset($result['response']) && $result['response']['code'] == 200 ) {
-            return md5(base64_encode(substr($result['body'], -256)));
+            return md5( base64_encode( substr($result['body'], -256 ) ) );
         } else {
             // fallback to random number, force the update
             return rand();
@@ -329,7 +329,7 @@ class Livefyre_Application {
             $sig_created = time();
             $postdata = array(
                 'article_identifier' => $post_id,
-                'source_url' => get_permalink($post_id),
+                'source_url' => get_permalink( $post_id ),
                 'article_title' => $record->post_title,
                 'sig_created' => $sig_created,
                 'tags' => $tagStr,
@@ -607,36 +607,36 @@ class Livefyre_Admin {
 
     function network_options_init( $settings_section = 'livefyre_domain_options' ) {
     
-        register_setting($settings_section, 'livefyre_domain_name');
-        register_setting($settings_section, 'livefyre_domain_key');
-        register_setting($settings_section, 'livefyre_use_backplane');
-        register_setting($settings_section, 'livefyre_profile_system');
-        register_setting($settings_section, 'livefyre_wp_auth_hooks');
-        register_setting($settings_section, 'livefyre_engage_appname');
-        register_setting($settings_section, 'livefyre_lfsp_source_url');
+        register_setting( $settings_section, 'livefyre_domain_name' );
+        register_setting( $settings_section, 'livefyre_domain_key' );
+        register_setting( $settings_section, 'livefyre_use_backplane' );
+        register_setting( $settings_section, 'livefyre_profile_system' );
+        register_setting( $settings_section, 'livefyre_wp_auth_hooks' );
+        register_setting( $settings_section, 'livefyre_engage_appname' );
+        register_setting( $settings_section, 'livefyre_lfsp_source_url' );
 
         add_settings_section('lf_domain_settings',
             'Livefyre Network Settings',
             array( &$this, 'settings_callback' ),
-            'livefyre_network');
+            'livefyre_network' );
         
         add_settings_field('livefyre_domain_name',
             'Livefyre Network Name',
             array( &$this, 'domain_name_callback' ),
             'livefyre_network',
-            'lf_domain_settings');
+            'lf_domain_settings' );
         
         add_settings_field('livefyre_domain_key',
             'Livefyre Network Key',
             array( &$this, 'domain_key_callback' ),
             'livefyre_network',
-            'lf_domain_settings');
+            'lf_domain_settings' );
         
         add_settings_field('livefyre_use_backplane',
             'Livefyre Backplane Integration',
             array( &$this, 'use_backplane_callback' ),
             'livefyre_network',
-            'lf_domain_settings');
+            'lf_domain_settings' );
         
     }
     
@@ -645,14 +645,14 @@ class Livefyre_Admin {
         $name = 'livefyre';
         $section_name = 'lf_site_settings';
         $settings_section = 'livefyre_site_options';
-        register_setting($settings_section, 'livefyre_site_id');
-        register_setting($settings_section, 'livefyre_site_key');
-        register_setting($settings_section, 'livefyre_admin_url');
-        register_setting($settings_section, 'livefyre_support_url');
+        register_setting( $settings_section, 'livefyre_site_id' );
+        register_setting( $settings_section, 'livefyre_site_key' );
+        register_setting( $settings_section, 'livefyre_admin_url' );
+        register_setting( $settings_section, 'livefyre_support_url' );
         
         if( $this->returned_from_setup() ) {
-            $this->ext->update_option("livefyre_site_id", $_GET["site_id"] );
-            $this->ext->update_option("livefyre_site_key", $_GET["secretkey"] );
+            $this->ext->update_option( "livefyre_site_id", $_GET["site_id"] );
+            $this->ext->update_option( "livefyre_site_key", $_GET["secretkey"] );
         }
         
         add_settings_section('lf_site_settings',
@@ -691,7 +691,7 @@ class Livefyre_Admin {
         
         // is this a non-mu site? if so, call network_options_init()
         if ( !is_multisite() ) {
-            $this->network_options_init($settings_section);
+            $this->network_options_init( $settings_section );
         }
         
     }
@@ -748,7 +748,7 @@ class Livefyre_Admin {
             <div class="wrap">
                 <h3 style="display:none;">Livefyre Network Settings</h3>
                 <?php
-                if ($this->allow_domain_settings()) {
+                if ( $this->allow_domain_settings() ) {
                 ?>
                 <form method="post" action="edit.php?action=save_network_options">
                 <?php
@@ -823,8 +823,8 @@ class Livefyre_Admin {
                     <?php
                         // settings_fields( 'livefyre_domain_options' );
                         // do_settings_sections( 'livefyre_network' );
-                        $profile_system = $this->ext->get_network_option('livefyre_profile_system','livefyre');
-                        $disable_opt = ($profile_system == 'livefyre' ? 'disabled="disabled"' : '');
+                        $profile_system = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
+                        $disable_opt = ( $profile_system == 'livefyre' ? 'disabled="disabled"' : '' );
                     ?>
                     <table class="form-table" style="display:none;">
                         <tr valign="top"><th scope="row">Livefyre Network Name <br/>(either livefyre.com or your "Custom Network" name)</th><td><input name='livefyre_domain_name' value='<?php echo $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) ?>' /></td></tr>
@@ -844,7 +844,7 @@ class Livefyre_Admin {
                         <tr><td></td><td><input name='livefyre_lfsp_source_url' type='text' value='<?php echo $this->ext->get_network_option('livefyre_lfsp_source_url', '') ?>'/>  Enter the source URL for your Livefyre Simple Profiles Javascript file.</td></tr>
                     </table>
                     <?php
-                    if ($this->allow_domain_settings()) {
+                    if ( $this->allow_domain_settings() ) {
                     ?>
                     <p class="submit">
                         <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
@@ -910,24 +910,24 @@ class Livefyre_Admin {
                 } elseif ( $this->ext->get_option( 'livefyre_v3_notify_upgraded', false ) ) {
                     $message = "Thanks for upgrading to the latest Livefyre plugin. Your posts should now be running Comments 3.";
                 }
-                if ($message) {
+                if ( $message ) {
                     $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
                 }
-            } elseif (!$this->returned_from_setup()) {
+            } elseif ( !$this->returned_from_setup() ) {
                 $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.$livefyre_http_url.'/installation/logout?site_url='.urlencode($home_url).'&domain='.$livefyre_site_domain.'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
             }
-            if ($message) {
-                echo Livefyre_Admin::lf_warning_display($message);
+            if ( $message ) {
+                echo Livefyre_Admin::lf_warning_display( $message );
             }
         }
     }
     
     function returned_from_setup() {
-        return (isset($_GET['lf_login_complete']) && $_GET['lf_login_complete']=='1');
+        return ( isset($_GET['lf_login_complete']) && $_GET['lf_login_complete']=='1' );
     }
     
     function is_settings_page() {
-        return (isset($_GET['page']) && $_GET['page'] == 'livefyre');
+        return ( isset($_GET['page']) && $_GET['page'] == 'livefyre' );
     }
 
 }
@@ -989,8 +989,8 @@ class Livefyre_Display {
             $post_obj = get_post( $wp_query->post->ID );
             $tags = array();
             $posttags = get_the_tags( $wp_query->post->ID );
-            if ($posttags) {
-                foreach($posttags as $tag) {
+            if ( $posttags ) {
+                foreach( $posttags as $tag ) {
                     array_push( $tags, $tag->name );
                 }
             }
@@ -1001,14 +1001,14 @@ class Livefyre_Display {
             $use_backplane = $this->ext->get_network_option( 'livefyre_use_backplane', false );
             $initcfg = array();
             $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
-            $initcfg['betaBanner'] = ($profile_sys == 'livefyre');
+            $initcfg['betaBanner'] = ( $profile_sys == 'livefyre' );
             if ( !$use_backplane && $network != LF_DEFAULT_PROFILE_DOMAIN) {
                 if ( is_user_logged_in() && $profile_sys == 'wordpress' ) {
                     echo $domain->authenticate_js_v3( '?livefyre_token_request=1', '/' );
                     $initcfg['onload'] = 'doLivefyreAuth';
                 }
             }
-            if ($this->ext->get_network_option( 'livefyre_wp_auth_hooks', false )) {
+            if ( $this->ext->get_network_option( 'livefyre_wp_auth_hooks', false ) ) {
                 ?>
                 <script type="text/javascript">
                     var authDelegate = {
@@ -1018,7 +1018,7 @@ class Livefyre_Display {
                 </script>
                 <?php
                 $initcfg['delegate'] = 'authDelegate';
-            } elseif ($profile_sys == 'lfsp') {
+            } elseif ( $profile_sys == 'lfsp' ) {
                 ?>
                 <script type="text/javascript">
                     var authDelegate = new fyre.conv.SPAuthDelegate({engage: {app: "<?php echo $this->ext->get_network_option( 'livefyre_engage_appname', '' )  ?>"}});
@@ -1030,7 +1030,7 @@ class Livefyre_Display {
                 //to_initjs( $user = null, $display_name = null, $backplane = false, $jquery_ready = false, $include_source = true )
                 echo $conv->to_initjs( $backplane = $use_backplane );
             } else {
-                echo $conv->to_initjs_v3('comments', $initcfg, $use_backplane);
+                echo $conv->to_initjs_v3( 'comments', $initcfg, $use_backplane );
             }
         }
 
