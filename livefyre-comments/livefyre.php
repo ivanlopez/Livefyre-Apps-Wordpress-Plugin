@@ -970,6 +970,11 @@ class Livefyre_Display {
     }
     
     function lf_init_script() {
+    /*  Reset the query data because theme code might have moved the $post gloabl to point 
+        at different post rather than the current one, which causes our JS not to load properly. 
+        We do this in the footer because the wp_footer() should be the last thing called on the page.
+        We don't do it earlier, because it might interfere with what the theme code is trying to accomplish.  */
+        wp_reset_query();
 
         global $post, $current_user, $wp_query;
         $network = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
@@ -1050,16 +1055,11 @@ class Livefyre_Display {
         $display_pages = ( is_page() && get_option('livefyre_display_pages','true') == 'true' );
         /* Are comments open on this post/page? */
         $comments_open = ( $post->comment_status == 'open' );
-        
+
         $display = ( $display_posts || $display_pages )
             && !is_preview()
             && $comments_open;
 
-        /*
-        if ( !$display ) {
-            echo '<p style="display:none">Livefyre Not Displaying on this post</p>';
-        }
-        */
         return $display;
 
     }

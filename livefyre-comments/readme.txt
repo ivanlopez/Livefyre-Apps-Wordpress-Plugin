@@ -83,8 +83,10 @@ support@livefyre.com with any questions you have.
 
 == Changelog ==
 = 4.0.5 =
-* Changed debugging messages for Livefyre not displaying
-* Restored some multi-site functionality
+* Removed potential naming conflicts in the livefyre-api folder.
+* Fixed bug with LF JS not being put out to the page.
+* Changed debugging messages for Livefyre not displaying.
+* Restored some multi-site functionality.
 = 4.0.4 =
 * Fixed multi-site blog registration.
 * Bumped up priority of the comments widget to support certain themes.
