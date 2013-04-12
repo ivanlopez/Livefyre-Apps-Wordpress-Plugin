@@ -1043,9 +1043,9 @@ class Livefyre_Display {
         global $post;
         $post_type = get_post_type( $post );
         $article_id = $post->ID;
-        $site_id = get_option( 'livefyre_site_id','' );
-        $display_posts = get_option( 'livefyre_display_posts','true' );
-        $display_pages = get_option( 'livefyre_display_pages','true' );
+        $site_id = get_option( 'livefyre_site_id', '' );
+        $display_posts = get_option( 'livefyre_display_posts', 'true' );
+        $display_pages = get_option( 'livefyre_display_pages', 'true' );
         echo "\n";
         ?>
 <!-- LF DEBUG
