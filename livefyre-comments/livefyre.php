@@ -323,7 +323,7 @@ class Livefyre_Application {
                 $tagStr = '';
             }
             
-            $url = $this->lf_core->quill_url . "/api/v1.1/private/management/site/".get_option('livefyre_site_id').'/conv/initialize/';
+            $url = $this->lf_core->quill_url . "/api/v1.1/private/management/site/".get_option( 'livefyre_site_id' ).'/conv/initialize/';
             $sig_created = time();
             $postdata = array(
                 'article_identifier' => $post_id,
@@ -331,7 +331,7 @@ class Livefyre_Application {
                 'article_title' => $record->post_title,
                 'sig_created' => $sig_created,
                 'tags' => $tagStr,
-                'sig' => getHmacsha1Signature(base64_decode(trim(get_option('livefyre_site_key'))), "sig_created=$sig_created")
+                'sig' => getHmacsha1Signature( base64_decode(trim(get_option( 'livefyre_site_key' ))), "sig_created=$sig_created" )
             );
             $http = $this->lf_core->lf_domain_object->http;
             $http->request( $url, array( 'data' => $postdata, 'method' => 'POST' ) );
@@ -892,20 +892,20 @@ class Livefyre_Admin {
         if (function_exists( 'home_url' )) {
             $home_url= $this->ext->home_url();
         } else {
-            $home_url=$this->ext->get_option('home');
+            $home_url=$this->ext->get_option( 'home' );
         }
         
         if ( is_admin() )
         {
-            $site_settings = $this->ext->get_option('livefyre_site_id', false);
+            $site_settings = $this->ext->get_option( 'livefyre_site_id', false );
             $message = false;
             if ( $site_settings ) {
                 if ( $this->is_settings_page() ) {
                     return;
                 }
-                if ( $this->ext->get_option('livefyre_v3_notify_installed', false) ) {
+                if ( $this->ext->get_option( 'livefyre_v3_notify_installed', false ) ) {
                     $message = "Thanks for installing the new Livefyre plugin featuring Livefyre Comments 3! Visit your <a href=\"./options-general.php?page=livefyre\">Livefyre settings</a> to import your old comments.";
-                } elseif ( $this->ext->get_option('livefyre_v3_notify_upgraded', false) ) {
+                } elseif ( $this->ext->get_option( 'livefyre_v3_notify_upgraded', false ) ) {
                     $message = "Thanks for upgrading to the latest Livefyre plugin. Your posts should now be running Comments 3.";
                 }
                 if ($message) {
@@ -1043,9 +1043,9 @@ class Livefyre_Display {
         global $post;
         $post_type = get_post_type( $post );
         $article_id = $post->ID;
-        $site_id = get_option('livefyre_site_id','');
-        $display_posts = get_option('livefyre_display_posts','true');
-        $display_pages = get_option('livefyre_display_pages','true');
+        $site_id = get_option( 'livefyre_site_id','' );
+        $display_posts = get_option( 'livefyre_display_posts','true' );
+        $display_pages = get_option( 'livefyre_display_pages','true' );
         echo "\n";
         ?>
 <!-- LF DEBUG
@@ -1072,9 +1072,9 @@ display-pages: <?php echo $display_pages . "\n"; ?>
         
         global $post;
         /* Is this a post and is the settings checkbox on? */
-        $display_posts = ( is_single() && get_option('livefyre_display_posts','true') == 'true' );
+        $display_posts = ( is_single() && get_option( 'livefyre_display_posts','true') == 'true' );
         /* Is this a page and is the settings checkbox on? */
-        $display_pages = ( is_page() && get_option('livefyre_display_pages','true') == 'true' );
+        $display_pages = ( is_page() && get_option( 'livefyre_display_pages','true') == 'true' );
         /* Are comments open on this post/page? */
         $comments_open = ( $post->comment_status == 'open' );
 
@@ -1090,7 +1090,7 @@ display-pages: <?php echo $display_pages . "\n"; ?>
     function livefyre_comments_number( $count ) {
 
         global $post;
-        return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . get_option('livefyre_site_id', '') . '" class="livefyre-commentcount">'.$count.'</span>';
+        return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . get_option( 'livefyre_site_id', '' ) . '" class="livefyre-commentcount">'.$count.'</span>';
 
     }
     
