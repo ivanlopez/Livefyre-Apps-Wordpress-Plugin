@@ -1030,7 +1030,7 @@ class Livefyre_Display {
                 //to_initjs( $user = null, $display_name = null, $backplane = false, $jquery_ready = false, $include_source = true )
                 echo $conv->to_initjs( $backplane = $use_backplane );
             } else {
-                echo $conv->to_initjs_v3( 'comments', $initcfg, $use_backplane );
+                echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg, $use_backplane );
             }
         }
 
