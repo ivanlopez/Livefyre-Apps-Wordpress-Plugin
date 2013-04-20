@@ -180,7 +180,7 @@ if (isset($_POST['textfield'])) {
 }
 
 $import_status = get_option('livefyre_import_status','');
-if ( !in_array( $import_status, array( '', 'error', 'csv_uploaded' ) ) ) {
+if ( !in_array( $import_status, array( '', 'error', 'csv_uploaded', 'skipped' ) ) ) {
     //only report status of the import
     ?>
     <script type="text/javascript">
@@ -253,7 +253,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 $posts_count = count($no_comments_posts);
                 $pages_count = count($no_comments_pages);
 
-                $good_status = ( $posts_count + $pages_count + $plugins_count < 1 ) && $import_status == 'csv_uploaded';
+                $good_status = ( $posts_count + $pages_count + $plugins_count < 1 ) && in_array( $import_status, array( 'csv_uploaded', 'skipped' ) );
                 $bad_status = $plugins_count >= 1;
                 $status = Array('Warning, potential issues', 'yellow');
                 if( $bad_status ) {
@@ -264,7 +264,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 }
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
-                $total_errors = ( $plugins_count + $pages_count + $posts_count + ($import_status != 'csv_uploaded' ? 1 : 0) );
+                $total_errors = ( $plugins_count + $pages_count + $posts_count + ( !in_array( $import_status, array( 'csv_uploaded', 'skipped' ) ) ? 1 : 0) );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
                     .$total_errors
@@ -288,7 +288,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             <?php
             }
 
-            if( $import_status != 'csv_uploaded' ) {
+            if( !in_array( $import_status, array( 'csv_uploaded', 'skipped' ) ) ) {
             ?>
                 <div id="fyreimportstatus">
                     <?php

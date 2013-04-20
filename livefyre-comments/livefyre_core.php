@@ -15,7 +15,7 @@ define( 'LF_SYNC_MAX_INSERTS', 25 );
 define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
 define( 'LF_SYNC_MORE', 'more-data' );
 define( 'LF_SYNC_ERROR', 'error' );
-define( 'LF_PLUGIN_VERSION', '4.0.5' );
+define( 'LF_PLUGIN_VERSION', '4.0.6' );
 
 global $livefyre;
 
@@ -200,6 +200,11 @@ class Livefyre_Activation {
                 // !IMPORTANT
                 // livefyre_v3_installed == 0 is used elsewhere to determine if this
                 // installation was derived from a former V2 installation
+                if ( $this->ext->total_comments() <= 1 ) {
+                    $this->lf_core->Livefyre_Logger->add( "Livefyre COMMENT COUNT IS " . strval( $this->ext->total_comments() ) );
+                    // If a site only has the default comment, hide the import comments button
+                    $this->ext->update_option( 'livefyre_import_status', 'skipped' );
+                }
                 $this->ext->update_option( 'livefyre_v3_installed', 0 );
                 $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
                 $this->ext->update_option( 'livefyre_backend_upgrade', 'skipped' );

@@ -4,7 +4,7 @@ Plugin Name: Livefyre Realtime Comments
 Plugin URI: http://livefyre.com
 Description: Implements Livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
-Version: 4.0.5
+Version: 4.0.6
 Author URI: http://livefyre.com/
 */
 
@@ -37,12 +37,18 @@ class Livefyre_Application {
         
     }
     
+    function total_comments() {
+
+        return wp_count_comments()->total_comments;
+        
+    }
+
     function delete_option( $optionName ) {
     
         return delete_option( $optionName );
         
     }
-    
+
     function update_option( $optionName, $optionValue ) {
     
         return update_option( $optionName, $optionValue );
@@ -161,8 +167,8 @@ class Livefyre_Application {
 
         add_action( 'init', array( &$obj, 'run_check_import' ) );
         add_action( 'init', array( &$obj, 'run_check_activity_map_import' ) );
-        add_action( 'init', array( &$obj, 'run_begin' ) );
-    
+        add_action( 'init', array( &$obj, 'run_begin' ) );    
+
     }
     
     /* START: Public Plugin Only */
@@ -909,6 +915,9 @@ class Livefyre_Admin {
                     $message = "Thanks for installing the new Livefyre plugin featuring Livefyre Comments 3! Visit your <a href=\"./options-general.php?page=livefyre\">Livefyre settings</a> to import your old comments.";
                 } elseif ( $this->ext->get_option( 'livefyre_v3_notify_upgraded', false ) ) {
                     $message = "Thanks for upgrading to the latest Livefyre plugin. Your posts should now be running Comments 3.";
+                }
+                if ( $this->ext->get_option( 'livefyre_import_status', false ) == 'skipped' ) {
+                    $message = "Thanks for installing the latest Livefyre plugin! Your posts should now be running Comments 3.";
                 }
                 if ( $message ) {
                     $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
