@@ -209,7 +209,8 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             $bad_plugins = Array();
             $all_bad_plugins = Array(
                     'disqus-comment-system/disqus.php' => 'Disqus: Commenting plugin.',
-                    'cloudflare/cloudflare.php' => 'Cloudflare: Impacts the look of the widget on the page.',
+                    'cloudflare/cloudflare.php' => 'Cloudflare: May impact the look of the widget on the page. Be sure to turn off Rocket Loader in
+                    your <a href="https://support.cloudflare.com/entries/22088538-How-do-I-access-my-CloudFlare-Performance-Settings-" target="_blank">CloudFlare settings</a>!',
                     'spam-free-wordpress/tl-spam-free-wordpress.php' => 'Spam Free: Disables 3rd party commenting widgets.',
             );
             $need_deactivation = false;
@@ -362,7 +363,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <ul>
                     <?php
                         foreach ( $bad_plugins as $plugin ) {
-                            $plugin_data = explode( ':', $plugin );
+                            $plugin_data = explode( ':', $plugin, 2 );
                             echo '<li><div class="plugincirclered"></div>' .$plugin_data[0]. ": <span>" .$plugin_data[1];?></span></li><?php
                         }
                     ?>
