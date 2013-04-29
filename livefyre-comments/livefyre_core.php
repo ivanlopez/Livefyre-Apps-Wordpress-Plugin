@@ -200,10 +200,6 @@ class Livefyre_Activation {
                 // !IMPORTANT
                 // livefyre_v3_installed == 0 is used elsewhere to determine if this
                 // installation was derived from a former V2 installation
-                if ( $this->ext->total_comments() <= 1 ) {
-                    // If a site only has the default comment, hide the import comments button by setting option to skipped
-                    $this->ext->update_option( 'livefyre_import_status', 'skipped' );
-                }
                 $this->ext->update_option( 'livefyre_v3_installed', 0 );
                 $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
                 $this->ext->update_option( 'livefyre_backend_upgrade', 'skipped' );

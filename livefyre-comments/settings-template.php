@@ -144,6 +144,24 @@ function select_posts ( $post_type ) {
     return $wpdb->get_results( $query );
 }
 
+function get_fyrestatus ( $plugins_count, $posts_count, $pages_count, $import_status ) {
+
+    $status = Array('Warning, potential issues', 'yellow');
+    if ( ( $posts_count + $pages_count + $plugins_count < 1 ) && $import_status == 'success' ) {
+        $status = Array('All systems go!', 'green');
+    } elseif ( $plugins_count >= 1 ) {
+        $status = Array('Error, conflicting plugins', 'red');
+    }
+    return $status;
+
+}
+
+function get_total_errors( $plugins_count, $posts_count, $pages_count, $import_status ) {
+
+    return ( $plugins_count + $pages_count + $posts_count + ( $import_status != 'success' ? 1 : 0) );
+
+}
+
 function display_no_allows ( $post_type, $list ) {
 
     ?>
@@ -179,12 +197,12 @@ if (isset($_POST['textfield'])) {
     return;
 }
 
+// Blank string means import has not been started yet
 $import_status = get_option('livefyre_import_status','');
-if ( !in_array( $import_status, array( '', 'error', 'csv_uploaded', 'skipped' ) ) ) {
-    //only report status of the import
+if ( !in_array( $import_status, array( '', 'error', 'success' ) ) ) {
+    // Only report status of the import
     ?>
     <script type="text/javascript">
-        console.log('fdsalfjdfkldfs');
         livefyre_start_ajax(1000);
     </script>
     <?php
@@ -233,8 +251,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 }
             }
             $db_prefix = $wpdb->base_prefix;
-            $no_comments_posts = select_posts( 'post' );
-            $no_comments_pages = select_posts( 'page' );
+            // Get all the posts with comments disabled
+            $comments_disabled_posts = select_posts( 'post' );
+            // Get all the pages with comments disabled
+            $comments_disabled_pages = select_posts( 'page' );
             ?>
             <div id="fyrestatus">
                 <?php
@@ -250,22 +270,17 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 <?php
                     return;
                 }
+                // Count of all activated conflicting plugins
                 $plugins_count = count($bad_plugins);
-                $posts_count = count($no_comments_posts);
-                $pages_count = count($no_comments_pages);
+                // Count of all posts with comments disabled
+                $posts_count = count($comments_disabled_posts);
+                // Count of all pages with comments disabled
+                $pages_count = count($comments_disabled_pages);
 
-                $good_status = ( $posts_count + $pages_count + $plugins_count < 1 ) && in_array( $import_status, array( 'csv_uploaded', 'skipped' ) );
-                $bad_status = $plugins_count >= 1;
-                $status = Array('Warning, potential issues', 'yellow');
-                if( $bad_status ) {
-                    $status = Array('Error, conflicting plugins', 'red');
-                }
-                else if ( $good_status ) {
-                    $status = Array('All systems go!', 'green');
-                }
+                $status = get_fyrestatus( $plugins_count, $posts_count, $pages_count, $import_status );
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
-                $total_errors = ( $plugins_count + $pages_count + $posts_count + ( !in_array( $import_status, array( 'csv_uploaded', 'skipped' ) ) ? 1 : 0) );
+                $total_errors = get_total_errors( $plugins_count, $posts_count, $pages_count, $import_status );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
                     .$total_errors
@@ -276,6 +291,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             </div>
 
             <?php
+
             if ( $upgrade_status == 'success' ) {
                 update_option( 'livefyre_backend_upgrade', 'sent' );
             ?>
@@ -289,7 +305,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             <?php
             }
 
-            if( !in_array( $import_status, array( 'csv_uploaded', 'skipped' ) ) ) {
+            if( $import_status != 'success' ) {
             ?>
                 <div id="fyreimportstatus">
                     <?php
@@ -386,10 +402,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             clicking “Conversations", and then clicking "Stream Settings."</p>
                         <?php
                         if ( $posts_count ) {
-                            display_no_allows( 'post', $no_comments_posts);
+                            display_no_allows( 'post', $comments_disabled_posts);
                         }
                         if ( $pages_count ) {
-                            display_no_allows( 'page', $no_comments_pages);
+                            display_no_allows( 'page', $comments_disabled_pages);
                         }
                     }
                     else {
@@ -447,7 +463,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     </form>
                 </div>
                 <?php
-                if ( $import_status == 'csv_uploaded' ) {
+                if ( $import_status == 'success' ) {
                 ?>
                     <div id="fyreimportsuccess">
                         <h1>Import Success</h1>
