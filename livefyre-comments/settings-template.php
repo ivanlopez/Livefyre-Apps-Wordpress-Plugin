@@ -144,21 +144,21 @@ function select_posts ( $post_type ) {
     return $wpdb->get_results( $query );
 }
 
-function get_fyrestatus ( $plugins_count, $posts_count, $pages_count, $import_status ) {
-
-    $status = Array('Warning, potential issues', 'yellow');
-    if ( ( $posts_count + $pages_count + $plugins_count < 1 ) && $import_status == 'success' ) {
-        $status = Array('All systems go!', 'green');
-    } elseif ( $plugins_count >= 1 ) {
-        $status = Array('Error, conflicting plugins', 'red');
+function get_fyrestatus ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
+    
+    if ( get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) == 0 ) {
+        return Array('All systems go!', 'green');
     }
-    return $status;
+    if ( $plugins_count >= 1 ) {
+        return Array('Error, conflicting plugins', 'red');
+    }
+    return Array('Warning, potential issues', 'yellow');
 
 }
 
-function get_total_errors( $plugins_count, $posts_count, $pages_count, $import_status ) {
+function get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
 
-    return ( $plugins_count + $pages_count + $posts_count + ( $import_status != 'success' ? 1 : 0) );
+    return ( $plugins_count + $disabled_pages_count + $disabled_posts_count + ( $import_status != 'complete' ? 1 : 0) );
 
 }
 
@@ -197,9 +197,9 @@ if (isset($_POST['textfield'])) {
     return;
 }
 
-// Blank string means import has not been started yet
-$import_status = get_option('livefyre_import_status','');
-if ( !in_array( $import_status, array( '', 'error', 'success' ) ) ) {
+$import_status = get_option('livefyre_import_status','uninitialized');
+// Start the animation only if the button was clicked
+if ( $import_status == 'pending' ) {
     // Only report status of the import
     ?>
     <script type="text/javascript">
@@ -211,7 +211,7 @@ if ( !in_array( $import_status, array( '', 'error', 'success' ) ) ) {
 $deactivated_time = get_option( 'livefyre_deactivated', ': '.time() );
 $deactivated_time = explode(': ', $deactivated_time);
 if ( time() - $deactivated_time[1] >= 4838400 ) {
-    $import_status = '';
+    $import_status = 'uninitialized';
     update_option( 'livefyre_deactivated', '' );
 }
 
@@ -273,14 +273,14 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 // Count of all activated conflicting plugins
                 $plugins_count = count($bad_plugins);
                 // Count of all posts with comments disabled
-                $posts_count = count($comments_disabled_posts);
+                $disabled_posts_count = count($comments_disabled_posts);
                 // Count of all pages with comments disabled
-                $pages_count = count($comments_disabled_pages);
+                $disabled_pages_count = count($comments_disabled_pages);
 
-                $status = get_fyrestatus( $plugins_count, $posts_count, $pages_count, $import_status );
+                $status = get_fyrestatus( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
-                $total_errors = get_total_errors( $plugins_count, $posts_count, $pages_count, $import_status );
+                $total_errors = get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
                     .$total_errors
@@ -305,7 +305,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             <?php
             }
 
-            if( $import_status != 'success' ) {
+            if( $import_status != 'complete' ) {
             ?>
                 <div id="fyreimportstatus">
                     <?php
@@ -331,7 +331,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         </div>
                     <?php
                     }
-                    else if ( $import_status == '' ) {
+                    else if ( $import_status == 'uninitialized' ) {
                         if ( wp_count_comments()->total_comments > 100000 ) {
                         ?>
                             <h1>Livefyre Import Status: <span>Pending</span></h1>
@@ -393,18 +393,18 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 </div>
 
                 <div id="fyreallowcomments">
-                    <?php echo '<h1>Allow Comments Status (' .($posts_count + $pages_count). ')</h1>';
-                    if ( $posts_count || $pages_count) {
+                    <?php echo '<h1>Allow Comments Status (' .($disabled_posts_count + $disabled_pages_count). ')</h1>';
+                    if ( $disabled_posts_count || $disabled_pages_count) {
                         ?>
                         <p>We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts and pages listed below, which means that the Livefyre widget will not be present on them. 
                             To be sure that the Livefyre Comments 3 widget is visible on these posts or pages, simply click on the “enable” button next to each.</p>
                         <p>If you’d like to simply close commenting on any post or page with the Livefyre widget still present, you can do so from your Livefyre admin panel by clicking the "Livefyre Admin" link to the right, 
                             clicking “Conversations", and then clicking "Stream Settings."</p>
                         <?php
-                        if ( $posts_count ) {
+                        if ( $disabled_posts_count ) {
                             display_no_allows( 'post', $comments_disabled_posts);
                         }
-                        if ( $pages_count ) {
+                        if ( $disabled_pages_count ) {
                             display_no_allows( 'page', $comments_disabled_pages);
                         }
                     }
@@ -463,7 +463,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     </form>
                 </div>
                 <?php
-                if ( $import_status == 'success' ) {
+                if ( $import_status == 'complete' ) {
                 ?>
                     <div id="fyreimportsuccess">
                         <h1>Import Success</h1>
