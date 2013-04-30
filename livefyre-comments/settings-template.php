@@ -144,7 +144,7 @@ function select_posts ( $post_type ) {
     return $wpdb->get_results( $query );
 }
 
-function get_fyrestatus ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
+function get_fyre_status ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
     
     if ( get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) == 0 ) {
         return Array('All systems go!', 'green');
@@ -277,7 +277,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 // Count of all pages with comments disabled
                 $disabled_pages_count = count($comments_disabled_pages);
 
-                $status = get_fyrestatus( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                $status = get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
                 $total_errors = get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
