@@ -53,6 +53,7 @@ mkdir "$PATHROOT/temp_build"
 cp -r "$PATHROOT/livefyre-comments" "$PATHROOT/temp_build/"
 # Path to the temp working directory
 TEMPPATH="$PATHROOT/temp_build"
+SRCPATH="$TEMPPATH/livefyre-comments/src"
 
 # sed things to make the plugin build for ceratin options.
 # Options are:
@@ -60,6 +61,7 @@ TEMPPATH="$PATHROOT/temp_build"
 # Enterprise: Allow the use of any domain as well as a more robust settings page to add code snippits.
 # 	Multisite: Allow for multisite support
 # 	Site Sync: Allow for site_sync support
+# All files excluded need to be relative because ZIP doesn't care about your absolute paths. Stupid ZIP
 if [[ $COMMUNITY ]]; then
     PLUGINNAME=livefyre-wordpress-c.zip
     echo $PLUGINNAME
@@ -75,7 +77,7 @@ elif [[ $ENTERPRISE ]]; then
     EXCLUDES="livefyre-comments/src/admin/settings-template.php livefyre-comments/src/admin/multisite-settings.php livefyre-comments/src/import/Livefyre_Import_Impl.php"
 
 	# sed-ing the settings page to use the enterprise version
-	sed_i 's/\/settings-template.php/\/enterprise-settings.php/g' "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
+	sed_i 's/\/settings-template.php/\/enterprise-settings.php/g' "$SRCPATH/admin/Livefyre_Admin.php"
     # rm Livefyre_Admin.php.bak
 
 	# Check if we need mulitsite
@@ -84,13 +86,13 @@ elif [[ $ENTERPRISE ]]; then
     	echo "Adding multisite related plugin items!"
 
     	# Add in multisite level stuff
-		sed_i 's/\/multisite-settings.php/\/enterprise-multisite.php/g' "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
+		sed_i 's/\/multisite-settings.php/\/enterprise-multisite.php/g' "$SRCPATH/admin/Livefyre_Admin.php"
 
     else
         echo "Removing multisite related plugin items!"
 
         # Remove Multisite stuff
-        sed_i "/define( 'LF_MULTI_SETTINGS_PAGE', '\/multisite-settings.php' );/d" "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
+        sed_i "/define( 'LF_MULTI_SETTINGS_PAGE', '\/multisite-settings.php' );/d" "$SRCPATH/admin/Livefyre_Admin.php"
         EXCLUDES="$EXCLUDES livefyre-comments/src/admin/enterprise-multisite.php"
 	fi
 
@@ -100,13 +102,13 @@ elif [[ $ENTERPRISE ]]; then
 		echo "Stubbing out Site Sync related items!"
 
         # Add in implemented Site Sync
-        sed_i 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' "$TEMPPATH/livefyre-comments/src/Livefyre_WP_Core.php"
+        sed_i 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"
         sed_i '/require_once( dirname( __FILE__ ) . "\/src\/sync\/sync_helpers.php" );/d' "$TEMPPATH/livefyre-comments/livefyre.php"
         EXCLUDES="$EXCLUDES livefyre-comments/src/sync/Livefyre_Sync_Impl.php"
 	fi
 
     # Switch import to stub. Not needed for enterprise
-    sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$TEMPPATH/livefyre-comments/src/Livefyre_WP_Core.php"
+    sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"
 
 fi
 
@@ -120,10 +122,10 @@ for EXCLUDE in $EXCLUDES; do
     zip -d $PLUGINNAME $EXCLUDE
 done
 
-cd ..
-
 # Get the plugin out of the directory before we destroy it
-# mv $PLUGINNAME $PATHROOT
+mv -f $PLUGINNAME $PATHROOT
+
+cd ..
 
 # Delete temp files as each build is different
 rm -r temp_build
