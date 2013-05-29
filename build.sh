@@ -26,13 +26,13 @@ function sed_i () {
 
 # Make sure everything is there and either enterprise OR community is selected. Not both.
 if [[ $COMMUNITY && $ENTERPRISE ]]; then
-        echo "You cannot have a Community and Enterprise Version at the same time"
-        exit 1
+    echo "You cannot have a Community and Enterprise Version at the same time"
+    exit 1
 fi
 
 if [[ -z $COMMUNITY && -z $ENTERPRISE ]]; then
-        echo "You need to specify at least Community or Enterprise"
-        exit 1
+    echo "You need to specify at least Community or Enterprise"
+    exit 1
 fi
 
 PATHROOT=`pwd -P`
@@ -109,11 +109,10 @@ elif [[ $ENTERPRISE ]]; then
     sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$TEMPPATH/livefyre-comments/src/Livefyre_WP_Core.php"
 
 fi
-pwd
+
 # Actually build the new files now and come back down to temp_build
 cd temp_build
 zip -r $PLUGINNAME livefyre-comments/ -x "livefyre-comments/**/.*" -x "livefyre-comments/.*"
-echo "$PLUGINNAME"
 
 # Builds backwards. Since all the code is already included, we need to get rid of things that aren't needed
 for EXCLUDE in $EXCLUDES; do
