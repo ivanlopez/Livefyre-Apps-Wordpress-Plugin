@@ -113,7 +113,7 @@ elif [[ $ENTERPRISE ]]; then
 fi
 
 # Actually build the new files now and come back down to temp_build
-cd temp_build
+pushd temp_build
 zip -r $PLUGINNAME livefyre-comments/ -x "livefyre-comments/**/.*" -x "livefyre-comments/.*"
 
 # Builds backwards. Since all the code is already included, we need to get rid of things that aren't needed
@@ -125,7 +125,7 @@ done
 # Get the plugin out of the directory before we destroy it
 mv -f $PLUGINNAME $PATHROOT
 
-cd ..
+popd
 
 # Delete temp files as each build is different
 rm -r temp_build
