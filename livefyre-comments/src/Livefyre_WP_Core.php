@@ -11,24 +11,13 @@ Author URI: http://livefyre.com/
 
 require_once( dirname( __FILE__ ) . '/Abst_Livefyre_Core.php');
 
-//define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
-//define( 'LF_DEFAULT_TLD', 'livefyre.com' );
 define( 'LF_PLUGIN_VERSION', '4.0.5' );
-
 
 class Livefyre_WP_Core extends Abst_Livefyre_Core {
 
     function __construct() {
 
         Abst_Livefyre_Core::__construct();
-
-        // $this->add_extension();
-        // $this->require_php_api();
-        // $this->require_Livefyre_Logger();
-        // $this->define_globals();
-        // $this->require_subclasses();
-        // $this->require_raven();
-        // $this->Livefyre_Logger->add( "Livefyre: Constructing a Livefyre_core." );
         
     }
     

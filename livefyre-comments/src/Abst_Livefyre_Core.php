@@ -9,17 +9,8 @@ Version: 4.0.5
 Author URI: http://livefyre.com/
 */
 
-// require_once( dirname( __FILE__ ) . '/Livefyre_Application.php' );
-// require_once( dirname( __FILE__ ) . '/display/Livefyre_Display.php' );
-// require_once( dirname( __FILE__ ) . '/Livefyre_Import.php' );
-// require_once( dirname( __FILE__ ) . '/admin/Livefyre_Admin.php' );
-// require_once( dirname( __FILE__ ) . '/Livefyre_Health_Check.php' );
-// require_once( dirname( __FILE__ ) . '/Livefyre_Activation.php' );
-// require_once( dirname( __FILE__ ) . '/sync/Livefyre_Sync_Impl.php' );
-
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
 define( 'LF_DEFAULT_TLD', 'livefyre.com' );
-
 
 abstract class Abst_Livefyre_Core {
 
@@ -104,13 +95,6 @@ abstract class Abst_Livefyre_Core {
 
     function require_subclasses() {
 
-        // $this->Health_Check = new Livefyre_Health_Check( $this );
-        // $this->Activation = new Livefyre_Activation( $this );
-        // $this->Sync = new Livefyre_Sync_Impl( $this );
-        // $this->Import = new Livefyre_Import( $this );
-        // $this->Admin = new Livefyre_Admin( $this );
-        // $this->Display = new Livefyre_Display( $this );
-        // $this->Livefyre_Logger = new Livefyre_Logger();
     }
 
 } //  Livefyre_core
