@@ -14,6 +14,17 @@ do
     esac
 done
 
+# Decides which system we are on and what sed to run
+IS_BSD=$([ "$(uname -s)" == "Darwin" ] && echo 1)
+function sed_i () {
+    if [ ${IS_BSD} ]; then
+        sed -i '' "$@"
+    else
+        sed -i "$@"
+    fi
+}
+
+# Make sure everything is there and either enterprise OR community is selected. Not both.
 if [[ $COMMUNITY && $ENTERPRISE ]]; then
         echo "You cannot have a Community and Enterprise Version at the same time"
         exit 1
@@ -24,25 +35,24 @@ if [[ -z $COMMUNITY && -z $ENTERPRISE ]]; then
         exit 1
 fi
 
+PATHROOT=`pwd -P`
+
 # Need to update all of the files to include the right version from the version file
+# This is one of the whole reasons. For awesome version tracking
 VERSION=`cat version`
-find livefyre-comments/src/ -type f -exec sed -i.bak "s/.*Version:.*/Version: $VERSION/" {} +
-sed -i.bak "s/.*Version:.*/Version: $VERSION/" livefyre-comments/livefyre.php
-# Remove backup files
-rm livefyre-comments/src/*.bak
-rm livefyre-comments/src/admin/*.bak
-rm livefyre-comments/src/import/*.bak
-rm livefyre-comments/src/display/*.bak
-rm livefyre-comments/src/sync/*.bak
+for filename in $(find livefyre-comments/src/ -type f); do
+    sed_i "s/.*Version:.*/Version: $VERSION/" "$filename"
+done
+sed_i "s/.*Version:.*/Version: $VERSION/" "$PATHROOT/livefyre-comments/livefyre.php"
+
 # Update the stable tag
-sed -i.bak "s/.*Stable tag:.*/Stable tag: ${VERSION%%-*}/" livefyre-comments/readme.txt
-rm livefyre-comments/*.bak
+sed_i "s/.*Stable tag:.*/Stable tag: ${VERSION%%-*}/" "$PATHROOT/livefyre-comments/readme.txt"
 
 # Create a temp directory to store changed plugins
-mkdir temp_build
-cp -r livefyre-comments temp_build/
-cd temp_build/livefyre-comments
-
+mkdir "$PATHROOT/temp_build"
+cp -r "$PATHROOT/livefyre-comments" "$PATHROOT/temp_build/"
+# Path to the temp working directory
+TEMPPATH="$PATHROOT/temp_build"
 
 # sed things to make the plugin build for ceratin options.
 # Options are:
@@ -53,94 +63,68 @@ cd temp_build/livefyre-comments
 if [[ $COMMUNITY ]]; then
     PLUGINNAME=livefyre-wordpress-c.zip
     echo $PLUGINNAME
-	echo "Adding in community related plugin items!"
+	echo "Building Community Plugin"
 	# Remove enterprise stuff from the plugin
 	EXCLUDES="livefyre-comments/src/admin/enterprise-settings.php livefyre-comments/src/admin/enterprise-multisite.php"
 
-	# Always add in SiteSync for Community
-
-	# Always add in Multisite for Community
-
-	# Update the versions in the README
-
 elif [[ $ENTERPRISE ]]; then
     PLUGINNAME=livefyre-wordpress-e.zip
-    echo $PLUGINNAME
-	echo "Adding in enterprise related plugin items!"
-	# Add in enterprise level things
+	echo "Building Enterprise Plugin"
 
+    # Exclude Community things
     EXCLUDES="livefyre-comments/src/admin/settings-template.php livefyre-comments/src/admin/multisite-settings.php livefyre-comments/src/import/Livefyre_Import_Impl.php"
 
 	# sed-ing the settings page to use the enterprise version
-	cd src/admin
-	sed -i.bak 's/\/settings-template.php/\/enterprise-settings.php/g' Livefyre_Admin.php
-    rm Livefyre_Admin.php.bak
-	cd ../..
+	sed_i 's/\/settings-template.php/\/enterprise-settings.php/g' "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
+    # rm Livefyre_Admin.php.bak
 
 	# Check if we need mulitsite
 	if [[ $MULTISITE ]]; then
         PLUGINNAME="${PLUGINNAME%%.*}-m.zip"
-        echo $PLUGINNAME
     	echo "Adding multisite related plugin items!"
+
     	# Add in multisite level stuff
-		cd src/admin
-		sed -i.bak 's/\/multisite-settings.php/\/enterprise-multisite.php/g' Livefyre_Admin.php
-		rm Livefyre_Admin.php.bak
-		cd ../..
+		sed_i 's/\/multisite-settings.php/\/enterprise-multisite.php/g' "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
+
     else
         echo "Removing multisite related plugin items!"
-        # Add in multisite level stuff
-        cd src/admin
-        sed -i.bak "/define( 'LF_MULTI_SETTINGS_PAGE', '\/multisite-settings.php' );/d" Livefyre_Admin.php
-        rm Livefyre_Admin.php.bak
-        cd ../..
 
+        # Remove Multisite stuff
+        sed_i "/define( 'LF_MULTI_SETTINGS_PAGE', '\/multisite-settings.php' );/d" "$TEMPPATH/livefyre-comments/src/admin/Livefyre_Admin.php"
         EXCLUDES="$EXCLUDES livefyre-comments/src/admin/enterprise-multisite.php"
 	fi
 
     # Check if we need site sync
 	if [[ $SITESYNC ]]; then
         PLUGINNAME="${PLUGINNAME%%.*}-s.zip"
-        echo $PLUGINNAME
 		echo "Stubbing out Site Sync related items!"
-		# Remove site_sync level stuff
 
-        cd src/
-        sed -i.bak 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' Livefyre_WP_Core.php
-        rm Livefyre_WP_Core.php.bak
-        cd ..
-
-        sed -i.bak '/require_once( dirname( __FILE__ ) . "\/src\/sync\/sync_helpers.php" );/d' livefyre.php
-        rm livefyre.php.bak
-
+        # Add in implemented Site Sync
+        sed_i 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' "$TEMPPATH/livefyre-comments/src/Livefyre_WP_Core.php"
+        sed_i '/require_once( dirname( __FILE__ ) . "\/src\/sync\/sync_helpers.php" );/d' "$TEMPPATH/livefyre-comments/livefyre.php"
         EXCLUDES="$EXCLUDES livefyre-comments/src/sync/Livefyre_Sync_Impl.php"
 	fi
 
-    # Switch import to stub
-    cd src
-    sed -i.bak 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' Livefyre_WP_Core.php
-    rm Livefyre_WP_Core.php.bak
-    cd ..
-
-    # Update the versions in the README
+    # Switch import to stub. Not needed for enterprise
+    sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$TEMPPATH/livefyre-comments/src/Livefyre_WP_Core.php"
 
 fi
-
+pwd
 # Actually build the new files now and come back down to temp_build
-cd ..
+cd temp_build
 zip -r $PLUGINNAME livefyre-comments/ -x "livefyre-comments/**/.*" -x "livefyre-comments/.*"
+echo "$PLUGINNAME"
 
+# Builds backwards. Since all the code is already included, we need to get rid of things that aren't needed
 for EXCLUDE in $EXCLUDES; do
+    echo "Removing: $EXCLUDE"
     zip -d $PLUGINNAME $EXCLUDE
 done
 
-mv $PLUGINNAME ..
+cd ..
+
+# Get the plugin out of the directory before we destroy it
+# mv $PLUGINNAME $PATHROOT
 
 # Delete temp files as each build is different
-cd ..
 rm -r temp_build
-
-for EXCLUDE in $EXCLUDES; do
-	echo $EXCLUDE
-done
-
