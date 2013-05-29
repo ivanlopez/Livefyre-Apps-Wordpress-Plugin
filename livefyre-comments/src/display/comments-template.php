@@ -51,7 +51,6 @@ Author URI: http://livefyre.com/
         echo '<div id="comments">' . $cached_html . '</div>';
     }
 
-Version: 4.0.5
     if ( pings_open() ) {
         $num_pings = count( get_comments( array( 'post_id' => $post->ID, 'type' => 'pingback', 'status' => 'approve' ) ) ) + count( get_comments( array( 'post_id'=>$post->ID, 'type'=>'trackback', 'status'=>'approve' ) ) );
         if ( $num_pings > 0 ):
