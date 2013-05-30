@@ -48,6 +48,7 @@ fi
 
 ./build.sh "$@"
 
+#TODO: See if there is a difference to multisite
 if [[ $MULTISITE ]]; then
 
 	scp $PLUGINNAME root@orangesaregreat.com:/var/www/orangesaregreat.com/$BLOGNAME/wp-content/plugins/
