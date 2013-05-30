@@ -48,6 +48,9 @@ sed_i "s/.*Version:.*/Version: $VERSION/" "$PATHROOT/livefyre-comments/livefyre.
 # Update the stable tag
 sed_i "s/.*Stable tag:.*/Stable tag: ${VERSION%%-*}/" "$PATHROOT/livefyre-comments/readme.txt"
 
+# Outlying plugin version in core needs updating
+sed_i "s/.*define( 'LF_PLUGIN_VERSION',.* );/define( 'LF_PLUGIN_VERSION', '$VERSION' );/" "$PATHROOT/livefyre-comments/src/Livefyre_WP_Core.php"
+
 # Create a temp directory to store changed plugins
 mkdir "$PATHROOT/temp_build"
 cp -r "$PATHROOT/livefyre-comments" "$PATHROOT/temp_build/"
