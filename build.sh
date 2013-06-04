@@ -79,6 +79,10 @@ elif [[ $ENTERPRISE ]]; then
     # Exclude Community things
     EXCLUDES="livefyre-comments/src/admin/settings-template.php livefyre-comments/src/admin/multisite-settings.php livefyre-comments/src/import/Livefyre_Import_Impl.php"
 
+    # sed-ing the description and plugin name so that enterprise users don't upgrade their plugin
+    sed_i 's/Plugin Name: Livefyre Realtime Comments/Plugin Name: Livefyre Enterprise Realtime Comments/' "$TEMPPATH/livefyre-comments/livefyre.php"
+    sed_i 's/Description: Implements Livefyre realtime comments for WordPress/Description: Implements Enterprise Livefyre realtime comments for WordPress/' "$TEMPPATH/livefyre-comments/livefyre.php"
+
 	# sed-ing the settings page to use the enterprise version
 	sed_i 's/\/settings-template.php/\/enterprise-settings.php/g' "$SRCPATH/admin/Livefyre_Admin.php"
     # rm Livefyre_Admin.php.bak
