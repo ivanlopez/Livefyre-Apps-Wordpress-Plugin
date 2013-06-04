@@ -35,7 +35,7 @@ if [[ -z $COMMUNITY && -z $ENTERPRISE ]]; then
     exit 1
 fi
 
-PATHROOT=`pwd -P`
+PATHROOT=$( cd $(dirname $0) ; pwd -P )
 
 # Need to update all of the files to include the right version from the version file
 # This is one of the whole reasons. For awesome version tracking
@@ -47,6 +47,9 @@ sed_i "s/.*Version:.*/Version: $VERSION/" "$PATHROOT/livefyre-comments/livefyre.
 
 # Update the stable tag
 sed_i "s/.*Stable tag:.*/Stable tag: ${VERSION%%-*}/" "$PATHROOT/livefyre-comments/readme.txt"
+
+# Updating the git README.md
+cat "$PATHROOT/livefyre-comments/readme.txt" > "$PATHROOT/README.md"
 
 # Outlying plugin version in core needs updating
 sed_i "s/.*define( 'LF_PLUGIN_VERSION',.* );/define( 'LF_PLUGIN_VERSION', '$VERSION' );/" "$PATHROOT/livefyre-comments/src/Livefyre_WP_Core.php"
@@ -120,7 +123,7 @@ elif [[ $ENTERPRISE ]]; then
 fi
 
 # Actually build the new files now and come back down to temp_build
-pushd temp_build
+pushd $TEMPPATH
 zip -r $PLUGINNAME livefyre-comments/ -x "livefyre-comments/**/.*" -x "livefyre-comments/.*"
 
 # Builds backwards. Since all the code is already included, we need to get rid of things that aren't needed
@@ -135,4 +138,4 @@ mv -f $PLUGINNAME $PATHROOT
 popd
 
 # Delete temp files as each build is different
-rm -r temp_build
+rm -r $TEMPPATH
