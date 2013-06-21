@@ -110,7 +110,7 @@ class Livefyre_Admin {
         }
         
         add_settings_section('lf_site_settings',
-            'Livefyre Settings',
+            '',
             array( &$this, 'settings_callback' ),
             $name
         );

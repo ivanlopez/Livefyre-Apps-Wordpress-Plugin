@@ -100,13 +100,11 @@ settings_toggle_more = function() {
                     $status = Array('All systems go!', 'green');
                 }
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
+                echo "<h3>Using your " . get_option('livefyre_environment', 'development') . " environment.<h3>";
 
                 $total_errors = ( $plugins_count + $pages_count + $posts_count + $need_settings);
                 if ( $total_errors > 0 ) {
-                    echo '<h2>' 
-                    .$total_errors
-                    .($total_errors == 1 ? ' issue requires' : ' issues require')
-                    .' your attention, please see below</h2>';
+                    echo '<h2>' . $total_errors . (($total_errors == 1 ) ? ' issue requires' : ' issues require') . ' your attention, please see below</h2>';
                 }
                 ?>
             </div>

@@ -40,7 +40,6 @@
 }
 
 #fyrebody #fyrenetworksettings {
-    border-bottom: 1px solid #CCC;
     display: block;
     padding-top: 10px;
     padding-left: 10px;
@@ -175,7 +174,6 @@
 }
 
 #fyrebodycontent #fyreimportstatus {
-    border-bottom: 1px solid #CCC;
     width: 97.8%;
     display: block;
     padding: 10px;
@@ -207,6 +205,7 @@
 
 #fyrepotentials #fyreallowcomments {
     border-left: 1px solid #CCC;
+    border-top: 1px solid #CCC;
     width: 47%;
     float: left;
     padding: 10px;
@@ -218,6 +217,7 @@
     float: left;
     min-height: inherit;
     padding: 10px;
+    border-top: 1px solid #CCC;
 }
 
 #fyreconflictplugs li {
