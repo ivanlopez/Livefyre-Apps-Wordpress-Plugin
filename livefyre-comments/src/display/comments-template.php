@@ -48,7 +48,7 @@ Author URI: http://livefyre.com/
             }
             set_transient( $transient_key , $cached_html, 300 );
         }
-        echo '<div id="comments">' . $cached_html . '</div>';
+        echo '<div id="livefyre-comments">' . $cached_html . '</div>';
     }
 
     if ( pings_open() ) {

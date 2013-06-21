@@ -8,8 +8,8 @@ Version: 4.0.5
 Author URI: http://livefyre.com/
 */
 
+
 require_once( dirname( __FILE__ ) . "/src/Livefyre_WP_Core.php" );
-require_once( dirname( __FILE__ ) . "/src/sync/sync_helpers.php" );
 
 // Constants
 define( 'LF_CMETA_PREFIX', 'livefyre_cmap_' );
