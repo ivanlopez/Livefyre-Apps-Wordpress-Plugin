@@ -86,7 +86,7 @@ class Livefyre_Display {
                 }
             }
             // Do we need to add in some things for Enterprise?
-            echo $conv->to_initjs_v3( 'comments', $initcfg, $use_backplane );
+            echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg, $use_backplane );
         }
 
         if ( !is_single() ) {

@@ -201,6 +201,10 @@ class Livefyre_Application {
     }
     
     function update_comment_status( $app_comment_id, $status ) {
+
+        if ( get_comment( $app_commetn_id ) == NULL ) {
+            return;
+        }
     
         // Livefyre says unapproved, WordPress says hold.
         $wp_status = ( $status == 'unapproved' ? 'hold' : $status );
