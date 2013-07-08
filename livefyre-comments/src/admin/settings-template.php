@@ -1,4 +1,13 @@
 <?php
+/*
+Author: Livefyre, Inc.
+Version: 4.0.7
+Author URI: http://livefyre.com/
+*/
+
+require_once( dirname( __FILE__ ) . "/Livefyre_Settings.php" );
+$livefyre_settings = new Livefyre_Settings();
+
 global $wpdb;
 if ( function_exists( 'home_url' ) ) {
     $home_url=home_url();
@@ -107,97 +116,21 @@ import_toggle_more = function() {
 
 <?php
 
-function update_posts ( $id, $post_type ) {
-    global $wpdb;
-    $db_prefix = $wpdb->base_prefix;
-    if( $id ) {
-        $query = "
-            UPDATE $wpdb->posts SET comment_status = 'open'
-            WHERE ID = " .$id. "
-                AND comment_status = 'closed' 
-                AND post_type IN ('page','post')
-                AND post_status = 'publish'
-            ";
-    }
-    else {
-        $query = "
-            UPDATE $wpdb->posts SET comment_status = 'open'
-            WHERE comment_status = 'closed'
-                AND post_type = '" .$post_type. "'
-                AND post_status = 'publish'
-            ";
-    }
-    return $wpdb->get_results( $query );
-}
-
-function select_posts ( $post_type ) {
-    global $wpdb;
-    $query = "
-        SELECT ID, post_title
-        FROM $wpdb->posts
-        WHERE comment_status = 'closed' 
-            AND post_type = '" .$post_type. "'
-            AND post_status = 'publish'
-        ORDER BY DATE(`post_date`) DESC
-        LIMIT 50
-        ";
-    return $wpdb->get_results( $query );
-}
-
-function get_fyre_status ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
-    
-    if ( get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) == 0 ) {
-        return Array('All systems go!', 'green');
-    }
-    if ( $plugins_count >= 1 ) {
-        return Array('Error, conflicting plugins', 'red');
-    }
-    return Array('Warning, potential issues', 'yellow');
-
-}
-
-function get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
-
-    return ( $plugins_count + $disabled_pages_count + $disabled_posts_count + ( $import_status != 'complete' ? 1 : 0) );
-
-}
-
-function display_no_allows ( $post_type, $list ) {
-
-    ?>
-    <div id="fyreallowheader">
-        <?php
-        if ( $post_type == 'post' ) {
-        ?>
-            <h1>Post:</h1>
-            <a href="?page=livefyre&allow_comments_id=all_posts" text-decoration:"none">Enable All</a>
-        <?php
-        }
-        else {
-        ?>
-            <h1>Page:</h1>
-            <a href="?page=livefyre&allow_comments_id=all_pages" text-decoration:"none">Enable All</a>
-        <?php
-        }
-        ?>
-    </div>
-    <ul>
-        <?php
-        foreach ( $list as $ncpost ) {
-            echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
-            echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a></li>';
-        }
-    ?>
-    <ul>
-    <?php
-}
-
 if (isset($_POST['textfield'])) {
     echo username();
     return;
 }
 
 $import_status = get_option('livefyre_import_status','uninitialized');
+
+// Handle legacy values
+if ( $import_status == 'csv_uploaded') {
+    $import_status = 'complete';
+}
+elseif ( $import_status == 'started' ) {
+    $import_status = 'pending';
+}
+
 // Start the animation only if the button was clicked
 if ( $import_status == 'pending' ) {
     // Only report status of the import
@@ -241,20 +174,20 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 $allow_id = $_GET['allow_comments_id'];
 
                 if ( $allow_id == 'all_posts' ) {
-                    update_posts( false, 'post' );
+                    $livefyre_settings->update_posts( false, 'post' );
                 }
                 else if ( $allow_id == 'all_pages' ) {
-                    update_posts( false, 'page' );
+                    $livefyre_settings->update_posts( false, 'page' );
                 }
                 else {
-                    update_posts( $allow_id, false );
+                    $livefyre_settings->update_posts( $allow_id, false );
                 }
             }
             $db_prefix = $wpdb->base_prefix;
             // Get all the posts with comments disabled
-            $comments_disabled_posts = select_posts( 'post' );
+            $comments_disabled_posts = $livefyre_settings->select_posts( 'post' );
             // Get all the pages with comments disabled
-            $comments_disabled_pages = select_posts( 'page' );
+            $comments_disabled_pages = $livefyre_settings->select_posts( 'page' );
             ?>
             <div id="fyrestatus">
                 <?php
@@ -277,10 +210,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 // Count of all pages with comments disabled
                 $disabled_pages_count = count($comments_disabled_pages);
 
-                $status = get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                $status = $livefyre_settings->get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
-                $total_errors = get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                $total_errors = $livefyre_settings->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
                     .$total_errors
@@ -402,10 +335,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             clicking “Conversations", and then clicking "Stream Settings."</p>
                         <?php
                         if ( $disabled_posts_count ) {
-                            display_no_allows( 'post', $comments_disabled_posts);
+                            $livefyre_settings->display_no_allows( 'post', $comments_disabled_posts);
                         }
                         if ( $disabled_pages_count ) {
-                            display_no_allows( 'page', $comments_disabled_pages);
+                            $livefyre_settings->display_no_allows( 'page', $comments_disabled_pages);
                         }
                     }
                     else {
