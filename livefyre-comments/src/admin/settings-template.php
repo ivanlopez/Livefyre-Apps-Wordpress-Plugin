@@ -385,7 +385,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         foreach ($post_types as $post_type ) {
                             $post_type_name = 'livefyre_display_' .$post_type;
                             if ( isset( $_GET[$post_type] ) ) {
-                                update_option( $post_type_name, $_GET['display_pages'] );
+                                update_option( $post_type_name, $_GET[$post_type] );
                             }
                             else {
                                 update_option( $post_type_name, 'false' );
