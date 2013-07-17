@@ -44,6 +44,7 @@
     padding-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
+    border-bottom: 1px solid #CCC;
 }
 
 #fyrebody #fyrenetworksettings h3, #fyrebody #fyrenetworksettingsmulti h3 {
@@ -205,11 +206,10 @@
 
 #fyrepotentials #fyreallowcomments {
     border-left: 1px solid #CCC;
-    border-top: 1px solid #CCC;
     width: 47%;
     float: left;
     padding: 10px;
-    min-height: 544px;
+    min-height: 645px;
 }
 
 #fyrepotentials #fyreconflictplugs {
@@ -217,7 +217,6 @@
     float: left;
     min-height: inherit;
     padding: 10px;
-    border-top: 1px solid #CCC;
 }
 
 #fyreconflictplugs li {
@@ -239,13 +238,20 @@
     padding: 10px;
 }
 
+#fyresidepanel #fyrelanguages {
+    border-right: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
+    padding: 10px;
+}
+
 #fyresidepanel #fyredisplayinfo {
     border-right: 1px solid #CCC;
     border-bottom: 1px solid #CCC;
     padding: 10px;
 }
 
-#fyredisplayinfo #fyredisplayform {
+#fyredisplayinfo #fyredisplayform,
+#fyrelanguages #fyrelanguagesform {
     margin-top: 10px;
     margin-left: 5px;
 }
@@ -273,12 +279,7 @@
     padding: 3px;
 }
 
-#fyresidepanel #fyredeactivation {
-    border-right: 1px solid #CCC;
-    border-bottom: 1px solid #CCC;
-    padding: 10px;
-}
-
+#fyresidepanel #fyredeactivation,
 #fyresidepanel #fyreimportsuccess {
     border-right: 1px solid #CCC;
     border-bottom: 1px solid #CCC;
@@ -295,7 +296,8 @@
     color: #4D4D4D;
 }
 
-#fyresidepanel .lf_text {
+#fyresidepanel .lf_text,
+#fyrelanguages .lf_text {
     display: inline;
     font-size: 12px;
     color: #999999;

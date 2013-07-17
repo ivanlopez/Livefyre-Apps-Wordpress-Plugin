@@ -92,4 +92,12 @@ class Livefyre_Settings {
 
     }
 
+    function checkLanguage( $language ) {
+        
+        if ( get_option('livefyre_language', 'English') == $language ) {
+            return 'selected="selected"';
+        }
+        return '';
+    }
+
 }

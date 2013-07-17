@@ -86,6 +86,10 @@ class Livefyre_Display {
                     $initcfg['delegate'] = get_option( 'livefyre_auth_delegate_name', '' );
                 }
             }
+            else {
+                $language = get_option( 'livefyre_language', 'English' );
+                $initcfg['strings'] = $this->load_strings( $language );
+            }
             // Do we need to add in some things for Enterprise?
             echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg );
         }
@@ -149,6 +153,15 @@ class Livefyre_Display {
         global $post;
         return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . get_option( 'livefyre_site_id', '' ) . '" class="livefyre-commentcount">'.$count.'</span>';
 
+    }
+
+    function load_strings( $language ) {
+
+        if ( $language == 'English' ) {
+            return '';
+        }
+        echo file_get_contents( dirname(dirname(dirname( __FILE__ ))) . '/languages/' . $language );
+        return 'customStrings';
     }
     
 }

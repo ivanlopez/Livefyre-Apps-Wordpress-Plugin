@@ -112,6 +112,24 @@ import_toggle_more = function() {
     toggle_text.innerHTML = 'Less Info';
 }
 
+settings_toggle_less = function() {
+    var info = document.getElementById('settings_information');
+    info.style.display = 'none';
+    var button = document.getElementById('settings_toggle_button');
+    button.onclick = settings_toggle_more;
+    var toggle_text = document.getElementById('toggle_text');
+    toggle_text.innerHTML = 'More Info';
+}
+
+settings_toggle_more = function() {
+    var info = document.getElementById('settings_information');
+    info.style.display = 'block';
+    var button = document.getElementById('settings_toggle_button');
+    button.onclick = settings_toggle_less;
+    var toggle_text = document.getElementById('toggle_text');
+    toggle_text.innerHTML = 'Less Info';
+}
+
 </script>
 
 <?php
@@ -302,6 +320,27 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             }
             ?>
 
+            <div id="fyrenetworksettings">
+                <?php
+                    if( isset( $_GET['lf_language']) ) {
+                        update_option( 'livefyre_language', $_GET['lf_language'] );
+                    }
+                ?>
+                <h1>Livefyre Settings</h1>
+                <div id="settings_toggle_button" onclick="settings_toggle_less()" cursor="pointer">
+                    <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
+                    <div id='toggle_text'>Less Info</div>
+                </div>
+                <div id="settings_information">
+                    <h1>Caching</h1>
+                    <p class="lf_text">I would like my language to be: </p>
+                    <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
+                        <input type="hidden" name="page" value="livefyre" />
+                        <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
+                    </form>
+                </div>
+            </div>
+
             <div id="fyrepotentials" class="clearfix">
                 <div id="fyreconflictplugs">
                     <?php echo '<h1>Conflicting Plugins (' .$plugins_count. ')</h1>';
@@ -393,6 +432,25 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         <input type="checkbox" class="checkbox" name="display_posts" value="true" <?php echo $posts_checkbox;?> />Posts<br />
                         <input type="checkbox" class="checkbox" name="display_pages" value="true" <?php echo $pages_checkbox;?> />Pages<br />
                         <input type="submit" class="fyrebutton" name="save_display_settings" value="Submit" />
+                    </form>
+                </div>
+                <div id="fyrelanguages">
+                    <?php
+                    if( isset( $_GET['lf_language']) ) {
+                        update_option( 'livefyre_language', $_GET['lf_language'] );
+                    }
+                    ?>
+                    <h1>Languages</h1>
+                    <p class="lf_text">I would like my language to be: </p>
+                    <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
+                        <input type="hidden" name="page" value="livefyre" />
+                        <select name="lf_language">
+                            <option value="English" <?php echo $livefyre_settings->checkLanguage('English'); ?> >English</option>
+                            <option value="Spanish" <?php echo $livefyre_settings->checkLanguage('Spanish'); ?> >Spanish</option>
+                            <option value="French" <?php echo $livefyre_settings->checkLanguage('French'); ?> >French</option>
+                            <option value="Portuguese" <?php echo $livefyre_settings->checkLanguage('Portuguese'); ?> >Portuguese</option>
+                        </select><br />
+                        <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
                     </form>
                 </div>
                 <?php
