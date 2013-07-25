@@ -39,7 +39,8 @@
     padding-right: 10px;
 }
 
-#fyrebody #fyrenetworksettings {
+#fyrebody #fyrenetworksettings,
+#fyrebody #fyrecommunitysettings {
     display: block;
     padding-top: 10px;
     padding-left: 10px;
@@ -47,7 +48,14 @@
     border-bottom: 1px solid #CCC;
 }
 
-#fyrebody #fyrenetworksettings h3, #fyrebody #fyrenetworksettingsmulti h3 {
+#fyrecommunitysettings h2 {
+    color: #4D4D4D;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+#fyrebody #fyrenetworksettings h3, #fyrebody #fyrenetworksettingsmulti h3,
+#fyrebody #fyrecommunitysettings h3 {
     color: #4D4D4D;
     font-size: 18px;
 }
@@ -178,6 +186,7 @@
     width: 97.8%;
     display: block;
     padding: 10px;
+    border-bottom: 1px solid #CCC;
 }
 
 #livefyre-import-text {
@@ -251,9 +260,28 @@
 }
 
 #fyredisplayinfo #fyredisplayform,
-#fyrelanguages #fyrelanguagesform {
+#fyrelanguages #fyrelanguagesform,
+#fyrecommunitysettings #fyrecacheform, {
     margin-top: 10px;
     margin-left: 5px;
+}
+
+#fyrecommunitysettings form select {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#fyresidepanel form select {
+    margin-top: 10px;
+}
+
+#fyrecommunitysettings #cache_delete {
+    margin-top: 30px;
+    margin-bottom: 25px;
+}
+
+#fyreimportform .fyrebutton {
+    margin-bottom: 15px;
 }
 
 #fyredisplayinfo .checkbox {

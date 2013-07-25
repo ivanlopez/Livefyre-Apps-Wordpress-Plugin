@@ -26,6 +26,7 @@ if ( isset( $_GET['status'] ) ) {
     delete_option( 'livefyre_v3_notify_installed' );
     delete_option( 'livefyre_v3_notify_upgraded' );
 }
+
 ?>
 
 <script type="text/javascript">
@@ -279,6 +280,21 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <strong>Note:</strong> If you have multiple sites on your WordPress that you would like to import comments for, please make note of that
                             in the email.</p>
                             <p>Livefyre will still be active and functional on your site, but your imported comments will not be displayed in the comment stream.</p>
+                            <?php
+                            if( isset( $_GET['hide_import_message']) ) {
+                                update_option( 'livefyre_import_status', 'complete' );
+                            ?>
+                                <script type="text/javascript">
+                                    location.reload();
+                                </script>
+                            <?php
+                            }
+                            ?>
+                            <form id="fyreimportform" action="options-general.php?page=livefyre">
+                                <input type="hidden" name="page" value="livefyre" />
+                                <input type="hidden" name="hide_import_message" value="1" />
+                                <input type="submit" class="fyrebutton" value="Got it, thanks!" />
+                            </form>
                         </div>
                     <?php
                     }
@@ -320,24 +336,42 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             }
             ?>
 
-            <div id="fyrenetworksettings">
-                <?php
-                    if( isset( $_GET['lf_language']) ) {
-                        update_option( 'livefyre_language', $_GET['lf_language'] );
-                    }
-                ?>
+            <div id="fyrecommunitysettings">
                 <h1>Livefyre Settings</h1>
-                <div id="settings_toggle_button" onclick="settings_toggle_less()" cursor="pointer">
+                <div id="settings_toggle_button" onclick="settings_toggle_more()" cursor="pointer">
                     <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                    <div id='toggle_text'>Less Info</div>
+                    <div id='toggle_text'>More Info</div>
                 </div>
-                <div id="settings_information">
-                    <h1>Caching</h1>
-                    <p class="lf_text">I would like my language to be: </p>
-                    <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
-                        <input type="hidden" name="page" value="livefyre" />
-                        <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
-                    </form>
+                <div id="settings_information" style="display:none">
+                    <div id="cache_toggle">
+                        <h2>Caching</h2>
+                        <p>By defaut, this plugin will automatically store the static HTML of each Livefyre commenting widget in the WordPress database as transient value.
+                            If you would like to turn this off, you can do so here. However, without caching there will be a significant performance penalty causing the 
+                            commenting widget to load on the page a few seconds slower than if caching was enabled.</p>
+                        <?php
+                        if( isset( $_GET['lf_caching']) ) {
+                            update_option( 'livefyre_caching', $_GET['lf_caching'] );
+                        }
+                        ?>
+                        <form id="fyrecacheform" action="options-general.php?page=livefyre">
+                            <input type="hidden" name="page" value="livefyre" />
+                            <select name="lf_caching">
+                                <option value="on" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'on'); ?> >On</option>
+                                <option value="off" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'off'); ?> >Off</option>
+                            </select><br />
+                            <input type="submit" class="fyrebutton" value="Submit" />
+                        </form>
+                    </div>
+                    <div id="cache_delete">
+                        <h2>Clear Cache</h2>
+                        <p>By clicking the button below, you can delete all the transient values the plugin has stored in your options table.</p>
+                        <form id="fyrecacheform" action="options-general.php?page=livefyre">
+                            <input type="hidden" name="page" value="livefyre" />
+                            <input type="hidden" name="lf_clear_cache" value="1" />
+                            <input type="hidden" name="settings_page" value="1" />
+                            <input type="submit" class="fyrebutton" value="Clear Cache" />
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -445,10 +479,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
                         <input type="hidden" name="page" value="livefyre" />
                         <select name="lf_language">
-                            <option value="English" <?php echo $livefyre_settings->checkLanguage('English'); ?> >English</option>
-                            <option value="Spanish" <?php echo $livefyre_settings->checkLanguage('Spanish'); ?> >Spanish</option>
-                            <option value="French" <?php echo $livefyre_settings->checkLanguage('French'); ?> >French</option>
-                            <option value="Portuguese" <?php echo $livefyre_settings->checkLanguage('Portuguese'); ?> >Portuguese</option>
+                            <option value="English" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'English'); ?> >English</option>
+                            <option value="Spanish" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Spanish'); ?> >Spanish</option>
+                            <option value="French" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'French'); ?> >French</option>
+                            <option value="Portuguese" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Portuguese'); ?> >Portuguese</option>
                         </select><br />
                         <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
                     </form>

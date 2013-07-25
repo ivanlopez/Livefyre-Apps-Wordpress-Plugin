@@ -14,6 +14,7 @@ Author URI: http://livefyre.com/
         }
         $transient_key = 'livefyre_bootstrap_' . $post_id;
         $cached_html = get_transient( $transient_key );
+        $caching_enabled = ( $livefyre->lf_core->ext->get_option( 'livefyre_caching', 'on' ) == 'on' );
         if ( !$cached_html ) {
             $cached_html = '';
             
@@ -46,7 +47,10 @@ Author URI: http://livefyre.com/
                 // something is wrong with the response
                 $cached_html = '';
             }
-            set_transient( $transient_key , $cached_html, 300 );
+
+            if ( $caching_enabled ) {
+                set_transient( $transient_key , $cached_html, 300 );
+            }
         }
         echo '<div id="livefyre-comments">' . $cached_html . '</div>';
     }

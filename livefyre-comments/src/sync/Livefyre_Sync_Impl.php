@@ -64,11 +64,15 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
         } else {
             $final_path_seg = $max_activity . '/';
         }
-        $url = $this->site_rest_url() . '/sync/' . $final_path_seg;
-        $qstring = 'page_size=' . $inserts_remaining . '&sig_created=' . time();
-        $key = $this->ext->get_option( 'livefyre_site_key' );
+        //$url = $this->site_rest_url() . '/sync/' . $final_path_seg;
+        //$qstring = 'plugin_version=' . LF_PLUGIN_VERSION . '&page_size=' . $inserts_remaining . '&sig_created=' . time();
+        //$key = $this->ext->get_option( 'livefyre_site_key' );
+        $url = 'http://www.qa-ext.livefyre.com/site/290596/sync/' . $final_path_seg;
+        $qstring = 'page_size=' . $inserts_remaining . '&plugin_version=4.10' . '&sig_created=' . time();
+        $key = 'f6j0ijPqdfroAIDfLtiKH0KzvYs=';
         $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
         $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 120) );
+        $this->lf_core->Livefyre_Logger->add($http_result);
         if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
             $str_comments = $http_result['body'];
         } else {

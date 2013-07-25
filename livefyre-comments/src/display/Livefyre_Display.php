@@ -17,7 +17,7 @@ class Livefyre_Display {
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
             add_action( 'wp_footer', array( &$this, 'lf_debug' ) );
             // Set comments_template filter to maximum value to always override the default commenting widget
-            add_filter( 'comments_template', array( &$this, 'livefyre_comments' ), 99 );
+            add_filter( 'comments_template', array( &$this, 'livefyre_comments' ), $this->lf_widget_priority() );
             add_filter( 'comments_number', array( &$this, 'livefyre_comments_number' ), 10, 2 );
         }
     
@@ -26,6 +26,12 @@ class Livefyre_Display {
     function livefyre_comments_off() {
     
         return ( $this->ext->get_option( 'livefyre_site_id', '' ) == '' );
+
+    }
+
+    function lf_widget_priority() {
+
+        return intval( $this->ext->get_option( 'livefyre_widget_priority', 99 ) );
 
     }
     

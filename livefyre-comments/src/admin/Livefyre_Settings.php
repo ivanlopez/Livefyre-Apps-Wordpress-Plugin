@@ -92,9 +92,9 @@ class Livefyre_Settings {
 
     }
 
-    function checkLanguage( $language ) {
+    function checkSelected( $option, $value ) {
         
-        if ( get_option('livefyre_language', 'English') == $language ) {
+        if ( get_option( $option, '' ) == $value ) {
             return 'selected="selected"';
         }
         return '';
