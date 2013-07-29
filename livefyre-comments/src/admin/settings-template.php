@@ -27,6 +27,11 @@ if ( isset( $_GET['status'] ) ) {
     delete_option( 'livefyre_v3_notify_upgraded' );
 }
 
+if (isset($_POST['hide_import_message'])) {
+    update_option( 'livefyre_import_status', 'complete' );
+    exit;
+}
+
 ?>
 
 <script type="text/javascript">
@@ -93,42 +98,6 @@ function livefyre_start_ajax(iv) {
         iv
     );
     checkStatusLF();
-}
-
-import_toggle_less = function() {
-    var info = document.getElementById('import_information');
-    info.style.display = 'none';
-    var button = document.getElementById('import_toggle_button');
-    button.onclick = import_toggle_more;
-    var toggle_text = document.getElementById('import_toggle_text');
-    toggle_text.innerHTML = 'More Info';
-}
-
-import_toggle_more = function() {
-    var info = document.getElementById('import_information');
-    info.style.display = 'block';
-    var button = document.getElementById('import_toggle_button');
-    button.onclick = import_toggle_less;
-    var toggle_text = document.getElementById('import_toggle_text');
-    toggle_text.innerHTML = 'Less Info';
-}
-
-settings_toggle_less = function() {
-    var info = document.getElementById('settings_information');
-    info.style.display = 'none';
-    var button = document.getElementById('settings_toggle_button');
-    button.onclick = settings_toggle_more;
-    var toggle_text = document.getElementById('toggle_text');
-    toggle_text.innerHTML = 'More Info';
-}
-
-settings_toggle_more = function() {
-    var info = document.getElementById('settings_information');
-    info.style.display = 'block';
-    var button = document.getElementById('settings_toggle_button');
-    button.onclick = settings_toggle_less;
-    var toggle_text = document.getElementById('toggle_text');
-    toggle_text.innerHTML = 'Less Info';
 }
 
 </script>
@@ -264,11 +233,11 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     if ( $import_status == 'error' ) {
                     ?>
                         <h1>Livefyre Import Status: <span>Failed</span></h1>
-                        <div id="import_toggle_button" onclick="import_toggle_less()" cursor="pointer">
+                        <div id="import_toggle_button" cursor="pointer">
                             <img id="import_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                            <div id='import_toggle_text'>Less Info</div>
+                            <div id="import_toggle_text">Less Info</div>
                         </div>
-                        <div id="import_information">
+                        <div id="import_information" style="display:block">
                             <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
                             <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                                 If you wouldn’t mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
@@ -280,21 +249,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <strong>Note:</strong> If you have multiple sites on your WordPress that you would like to import comments for, please make note of that
                             in the email.</p>
                             <p>Livefyre will still be active and functional on your site, but your imported comments will not be displayed in the comment stream.</p>
-                            <?php
-                            if( isset( $_GET['hide_import_message']) ) {
-                                update_option( 'livefyre_import_status', 'complete' );
-                            ?>
-                                <script type="text/javascript">
-                                    location.reload();
-                                </script>
-                            <?php
-                            }
-                            ?>
-                            <form id="fyreimportform" action="options-general.php?page=livefyre">
-                                <input type="hidden" name="page" value="livefyre" />
-                                <input type="hidden" name="hide_import_message" value="1" />
-                                <input type="submit" class="fyrebutton" value="Got it, thanks!" />
-                            </form>
+                            <input id="fyrehideimport" class="fyrebutton" type="submit" value="Got it, thanks!" />
                         </div>
                     <?php
                     }
@@ -338,9 +293,9 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 
             <div id="fyrecommunitysettings">
                 <h1>Livefyre Settings</h1>
-                <div id="settings_toggle_button" onclick="settings_toggle_more()" cursor="pointer">
+                <div id="settings_toggle_button" cursor="pointer">
                     <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                    <div id='toggle_text'>More Info</div>
+                    <div id="settings_toggle_text">More Info</div>
                 </div>
                 <div id="settings_information" style="display:none">
                     <div id="cache_toggle">
@@ -514,3 +469,45 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 <style>
     <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
 </style>
+
+<script type="text/javascript">
+
+function toggler(section) {
+    var info = document.getElementById(section + 'information');
+    var toggle_text = document.getElementById(section + 'toggle_text');
+    if(info.style.display === 'block') {
+        info.style.display = 'none';
+        toggle_text.innerHTML = 'More Info';
+        return;
+    }
+    info.style.display = 'block';
+    toggle_text.innerHTML = 'Less Info';
+}
+
+document.getElementById('settings_toggle_button').onclick = function() {
+    toggler('settings_');
+}
+
+if ( document.getElementById('import_toggle_button') != null ) {
+    document.getElementById('import_toggle_button').onclick = function() {
+        toggler('import_');
+    }
+}
+
+</script>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script>
+
+$('#fyrehideimport').click(function() {
+    $.ajax({
+        type: 'POST',
+        url: location.href,
+        data: 'hide_import_message=1',
+        success: function(data) {
+            location.reload();
+        }
+    });
+});
+
+</script>
