@@ -27,82 +27,15 @@ if ( isset( $_GET['status'] ) ) {
     delete_option( 'livefyre_v3_notify_upgraded' );
 }
 
-if (isset($_POST['hide_import_message'])) {
+if (isset($_GET['hide_import_message'])) {
     update_option( 'livefyre_import_status', 'complete' );
+    ?>
+    <script type="text/javascript">
+        window.location.href = window.location.pathname + '?page=livefyre';
+    </script>
+    <?php
     exit;
 }
-
-?>
-
-<script type="text/javascript">
-//Lightweight JSONP fetcher - www.nonobtrusive.com
-var JSONP=(function(){var a=0,c,f,b,d=this;function e(j){var i=document.createElement("script"),h=false;i.src=j;i.async=true;i.onload=i.onreadystatechange=function(){if(!h&&(!this.readyState||this.readyState==="loaded"||this.readyState==="complete")){h=true;i.onload=i.onreadystatechange=null;if(i&&i.parentNode){i.parentNode.removeChild(i)}}};if(!c){c=document.getElementsByTagName("head")[0]}c.appendChild(i)}function g(h,j,k){f="?";j=j||{};for(b in j){if(j.hasOwnProperty(b)){f+=b+"="+j[b]+"&"}}var i="json"+(++a);d[i]=function(l){k(l);d[i]=null;try{delete d[i]}catch(m){}};e(h+f+"callback="+i);return i}return{get:g}}());
-
-var secondsPassed = 0;
-var stub = "Progress: ";
-
-function checkStatusLF(){
-    JSONP.get( '<?php echo $this->lf_core->quill_url ?>/import/wordpress/<?php echo get_option("livefyre_site_id") ?>/status', {param1:'none'}, function(data){
-        console.log('REPSONSE:', data);
-        var status = data['status'],
-            loc = '?page=livefyre';
-
-        switch(status) {
-            case 'aborted':
-            case 'failed':
-                // Statuses that signal a stopping point in the process.
-                loc += '&status=error';
-                if (data['import_failure'] && data['import_failure']['message']) {
-                    loc += '&message=' + data['import_failure']['message'];
-                }
-                window.location.href = loc;
-                break;
-            
-            default:
-                secondsPassed++;
-                if(secondsPassed <= 20) {
-                    message = "Warming up the engine...";
-                }
-                else if(secondsPassed >= 20 && secondsPassed < 60) {
-                    message = "Starting the move...";
-                }
-                else if(secondsPassed >= 60 && secondsPassed < 30) {
-                    message = "Hang tight, work in progress...";
-                }
-                else if(secondsPassed >= 300 && secondsPassed < 600) {
-                    message = "We're still cranking away!";
-                }
-                else if(secondsPassed >= 600 && secondsPassed < 1800) {
-                    message = "Maybe it's time for a candy bar.";
-                }
-                else if(secondsPassed >= 1800 && secondsPassed < 2700) {
-                    message = 'In the meantime, check out our Facebook page at <a href="http://www.facebook.com/livefyre">facebook.com/livefyre</a>';
-                }
-                else if(secondsPassed >= 2700 && secondsPassed < 3600) {
-                    message = "Boy, you have one popular website...";
-                }
-                else {
-                    message = "Still working here. Thanks for your patience.";
-                }
-                document.getElementById("livefyre-import-text").innerHTML = stub + message;
-        }
-        if (status === 'complete') {
-            window.location.href = window.location.href.split('?')[0] + '?page=livefyre';
-        }
-    });
-}
-
-function livefyre_start_ajax(iv) {
-    window.checkStatusInterval=setInterval(
-        checkStatusLF, 
-        iv
-    );
-    checkStatusLF();
-}
-
-</script>
-
-<?php
 
 if (isset($_POST['textfield'])) {
     echo username();
@@ -117,16 +50,6 @@ if ( $import_status == 'csv_uploaded') {
 }
 elseif ( $import_status == 'started' ) {
     $import_status = 'pending';
-}
-
-// Start the animation only if the button was clicked
-if ( $import_status == 'pending' ) {
-    // Only report status of the import
-    ?>
-    <script type="text/javascript">
-        livefyre_start_ajax(1000);
-    </script>
-    <?php
 }
 
 $deactivated_time = get_option( 'livefyre_deactivated', ': '.time() );
@@ -237,7 +160,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <img id="import_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
                             <div id="import_toggle_text">Less Info</div>
                         </div>
-                        <div id="import_information" style="display:block">
+                        <div id="import_information" class="visible">
                             <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
                             <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                                 If you wouldn’t mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
@@ -297,7 +220,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
                     <div id="settings_toggle_text">More Info</div>
                 </div>
-                <div id="settings_information" style="display:none">
+                <div id="settings_information" class="hidden">
                     <div id="cache_toggle">
                         <h2>Caching</h2>
                         <p>By defaut, this plugin will automatically store the static HTML of each Livefyre commenting widget in the WordPress database as transient value.
@@ -472,15 +395,80 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 
 <script type="text/javascript">
 
+//Lightweight JSONP fetcher - www.nonobtrusive.com
+var JSONP=(function(){var a=0,c,f,b,d=this;function e(j){var i=document.createElement("script"),h=false;i.src=j;i.async=true;i.onload=i.onreadystatechange=function(){if(!h&&(!this.readyState||this.readyState==="loaded"||this.readyState==="complete")){h=true;i.onload=i.onreadystatechange=null;if(i&&i.parentNode){i.parentNode.removeChild(i)}}};if(!c){c=document.getElementsByTagName("head")[0]}c.appendChild(i)}function g(h,j,k){f="?";j=j||{};for(b in j){if(j.hasOwnProperty(b)){f+=b+"="+j[b]+"&"}}var i="json"+(++a);d[i]=function(l){k(l);d[i]=null;try{delete d[i]}catch(m){}};e(h+f+"callback="+i);return i}return{get:g}}());
+
+var secondsPassed = 0;
+var stub = "Progress: ";
+
+function checkStatusLF(){
+    JSONP.get( '<?php echo $this->lf_core->quill_url ?>/import/wordpress/<?php echo get_option("livefyre_site_id") ?>/status', {param1:'none'}, function(data){
+        console.log('REPSONSE:', data);
+        var status = data['status'],
+            loc = '?page=livefyre';
+
+        switch(status) {
+            case 'aborted':
+            case 'failed':
+                // Statuses that signal a stopping point in the process.
+                loc += '&status=error';
+                if (data['import_failure'] && data['import_failure']['message']) {
+                    loc += '&message=' + data['import_failure']['message'];
+                }
+                window.location.href = loc;
+                break;
+            
+            default:
+                secondsPassed++;
+                if(secondsPassed <= 20) {
+                    message = "Warming up the engine...";
+                }
+                else if(secondsPassed >= 20 && secondsPassed < 60) {
+                    message = "Starting the move...";
+                }
+                else if(secondsPassed >= 60 && secondsPassed < 30) {
+                    message = "Hang tight, work in progress...";
+                }
+                else if(secondsPassed >= 300 && secondsPassed < 600) {
+                    message = "We're still cranking away!";
+                }
+                else if(secondsPassed >= 600 && secondsPassed < 1800) {
+                    message = "Maybe it's time for a candy bar.";
+                }
+                else if(secondsPassed >= 1800 && secondsPassed < 2700) {
+                    message = 'In the meantime, check out our Facebook page at <a href="http://www.facebook.com/livefyre">facebook.com/livefyre</a>';
+                }
+                else if(secondsPassed >= 2700 && secondsPassed < 3600) {
+                    message = "Boy, you have one popular website...";
+                }
+                else {
+                    message = "Still working here. Thanks for your patience.";
+                }
+                document.getElementById("livefyre-import-text").innerHTML = stub + message;
+        }
+        if (status === 'complete') {
+            window.location.href = window.location.href.split('?')[0] + '?page=livefyre';
+        }
+    });
+}
+
+function livefyre_start_ajax(iv) {
+    window.checkStatusInterval=setInterval(
+        checkStatusLF, 
+        iv
+    );
+    checkStatusLF();
+}
+
 function toggler(section) {
     var info = document.getElementById(section + 'information');
     var toggle_text = document.getElementById(section + 'toggle_text');
-    if(info.style.display === 'block') {
-        info.style.display = 'none';
+    if(info.className === 'visible') {
+        info.className = 'hidden';
         toggle_text.innerHTML = 'More Info';
         return;
     }
-    info.style.display = 'block';
+    info.className = 'visible';
     toggle_text.innerHTML = 'Less Info';
 }
 
@@ -488,26 +476,32 @@ document.getElementById('settings_toggle_button').onclick = function() {
     toggler('settings_');
 }
 
-if ( document.getElementById('import_toggle_button') != null ) {
-    document.getElementById('import_toggle_button').onclick = function() {
+var import_button = document.getElementById('import_toggle_button');
+
+if (import_button != null) {
+    import_button.onclick = function() {
         toggler('import_');
+    }
+}
+
+var hide_import_button = document.getElementById('fyrehideimport');
+
+if (hide_import_button != null) {
+    hide_import_button.onclick = function() {
+        window.location.href = window.location.href + '&hide_import_message=1'
     }
 }
 
 </script>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-<script>
-
-$('#fyrehideimport').click(function() {
-    $.ajax({
-        type: 'POST',
-        url: location.href,
-        data: 'hide_import_message=1',
-        success: function(data) {
-            location.reload();
-        }
-    });
-});
-
-</script>
+<?php
+// Start the animation only if the button was clicked
+if ( $import_status == 'pending' ) {
+    // Only report status of the import
+    ?>
+    <script type="text/javascript">
+        livefyre_start_ajax(1000);
+    </script>
+    <?php
+}
+?>
