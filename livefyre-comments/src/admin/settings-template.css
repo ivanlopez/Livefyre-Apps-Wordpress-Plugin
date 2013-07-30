@@ -351,10 +351,6 @@
     display: none;
 }
 
-.visible {
-    display: block;
-}
-
 .statuscirclered {
     border-radius: 50%;
     margin-right: 5px;

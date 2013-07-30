@@ -160,7 +160,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <img id="import_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
                             <div id="import_toggle_text">Less Info</div>
                         </div>
-                        <div id="import_information" class="visible">
+                        <div id="import_information">
                             <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
                             <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                                 If you wouldn’t mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
@@ -463,12 +463,12 @@ function livefyre_start_ajax(iv) {
 function toggler(section) {
     var info = document.getElementById(section + 'information');
     var toggle_text = document.getElementById(section + 'toggle_text');
-    if(info.className === 'visible') {
+    if(info.className !== 'hidden') {
         info.className = 'hidden';
         toggle_text.innerHTML = 'More Info';
         return;
     }
-    info.className = 'visible';
+    info.className = '';
     toggle_text.innerHTML = 'Less Info';
 }
 
