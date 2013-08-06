@@ -84,6 +84,7 @@ elif [[ $ENTERPRISE ]]; then
 
     # sed-ing the description and plugin name so that enterprise users don't upgrade their plugin
     sed_i 's/Plugin Name: Livefyre Realtime Comments/Plugin Name: Livefyre Enterprise Realtime Comments/' "$TEMPPATH/livefyre-comments/livefyre.php"
+    sed_i 's/=== Livefyre Comments 3 ===/=== Livefyre Comments 3 for Enterprise ===/' "$TEMPPATH/livefyre-comments/readme.txt"
     sed_i 's/Description: Implements Livefyre realtime comments for WordPress/Description: Implements Enterprise Livefyre realtime comments for WordPress/' "$TEMPPATH/livefyre-comments/livefyre.php"
     
     # Update the stable tag
