@@ -1,4 +1,3 @@
-<script>
 var customStrings = {
 	signIn: "Iniciar Sesión",
 	signInGuest: "Publicar como Invitado",
@@ -107,4 +106,3 @@ var customStrings = {
 	liveblogPostCountLabelPlural: "",
 	showMoreLiveblog: ""
 };
-</script>
