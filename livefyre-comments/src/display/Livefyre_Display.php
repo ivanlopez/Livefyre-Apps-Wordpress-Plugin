@@ -54,6 +54,12 @@ class Livefyre_Display {
             wp_enqueue_script('lf_custom_strings', $file_url, array(), null, false);
             return;
         }
+
+        $language = get_option( 'livefyre_language', 'English' );
+        if ( $language == 'English' ) {
+            return;
+        }
+        wp_enqueue_script('lf_language', plugins_url('/languages/' . $language . '.js', dirname(dirname( __FILE__ ))), array(), null, false );
         
     }
     
