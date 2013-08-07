@@ -31,11 +31,6 @@ Author URI: http://livefyre.com/
                 ?>
             </div>
             <div id="fyrenetworksettingsmulti">
-                <h1>Livefyre Network Settings</h1>
-                <div id="settings_toggle_button" onclick="settings_toggle_less()" cursor="pointer">
-                    <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                    <div id='toggle_text'>Less Info</div>
-                </div>
                 <form method="post" action="edit.php?action=save_network_options">
                     <?php
                         settings_fields( 'livefyre_domain_options' );
