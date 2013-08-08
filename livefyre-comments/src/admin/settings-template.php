@@ -100,7 +100,7 @@ function livefyre_start_ajax(iv) {
 <?php
 
 if (isset($_GET['hide_import_message'])) {
-    update_option( 'livefyre_import_status', 'complete' );
+    $this->lf_core->Livefyre_Utility->update_import_status('complete');
     ?>
     <script type="text/javascript">
         window.location.href = window.location.pathname + '?page=livefyre';
