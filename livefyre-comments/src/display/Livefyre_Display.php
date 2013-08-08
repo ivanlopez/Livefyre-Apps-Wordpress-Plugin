@@ -44,7 +44,7 @@ class Livefyre_Display {
         }
         
         $zor_source_url = 'http://zor.'
-        . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : get_option( 'livefyre_domain_name' ) )
+        . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : $this->ext->get_network_option( 'livefyre_domain_name' ) )
         . '/wjs/v3.0/javascripts/livefyre.js';
         
         wp_enqueue_script('zor', $zor_source_url, array(), null, false);
