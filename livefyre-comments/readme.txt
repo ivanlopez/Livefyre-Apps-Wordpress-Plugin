@@ -40,8 +40,6 @@ Livefyre Comments 3 was designed from the ground-up for the social web, turning 
 - User Profiles:  Visit the other Livefyre Network sites where your community is commenting.
 - SEO Optimization: Comments 3 is Google crawl-able so you receive SEO credit for all comments, including those originating from Facebook & Twitter.
 
-
-
 =Admin Dashboard=
 
 Livefyre’s centralized dashboard allows you to track and monitor every interaction on your site from one location. 
@@ -56,7 +54,6 @@ Livefyre’s centralized dashboard allows you to track and monitor every interac
 - Profanity Lists: Customize the settings for filtering comments for your community. 
 - User Activity: See which community members are your top commenters and who you should reach out to invite them back to your site.
 - Moderation & Conversation Reports: Generate reports that give an overview of your moderation practices and see which posts are sparking the most conversations.
-
 
 For more info check out [Livefyre's full feature
 list](http://livefyre.com/comments).
