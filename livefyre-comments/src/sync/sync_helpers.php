@@ -53,4 +53,3 @@ function livefyre_check_site_sync() {
 }
 
 livefyre_setup_sync_check();
-
