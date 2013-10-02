@@ -48,7 +48,7 @@ class Livefyre_Import_Impl implements Livefyre_Import {
         }
         catch (Exception $e) {
             try {
-                $this->lf_core->Livefyre_Logger->add('Livefyre Import: Exception occured in begin - ' . $e->getMessage());
+                $this->lf_core->Livefyre_Logger->add('Livefyre Import: Exception occured in begin - ' . esc_html($e->getMessage()));
                 $this->lf_core->Raven->captureException($e);
             }
             catch (Exception $f) {}
@@ -99,7 +99,7 @@ class Livefyre_Import_Impl implements Livefyre_Import {
         }
         catch (Exception $e) {
             try {
-                $this->lf_core->Livefyre_Logger->add('Livefyre Import : Exception occured in check_activity_map_import - ' . $e->getMessage());
+                $this->lf_core->Livefyre_Logger->add('Livefyre Import : Exception occured in check_activity_map_import - ' . esc_html($e->getMessage()));
                 $this->lf_core->Raven->captureException($e);
             }
             catch (Exception $f) {}
@@ -180,7 +180,7 @@ class Livefyre_Import_Impl implements Livefyre_Import {
             $siteId = $this->ext->get_option('livefyre_site_id', '');
             if ($siteId != '') {
                 $response = $this->extract_xml($siteId, intval($_GET['offset']));
-                echo $response;
+                echo esc_html($response);
                 exit;
             } else {
                 $this->lf_core->Livefyre_Logger->add( ' -tried to render, but no blogid' );

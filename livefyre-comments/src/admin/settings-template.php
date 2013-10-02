@@ -122,13 +122,13 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 $disabled_pages_count = count($comments_disabled_pages);
 
                 $status = $livefyre_settings->get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
-                echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
+                echo '<h1><span class="statuscircle' .esc_html($status[1]). '"></span>Livefyre Status: <span>' .esc_html($status[0]). '</span></h1>';
 
                 $total_errors = $livefyre_settings->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
-                    .$total_errors
-                    .($total_errors == 1 ? ' issue requires' : ' issues require')
+                    .esc_html($total_errors)
+                    .esc_html(($total_errors == 1 ? ' issue requires' : ' issues require'))
                     .' your attention, please see below</h2>';
                 }
                 ?>
@@ -161,7 +161,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <div id="import_toggle_text">Less Info</div>
                         </div>
                         <div id="import_information">
-                            <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
+                            <?php echo "<p>Message: " .esc_html(get_option( 'livefyre_import_message', '' )). "</p>"?>
                             <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                                 If you wouldn’t mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
                                 E-mail Livefyre at <a href="mailto:support@livefyre.com">support@livefyre.com</a> with the following:</p>
@@ -234,8 +234,8 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         <form id="fyrecacheform" action="options-general.php?page=livefyre">
                             <input type="hidden" name="page" value="livefyre" />
                             <select name="lf_caching">
-                                <option value="on" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'on'); ?> >On</option>
-                                <option value="off" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'off'); ?> >Off</option>
+                                <option value="on" <?php echo esc_html($livefyre_settings->checkSelected('livefyre_caching', 'on')); ?> >On</option>
+                                <option value="off" <?php echo esc_html($livefyre_settings->checkSelected('livefyre_caching', 'off')); ?> >Off</option>
                             </select><br />
                             <input type="submit" class="fyrebutton" value="Submit" />
                         </form>
@@ -255,7 +255,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 
             <div id="fyrepotentials" class="clearfix">
                 <div id="fyreconflictplugs">
-                    <?php echo '<h1>Conflicting Plugins (' .$plugins_count. ')</h1>';
+                    <?php echo '<h1>Conflicting Plugins (' .esc_html($plugins_count). ')</h1>';
                     if ( $plugins_count ) {
                     ?>
                     <p>We found that the following plugins are active on your site, and unfortunately they will conflict with Livefyre Comments 3 and break our widget’s functionality. 
@@ -264,7 +264,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <?php
                         foreach ( $bad_plugins as $plugin ) {
                             $plugin_data = explode( ':', $plugin, 2 );
-                            echo '<li><div class="plugincirclered"></div>' .$plugin_data[0]. ": <span>" .$plugin_data[1];?></span></li><?php
+                            echo '<li><div class="plugincirclered"></div>' .esc_html($plugin_data[0]). ": <span>" .esc_html($plugin_data[1]);?></span></li><?php
                         }
                     ?>
                     </ul>
@@ -277,7 +277,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 </div>
 
                 <div id="fyreallowcomments">
-                    <?php echo '<h1>Allow Comments Status (' .($disabled_posts_count + $disabled_pages_count). ')</h1>';
+                    <?php echo '<h1>Allow Comments Status (' .esc_html(($disabled_posts_count + $disabled_pages_count)). ')</h1>';
                     if ( $disabled_posts_count || $disabled_pages_count) {
                         ?>
                         <p>We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts and pages listed below, which means that the Livefyre widget will not be present on them. 
@@ -302,10 +302,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 <div id="fyresidesettings">
                     <h1>Site Settings</h1>
                         <p class="lf_label">Livefyre Site ID: </p>
-                        <?php echo '<p class="lf_text">' .get_option('livefyre_site_id'). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_id')). '</p>'; ?>
                         <br />
                         <p class="lf_label">Livefyre Site Key: </p>
-                        <?php echo '<p class="lf_text">' .get_option('livefyre_site_key'). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_key')). '</p>'; ?>
                     <h1>Links</h1>
                         <a href="http://livefyre.com/admin" target="_blank">Livefyre Admin</a>
                         <br />

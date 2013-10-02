@@ -40,10 +40,10 @@ class Livefyre_Display {
         $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
         if ($profile_sys == 'lfsp') {
                 $lfsp_source_url = $this->ext->get_network_option( 'livefyre_lfsp_source_url', '' );
-                echo '<script type="text/javascript" src="' . $lfsp_source_url . '"></script>';
+                echo '<script type="text/javascript" src="' . esc_html($lfsp_source_url) . '"></script>';
         }
         echo '<script type="text/javascript" src="http://zor.'
-            . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
+            . esc_html(( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' ))
             . '/wjs/v3.0/javascripts/livefyre.js"></script>';
     }
     
@@ -125,13 +125,13 @@ class Livefyre_Display {
         echo "\n";
         ?>
             <!-- LF DEBUG
-            site-id: <?php echo $site_id . "\n"; ?>
-            article-id: <?php echo $article_id . "\n"; ?>
-            post-type: <?php echo $post_type . "\n"; ?>
-            comments-open: <?php echo comments_open() ? "true\n" : "false\n"; ?>
+            site-id: <?php echo esc_html($site_id) . "\n"; ?>
+            article-id: <?php echo esc_html($article_id) . "\n"; ?>
+            post-type: <?php echo esc_html($post_type) . "\n"; ?>
+            comments-open: <?php echo esc_html(comments_open() ? "true\n" : "false\n"); ?>
             is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
-            display-posts: <?php echo $display_posts . "\n"; ?>
-            display-pages: <?php echo $display_pages . "\n"; ?>
+            display-posts: <?php echo esc_html($display_posts) . "\n"; ?>
+            display-pages: <?php echo esc_html($display_pages) . "\n"; ?>
             -->
         <?php
         
@@ -171,7 +171,7 @@ class Livefyre_Display {
     function livefyre_comments_number( $count ) {
 
         global $post;
-        return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . get_option( 'livefyre_site_id', '' ) . '" class="livefyre-commentcount">'.$count.'</span>';
+        return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . esc_html(get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
 
     }
 

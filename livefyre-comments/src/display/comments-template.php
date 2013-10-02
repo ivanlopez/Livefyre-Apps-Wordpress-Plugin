@@ -52,7 +52,7 @@ if ( $livefyre->lf_core->Display->livefyre_show_comments() ) {
             set_transient( $transient_key , $cached_html, 300 );
         }
     }
-    echo '<div id="livefyre-comments">' . $cached_html . '</div>';
+    echo '<div id="livefyre-comments">' . esc_html($cached_html) . '</div>';
 }
 
 if ( pings_open() ) {

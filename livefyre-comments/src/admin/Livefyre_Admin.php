@@ -184,13 +184,13 @@ class Livefyre_Admin {
 
     function site_id_callback() {
 
-        echo "<input name='livefyre_site_id' value='" . get_option( 'livefyre_site_id' ) . "' />";
+        echo "<input name='livefyre_site_id' value='" . esc_html(get_option( 'livefyre_site_id' )) . "' />";
 
     }
     
     function site_key_callback() { 
 
-        echo "<input name='livefyre_site_key' value='" . get_option( 'livefyre_site_key' ) . "' />";
+        echo "<input name='livefyre_site_key' value='" . esc_html(get_option( 'livefyre_site_key' )) . "' />";
 
     }
 
@@ -213,19 +213,19 @@ class Livefyre_Admin {
 
     function auth_delegate_callback() {
 
-        echo "<input name='livefyre_auth_delegate_name' value='". $this->ext->get_network_option( 'livefyre_auth_delegate_name', '' ) ."' />";
+        echo "<input name='livefyre_auth_delegate_name' value='". esc_html($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )) ."' />";
 
     }
     
     function domain_name_callback() {
 
-        echo "<input name='livefyre_domain_name' value='". $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) ."' />";
+        echo "<input name='livefyre_domain_name' value='". esc_html($this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN )) ."' />";
     
     }
     
     function domain_key_callback() { 
     
-        echo "<input name='livefyre_domain_key' value='". $this->ext->get_network_option( 'livefyre_domain_key' ) ."' />";
+        echo "<input name='livefyre_domain_key' value='". esc_html($this->ext->get_network_option( 'livefyre_domain_key' )) ."' />";
         
     }
     
@@ -242,7 +242,7 @@ class Livefyre_Admin {
     }
     
     static function lf_warning_display( $message ) {
-        echo '<div id="livefyre-warning" class="updated fade"><p>' . $message . '</p></div>';
+        echo '<div id="livefyre-warning" class="updated fade"><p>' . esc_html($message) . '</p></div>';
     }
     
     function lf_install_warning() {
@@ -259,7 +259,7 @@ class Livefyre_Admin {
         {
             $site_settings = $this->ext->get_option( 'livefyre_site_id', false );
             $message = false;
-            if ( $site_settings ) {
+            if ( $site_settings && !is_multisite() ) {
                 if ( $this->is_settings_page() ) {
                     return;
                 }
@@ -271,11 +271,11 @@ class Livefyre_Admin {
                 if ( $message ) {
                     $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
                 }
-            } elseif ( !$this->returned_from_setup() ) {
-                $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.$livefyre_http_url.'/installation/logout?site_url='.urlencode($home_url).'&domain='.$livefyre_site_domain.'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
+            } elseif ( !$this->returned_from_setup() && !is_multisite() ) {
+                $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.esc_html($livefyre_http_url).'/installation/logout?site_url='.urlencode($home_url).'&domain='.esc_html($livefyre_site_domain).'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
             }
             if ( $message ) {
-                echo Livefyre_Admin::lf_warning_display( $message );
+                echo $this->lf_warning_display( $message );
             }
         }
     }

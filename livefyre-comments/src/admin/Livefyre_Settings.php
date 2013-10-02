@@ -66,8 +66,8 @@ class Livefyre_Settings {
         <ul>
             <?php
             foreach ( $list as $ncpost ) {
-                echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
-                echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a></li>';
+                echo '<li>ID: <span>' .esc_html($ncpost->ID). "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .esc_html($ncpost->post_title). "</a></span>";
+                echo '<a href="?page=livefyre&allow_comments_id=' .esc_html($ncpost->ID). '" class="fyreallowbutton">Enable</a></li>';
             }
         ?>
         <ul>
