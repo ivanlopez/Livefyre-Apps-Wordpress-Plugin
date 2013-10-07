@@ -104,14 +104,78 @@ class Livefyre_Display {
                 $language = get_option( 'livefyre_language', 'English' );
                 $initcfg['strings'] = $this->load_strings( $language );
             }
-            // Do we need to add in some things for Enterprise?
-            echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg );
+            
+            // Find out what auth Delegate we need and if needed, add it before the call
+            $auth_type = get_option( 'livefyre_auth_type', 'Custom' );
+
+            $livefyre_javascript = '<script type="text/javascript">';
+            if ( $auth_type == "Enterprise Profiles" ) {
+                $livefyre_javascript .= $this->lf_lfep_auth_delegate() . $conv->to_initjs_v3( 'livefyre-comments', $initcfg );
+
+            }
+            if ( $auth_type == "Janrain Capture/Backplane" ) {
+                $livefyre_javascript .= $this->lf_jr_auth_delegate() . "function livefyreJanrainInit(){" . $conv->to_initjs_v3( 'livefyre-comments', $initcfg ) . "}";
+            }
+            $livefyre_javascript .= '</script>';
+            echo $livefyre_javascript;
         }
 
         if ( !is_single() ) {
             echo '<script type="text/javascript" data-lf-domain="' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
         }
 
+    }
+
+    function lf_lfep_auth_delegate() {
+
+        $engage_app_name = get_option( 'livefyre_engage_name', '' );
+        if ( $engage_app_name == '' ) {
+            return "<div>You haven't specified a Engage Application Name";
+        }
+        return "var authDelegate = new fyre.conv.SPAuthDelegate({engage: {app: '{$engage_app_name}', type: 'redirect'}, profiles: {type: 'redirect'}});";
+    }
+
+    function lf_jr_auth_delegate() {
+
+        return "var authDelegate = new fyre.conv.BackplaneAuthDelegate(window.Backplane);
+
+        authDelegate.login = function( delegate ) {
+            var successCallback = function() {
+                delegate.success();
+                janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
+                janrain.events.onModalClose.removeHandler(failureCallback);
+            };
+
+            var failureCallback = function() {
+                delegate.failure();
+                janrain.events.onModalClose.removeHandler(failureCallback);
+                janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
+            };
+
+            CAPTURE.startModalLogin();
+            window.Backplane.expectMessages( 'identity/login' );
+            janrain.events.onCaptureLoginSuccess.addHandler(successCallback);
+            janrain.events.onModalClose.addHandler(failureCallback);
+        };
+
+        authDelegate.fetchAuthData = function( delegate ) {
+            
+        };
+
+        authDelegate.logout = function(delegate) {
+            CAPTURE.invalidateSession();
+            CAPTURE.util.delCookie('backplane-channel');
+            Backplane.resetCookieChannel();
+            fyre.conv.BackplaneAuthDelegate.prototype.logout.call(this, delegate);
+        };
+
+        authDelegate.viewProfile = function(delegate, author) {
+            console.log(author);
+        };
+
+        authDelegate.editProfile = function(delegate, author) {
+            console.log(author);
+        };";
     }
 
     function lf_debug() {

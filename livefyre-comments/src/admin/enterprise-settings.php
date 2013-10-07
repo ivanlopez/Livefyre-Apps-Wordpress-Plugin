@@ -11,6 +11,8 @@ $livefyre_settings = new Livefyre_Settings();
 
 ?>
 
+
+
 <script type="text/javascript">
 settings_toggle_less = function() {
     var info = document.getElementById('settings_information');
@@ -124,6 +126,21 @@ settings_toggle_more = function() {
                             <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
                         </p>
                     </form>
+                    <script>
+                        jQuery(document).ready(function($) {
+                            $('tr:nth-child(n+7)').css('display', 'none');
+                            $("#livefyre_auth_type").change(function () {
+                                $('tr:nth-child(n+7)').css('display', 'none');
+                                $("#livefyre_auth_type option:selected").each(function () {
+                                    if($(this).val() == "Enterprise Profiles") {
+                                        $("input[name='livefyre_engage_name']").parent().parent().css('display', 'table-row');
+                                    } else if($(this).val() == "Custom") {
+                                        $("input[name='livefyre_auth_delegate_name']").parent().parent().css('display', 'table-row');
+                                    }
+                                });
+                            });
+                        });
+                    </script>
                 </div>
             </div>
             <div id="fyrepotentials" class="clearfix">

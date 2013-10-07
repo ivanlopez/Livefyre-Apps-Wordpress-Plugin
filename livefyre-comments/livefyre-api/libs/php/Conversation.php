@@ -152,10 +152,8 @@ class Livefyre_Conversation {
         elseif ( $network_name == LF_DEFAULT_PROFILE_DOMAIN && $strings ) {
             $fyre_config = '{ strings: ' . $strings_community . '}';
         }
-        return '<script type="text/javascript">' .
-                'var lf_config = ' . json_encode( array($js_config) ) . ';' . 
-                'var conv = fyre.conv.load(' . $fyre_config . ', lf_config' . $onload . ');' .
-                '</script>';
+        return 'var lf_config = ' . json_encode( array($js_config) ) . ';' . 
+                'var conv = fyre.conv.load(' . $fyre_config . ', lf_config' . $onload . ');';
     }
     
     public function to_html( ) {

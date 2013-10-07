@@ -22,6 +22,12 @@ class Livefyre_Admin {
         add_action( 'network_admin_menu', array(&$this, 'register_network_admin_page' ) );
         add_action( 'admin_init', array( &$this, 'network_options_init' ) );
         add_action( 'network_admin_edit_save_network_options', array($this, 'do_save_network_options'), 10, 0);
+
+        add_action( 'wp_enqueue_script', 'load_jquery' );
+    }
+
+    function load_jquery() {
+        wp_enqueue_script( 'jquery' );
     }
     
     function plugin_upgrade() {
@@ -49,6 +55,7 @@ class Livefyre_Admin {
     function register_admin_page() {
         
         add_submenu_page( 'options-general.php', 'Livefyre Settings', 'Livefyre', 'manage_options', 'livefyre', array( &$this, 'site_options_page' ) );
+        
     }
 
     function register_network_admin_page() {
@@ -103,8 +110,11 @@ class Livefyre_Admin {
         register_setting( $settings_section, 'livefyre_site_key' );
         register_setting( $settings_section, 'livefyre_domain_name' );
         register_setting( $settings_section, 'livefyre_domain_key' );
-        register_setting( $settings_section, 'livefyre_auth_delegate_name' );
         register_setting( $settings_section, 'livefyre_environment' );
+        register_setting( $settings_section, 'livefyre_auth_type' );
+        register_setting( $settings_section, 'livefyre_auth_delegate_name' );
+        register_setting( $settings_section, 'livefyre_engage_name' );
+
         
         if( $this->returned_from_setup() ) {
             $this->ext->update_option( "livefyre_site_id", $_GET["site_id"] );
@@ -144,13 +154,6 @@ class Livefyre_Admin {
             $name,
             $section_name
         );
-        
-        add_settings_field('livefyre_auth_delegate_name',
-            'Livefyre AuthDelagate Name',
-            array( &$this, 'auth_delegate_callback' ),
-            $name,
-            $section_name
-        );
 
         add_settings_field('livefyre_environment',  
             'Production Credentials',  
@@ -159,6 +162,31 @@ class Livefyre_Admin {
             $section_name
         ); 
         
+        add_settings_field('livefyre_auth_type',  
+            'Authentication Type',  
+            array( &$this, 'auth_type_callback' ),
+            $name,
+            $section_name,
+            array(  
+                "type"    => "select",
+                "std"    => "Enterprise Profiles",
+                "choices" => array( "Enterprise Profiles", "Janrain Capture/Backplane", "Custom" )
+            )
+        );
+
+        add_settings_field('livefyre_auth_delegate_name',
+            'Livefyre AuthDelagate Name',
+            array( &$this, 'auth_delegate_callback' ),
+            $name,
+            $section_name
+        );
+
+        add_settings_field('livefyre_engage_name',
+            'Janrain Engage App Name',
+            array( &$this, 'engage_name_callback' ),
+            $name,
+            $section_name
+        );
     }
 
     function site_options_page() {
@@ -171,6 +199,25 @@ class Livefyre_Admin {
         include( dirname(__FILE__) . LF_SITE_SETTINGS_PAGE);
     
     }
+
+    function engage_name_callback() {
+
+        echo "<input name='livefyre_engage_name' value='" . get_option( 'livefyre_engage_name' ) . "' />";
+
+    }
+
+    function auth_type_callback() {
+
+        $value = get_option('livefyre_auth_type');
+        $items = array("Enterprise Profiles", "Janrain Capture/Backplane", "Custom");
+        echo "<select id='livefyre_auth_type' name='livefyre_auth_type'>";
+        foreach( $items as $item ) {
+            $selected = ( $value == $item ) ? 'selected="selected"' : '';
+            echo "<option value='$item' $selected>$item</option>";
+        }
+        echo "</select>";
+
+    }    
 
     function environment_callback() {
        
