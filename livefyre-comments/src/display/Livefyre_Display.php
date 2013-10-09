@@ -82,13 +82,15 @@ class Livefyre_Display {
             $initcfg = array();
 
             if ( $network != LF_DEFAULT_PROFILE_DOMAIN ) {
+                $auth_type = get_option( 'livefyre_auth_type' );
+                $initcfg['delegate'] = 'authDelegate';
                 if ( function_exists( 'livefyre_onload_handler' ) ) {
                     $initcfg['onload'] = livefyre_onload_handler();
                 }
                 if ( function_exists( 'livefyre_delegate_name' ) ) {
                     $initcfg['delegate'] = livefyre_delegate_name();
                 }
-                if ( get_option( 'livefyre_auth_delegate_name', '' ) != '' ) {
+                if ( $auth_type == 'Custom' && get_option( 'livefyre_auth_delegate_name', '' ) != '' ) {
                     $initcfg['delegate'] = get_option( 'livefyre_auth_delegate_name', '' );
                 }
                 if ( function_exists ( 'livefyre_strings_chooser') ) {
@@ -132,7 +134,7 @@ class Livefyre_Display {
         if ( $engage_app_name == '' ) {
             return "<div>You haven't specified a Engage Application Name";
         }
-        return "var authDelegate = new fyre.conv.SPAuthDelegate({engage: {app: '{$engage_app_name}', type: 'redirect'}, profiles: {type: 'redirect'}});";
+        return "var authDelegate = new fyre.conv.SPAuthDelegate({engage: {app: '{$engage_app_name}'}});";
     }
 
     function lf_jr_auth_delegate() {

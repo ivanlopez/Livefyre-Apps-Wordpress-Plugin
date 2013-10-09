@@ -129,6 +129,13 @@ settings_toggle_more = function() {
                     <script>
                         jQuery(document).ready(function($) {
                             $('tr:nth-child(n+7)').css('display', 'none');
+                            $("#livefyre_auth_type option:selected").each(function () {
+                                if($(this).val() == "Enterprise Profiles") {
+                                    $("input[name='livefyre_engage_name']").parent().parent().css('display', 'table-row');
+                                } else if($(this).val() == "Custom") {
+                                    $("input[name='livefyre_auth_delegate_name']").parent().parent().css('display', 'table-row');
+                                }
+                            });
                             $("#livefyre_auth_type").change(function () {
                                 $('tr:nth-child(n+7)').css('display', 'none');
                                 $("#livefyre_auth_type option:selected").each(function () {
