@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -10,6 +10,10 @@ define( 'LF_MULTI_SETTINGS_PAGE', '/multisite-settings.php' );
 
 class Livefyre_Admin {
     
+    /*
+     * Sets all the actions for building the admin pages.
+     *
+     */
     function __construct( $lf_core ) {
 
         $this->lf_core = $lf_core;
@@ -24,10 +28,13 @@ class Livefyre_Admin {
         add_action( 'network_admin_edit_save_network_options', array($this, 'do_save_network_options'), 10, 0);
     }
     
+    /*
+     * We have to way to hook into an action that happens on auto-upgrade.
+     * This is the work-around for that.
+     *
+     */
     function plugin_upgrade() {
     
-        // We have to way to hook into an action that happens on auto-upgrade.
-        // This is the work-around for that.
         if ( get_option( 'livefyre_v3_installed', false ) === false ) {
            $this->lf_core->Activation->activate();
         } else if ( get_option( 'livefyre_blogname', false ) !== false ) {
@@ -36,6 +43,10 @@ class Livefyre_Admin {
     
     }
 
+    /*
+     * Default callback for settings. IE nothing.
+     *
+     */
     function settings_callback() {}
     
     private function allow_domain_settings() {
@@ -46,17 +57,29 @@ class Livefyre_Admin {
     
     }
 
+    /*
+     * Registers an admin page with WordPress.
+     *
+     */
     function register_admin_page() {
         
         add_submenu_page( 'options-general.php', 'Livefyre Settings', 'Livefyre', 'manage_options', 'livefyre', array( &$this, 'site_options_page' ) );
     }
 
+    /*
+     * Registers a network admin page if Multisite is enabled.
+     *
+     */
     function register_network_admin_page() {
     
         add_submenu_page( 'settings.php', 'Livefyre Network Settings', 'Livefyre', 'manage_options', 'livefyre_network', array( &$this, 'network_options_page' ) );
     
     }
 
+    /*
+     * Sets network level settings on the admin page for Multisite.
+     *
+     */
     function network_options_init( $settings_section = 'livefyre_domain_options' ) {
     
         $settings_section = 'livefyre_domain_options';
@@ -94,6 +117,10 @@ class Livefyre_Admin {
         
     }
     
+    /*
+     * Sets the site settings for Multisite and Non-Multisite.
+     *
+     */
     function site_options_init() {
     
         $name = 'livefyre';
@@ -106,9 +133,9 @@ class Livefyre_Admin {
         register_setting( $settings_section, 'livefyre_auth_delegate_name' );
         register_setting( $settings_section, 'livefyre_environment' );
         
-        if( $this->returned_from_setup() ) {
-            $this->ext->update_option( "livefyre_site_id", $_GET["site_id"] );
-            $this->ext->update_option( "livefyre_site_key", $_GET["secretkey"] );
+        if( self::returned_from_setup() ) {
+            $this->ext->update_option( "livefyre_site_id", sanitize_text_field( $_GET["site_id"] ) );
+            $this->ext->update_option( "livefyre_site_key", sanitize_text_field( $_GET["secretkey"] ) );
         }
         
         add_settings_section('lf_site_settings',
@@ -161,6 +188,10 @@ class Livefyre_Admin {
         
     }
 
+    /*
+     * Include the site options page.
+     *
+     */
     function site_options_page() {
 
         /* Should we display the Enterprise or Regular version of the settings?
@@ -168,10 +199,16 @@ class Livefyre_Admin {
          * The file gets set in the bash script that builds this.
          * The default is community
         */
+
         include( dirname(__FILE__) . LF_SITE_SETTINGS_PAGE);
     
     }
 
+    /*
+     * Decide which environment (production or development) the customer's keys are.
+     * This will change the JS lib that import from.
+     *
+     */
     function environment_callback() {
        
         $html = '<input type="checkbox" id="livefyre_environment" name="livefyre_environment" 
@@ -182,23 +219,31 @@ class Livefyre_Admin {
 
     }
 
+    /*
+     * Keeps the current site id value up to date with the backend
+     *
+     */
     function site_id_callback() {
 
-        echo "<input name='livefyre_site_id' value='" . esc_html(get_option( 'livefyre_site_id' )) . "' />";
+        echo "<input name='livefyre_site_id' value='" . esc_attr( get_option( 'livefyre_site_id' ) ) . "' />";
 
     }
     
+    /*
+     * Keeps the current site key value up to date with the backend
+     *
+     */
     function site_key_callback() { 
 
-        echo "<input name='livefyre_site_key' value='" . esc_html(get_option( 'livefyre_site_key' )) . "' />";
+        echo "<input name='livefyre_site_key' value='" . esc_attr(get_option( 'livefyre_site_key' )) . "' />";
 
     }
 
     function do_save_network_options() {
 
-        $this->ext->update_network_option( 'livefyre_domain_name', $_POST[ 'livefyre_domain_name' ] );
-        $this->ext->update_network_option( 'livefyre_domain_key', $_POST[ 'livefyre_domain_key' ] );
-        $this->ext->update_network_option( 'livefyre_auth_delegate_name', $_POST[ 'livefyre_auth_delegate_name' ] );
+        $this->ext->update_network_option( 'livefyre_domain_name', sanitize_text_field( $_POST[ 'livefyre_domain_name' ] ) );
+        $this->ext->update_network_option( 'livefyre_domain_key', sanitize_text_field( $_POST[ 'livefyre_domain_key' ] ) );
+        $this->ext->update_network_option( 'livefyre_auth_delegate_name', sanitize_text_field( $_POST[ 'livefyre_auth_delegate_name' ] ) );
 
         wp_redirect( add_query_arg( array( 'page' => 'livefyre_network', 'updated' => 'true' ), network_admin_url( 'settings.php' ) ) );
         exit();
@@ -211,40 +256,48 @@ class Livefyre_Admin {
         
     }
 
+    /*
+     * Keeps the current authentication delegate value up to date with the backend
+     *
+     */
     function auth_delegate_callback() {
 
-        echo "<input name='livefyre_auth_delegate_name' value='". esc_html($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )) ."' />";
+        echo "<input name='livefyre_auth_delegate_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )) ."' />";
 
     }
     
+    /*
+     * Keeps the current domain name value up to date with the backend
+     *
+     */
     function domain_name_callback() {
 
-        echo "<input name='livefyre_domain_name' value='". esc_html($this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN )) ."' />";
+        echo "<input name='livefyre_domain_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN )) ."' />";
     
     }
     
+    /*
+     * Keeps the current domain key value up to date with the backend
+     *
+     */
     function domain_key_callback() { 
     
-        echo "<input name='livefyre_domain_key' value='". esc_html($this->ext->get_network_option( 'livefyre_domain_key' )) ."' />";
+        echo "<input name='livefyre_domain_key' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_key' )) ."' />";
         
     }
     
-    function use_backplane_callback() {
-    
-        echo "<input name='livefyre_use_backplane' type='checkbox' value='1' " . ( $this->ext->get_network_option('livefyre_use_backplane', false) ? 'checked ' : '' ) . "/>";
-    
-    }
-    
-    function get_app_comment_id( $lf_comment_id ) {
-
-        return $this->ext->get_app_comment_id( $lf_comment_id );
-
-    }
-    
+    /*
+     * Displays a message if the customer has upgraded.
+     *
+     */
     static function lf_warning_display( $message ) {
-        echo '<div id="livefyre-warning" class="updated fade"><p>' . esc_html($message) . '</p></div>';
+        echo '<div id="livefyre-warning" class="updated fade"><p>' . esc_html( $message ) . '</p></div>';
     }
     
+    /*
+     * Handles messages that are passed onto the WordPress Admin notifier.
+     *
+     */
     function lf_install_warning() {
         $livefyre_http_url = $this->lf_core->http_url;
         $livefyre_site_domain = "rooms." . LF_DEFAULT_PROFILE_DOMAIN;
@@ -254,38 +307,23 @@ class Livefyre_Admin {
         } else {
             $home_url=$this->ext->get_option( 'home' );
         }
-        
-        if ( is_admin() )
-        {
-            $site_settings = $this->ext->get_option( 'livefyre_site_id', false );
-            $message = false;
-            if ( $site_settings && !is_multisite() ) {
-                if ( $this->is_settings_page() ) {
-                    return;
-                }
-                if ( $this->ext->get_option( 'livefyre_v3_notify_installed', false ) ) {
-                    $message = "Thanks for installing the new Livefyre plugin featuring Livefyre Comments 3! Visit your <a href=\"./options-general.php?page=livefyre\">Livefyre settings</a> to import your old comments.";
-                } elseif ( $this->ext->get_option( 'livefyre_v3_notify_upgraded', false ) ) {
-                    $message = "Thanks for upgrading to the latest Livefyre plugin. Your posts should now be running Comments 3.";
-                }
-                if ( $message ) {
-                    $message = $message . ' <a href="./options-general.php?page=livefyre&livefyre_reset_v3_notes=1">Got it, thanks!</a>';
-                }
-            } elseif ( !$this->returned_from_setup() && !is_multisite() ) {
-                $message = '<strong>' . __( 'Livefyre is almost ready.' ) . '</strong> ' . 'You must <a href="'.esc_html($livefyre_http_url).'/installation/logout?site_url='.urlencode($home_url).'&domain='.esc_html($livefyre_site_domain).'&version='.LF_PLUGIN_VERSION.'&type=wordpress&lfversion=3&postback_hook='.urlencode($home_url.'/?lf_wp_comment_postback_request=1').'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
-            }
-            if ( $message ) {
-                echo $this->lf_warning_display( $message );
-            }
-        }
     }
     
+    /*
+     * Lets the plugin know if it's returned from Livefyre's site registration page.
+     *
+     */
     function returned_from_setup() {
-        return ( isset($_GET['lf_login_complete']) && $_GET['lf_login_complete']=='1' );
+        return ( isset( $_GET['lf_login_complete'] ) && $_GET['lf_login_complete']=='1' &&
+            self::is_settings_page() );
     }
     
+    /*
+     * Check to make sure we are on a settings page.
+     *
+     */
     function is_settings_page() {
-        return ( isset($_GET['page']) && $_GET['page'] == 'livefyre' );
+        return ( isset( $_GET['page'] ) && $_GET['page'] == 'livefyre' );
     }
 
 }

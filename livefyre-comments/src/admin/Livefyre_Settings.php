@@ -1,67 +1,56 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
+/*
+ * Heler methods for the setting's page PHP files.
+ * These are shared between multiple settings pages.
+ *
+ */
 class Livefyre_Settings {
 
+    /*
+     * Updates posts to have allow comments turned off.
+     *
+     */
     function update_posts ( $id, $post_type ) {
-        global $wpdb;
-        $db_prefix = $wpdb->base_prefix;
-        if( $id ) {
-            $query = "
-                UPDATE $wpdb->posts SET comment_status = 'open'
-                WHERE ID = " .$id. "
-                    AND comment_status = 'closed' 
-                    AND post_type IN ('page','post')
-                    AND post_status = 'publish'
-                ";
-        }
-        else {
-            $query = "
-                UPDATE $wpdb->posts SET comment_status = 'open'
-                WHERE comment_status = 'closed'
-                    AND post_type = '" .$post_type. "'
-                    AND post_status = 'publish'
-                ";
-        }
-        return $wpdb->get_results( $query );
+        wp_update_post( array( 'ID' => $id, 'comment_status' => 'open' ) );
     }
 
+    /*
+     * Wrapper to grab posts by type.
+     *
+     */
     function select_posts ( $post_type ) {
-        global $wpdb;
-        $query = "
-            SELECT ID, post_title
-            FROM $wpdb->posts
-            WHERE comment_status = 'closed' 
-                AND post_type = '" .$post_type. "'
-                AND post_status = 'publish'
-            ORDER BY DATE(`post_date`) DESC
-            LIMIT 50
-            ";
-        return $wpdb->get_results( $query );
+        $args = array(
+            'post_type' => $post_type,
+            'post_status' => 'publish',
+            'posts_per_page' => 50
+        );
+
+        add_filter( 'posts_where', array( $this, 'posts_where' ) );
+        $query = new WP_Query( $args );
+        remove_filter( 'posts_where', array( $this, 'posts_where' ) );
+        $posts = $query->posts;
+        return $posts;
     }
 
-    function display_no_allows ( $post_type, $list ) {
+    function posts_where( $where_clause ) {
+        global $wpdb;
+        return $where_clause .= " AND comment_status = 'closed'";
+    }
 
+    /*
+     * Builds a list of posts that have comments allowed turned off.
+     *
+     */
+    function display_no_allows ( $post_type, $list ) {
         ?>
         <div id="fyreallowheader">
-            <?php
-            if ( $post_type == 'post' ) {
-            ?>
-                <h1>Post:</h1>
-                <a href="?page=livefyre&allow_comments_id=all_posts" text-decoration:"none">Enable All</a>
-            <?php
-            }
-            else {
-            ?>
-                <h1>Page:</h1>
-                <a href="?page=livefyre&allow_comments_id=all_pages" text-decoration:"none">Enable All</a>
-            <?php
-            }
-            ?>
+            <h1>Post:</h1>
         </div>
         <ul>
             <?php
@@ -74,6 +63,10 @@ class Livefyre_Settings {
         <?php
     }
 
+    /*
+     * Gets the current status of the settings.
+     *
+     */
     function get_fyre_status ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
     
         if ( $this->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) == 0 ) {
@@ -86,12 +79,20 @@ class Livefyre_Settings {
 
     }
 
+    /*
+     * Grabs the total number of errors that are occuring on the status page.
+     *
+     */
     function get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
 
         return ( $plugins_count + $disabled_pages_count + $disabled_posts_count + ( $import_status != 'complete' ? 1 : 0) );
 
     }
 
+    /*
+     * Helper method to check which language is selected in the settings.
+     *
+     */
     function checkSelected( $option, $value ) {
         
         if ( get_option( $option, '' ) == $value ) {

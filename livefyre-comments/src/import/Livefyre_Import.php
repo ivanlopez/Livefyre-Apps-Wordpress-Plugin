@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -20,27 +20,12 @@ interface Livefyre_Import {
     /**
      *
      */
-    function run_begin();
-
-    /**
-     *
-     */
     function begin();
 
     /**
      *
      */
-    function run_check_activity_map_import();
-
-    /**
-     *
-     */
     function check_activity_map_import();
-
-    /**
-     *
-     */
-    function run_check_import();
 
     /**
      *

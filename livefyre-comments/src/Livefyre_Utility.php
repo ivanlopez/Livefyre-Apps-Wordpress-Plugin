@@ -1,10 +1,17 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
+/*
+ * Untility class that allows certain values to be set in the option table
+ * based on a GET param.
+ *
+ * TODO: These need to be checked for a valid token(site or network) so that others can't set
+ * these values without verification.
+ */
 class Livefyre_Utility {
     
     function __construct( $lf_core ) {
@@ -16,19 +23,23 @@ class Livefyre_Utility {
         add_action( 'init', array( &$this, 'show_activity_id' ) );
         add_action( 'init', array( &$this, 'set_widget_priority' ) );
         add_action( 'init', array( &$this, 'show_widget_priority' ) );
-        add_action( 'init', array( &$this, 'lf_clear_cache' ) );
     }
     
+    /*
+     * Sets an activity ID for a site sync.
+     *
+     */
     function set_activity_id() {
 
-        if ( !( isset($_GET['lf_set_activity_id']) ) ) {
+        if ( ( self::validity_check() ) && !( isset($_GET['lf_set_activity_id']) ) ) {
             return;
         }
         $result = array(
             'status' => 'ok',
-            'activity-id-set-to' => $_GET['lf_set_activity_id']
+            'activity-id-set-to' => sanitize_text_field( $_GET['lf_set_activity_id'] )
         );
-        $status = $this->ext->update_option( "livefyre_activity_id", $_GET["lf_set_activity_id"] );
+        $status = $this->ext->update_option( "livefyre_activity_id", 
+            sanitize_text_field( $_GET["lf_set_activity_id"] ) );
         if ( !$status ) {
             $result['status'] = 'error';
         }
@@ -36,9 +47,14 @@ class Livefyre_Utility {
         exit;
     }
 
+    /*
+     * Shows the current activity ID for a site sync.
+     *
+     */
     function show_activity_id() {
 
-        if ( !( isset($_GET['lf_show_activity_id']) && $_GET['lf_show_activity_id'] == 1) ) {
+        if ( ( self::validity_check() ) && 
+            !( isset($_GET['lf_show_activity_id']) && $_GET['lf_show_activity_id'] == 1) ) {
             return;
         }
         $result = array(
@@ -48,16 +64,23 @@ class Livefyre_Utility {
         exit;
     }
 
+    /*
+     * Sets the plugin's priority to sort out weight issues.
+     *
+     */
     function set_widget_priority() {
 
-        if ( !( isset($_GET['lf_set_widget_priority']) ) ) {
+        if ( ( self::validity_check() ) && 
+            !( isset($_GET['lf_set_widget_priority'] ) )
+        ) {
             return;
         }
+        $priority = sanitize_text_field( $_GET["lf_set_widget_priority"] );
         $result = array(
             'status' => 'ok',
-            'widget-priority-set-to' => $_GET["lf_set_widget_priority"]
+            'widget-priority-set-to' => $priority
         );
-        $status = $this->ext->update_option( "livefyre_widget_priority", $_GET["lf_set_widget_priority"] );
+        $status = $this->ext->update_option( "livefyre_widget_priority", $priority );
         if ( !$status ) {
             $result['status'] = 'error';
         }
@@ -65,9 +88,15 @@ class Livefyre_Utility {
         exit;
     }
 
+    /*
+     * Show the plugin's current priority.
+     *
+     */
     function show_widget_priority() {
 
-        if ( !( isset($_GET['lf_show_widget_priority']) && $_GET['lf_show_widget_priority'] == 1 ) ) {
+        if ( ( self::validity_check() ) &&
+            !( isset($_GET['lf_show_widget_priority']) && $_GET['lf_show_widget_priority'] == 1 ) 
+        ) {
             return;
         }
         $result = array(
@@ -77,29 +106,13 @@ class Livefyre_Utility {
         exit;
     }
 
-    function lf_clear_cache() {
-
-        if ( !( isset($_GET['lf_clear_cache']) && $_GET['lf_clear_cache'] == 1 ) ) {
-            return;
-        }
-        $result = array(
-            'status' => 'ok'
-        );
-        $success = $this->run_clear_cache();
-        if ( !$success ) {
-            $result['status'] = 'error';
-        }
-        if ( !isset($_GET['settings_page']) ) {
-            echo json_encode( $result );
-            exit;
-        }
-    }
-
-    function run_clear_cache() {
-        
-        global $wpdb;
-        $query = $wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE ('_transient_livefyre%') OR `option_name` LIKE ('_transient_timeout_livefyre%')" );
-        return $query;
+    /*
+     * TODO: Check for the validity of these requests. Due to security reasons, make sure
+     * these only come from a Livefyre or the customer.
+     *
+     */
+    function validity_check() {
+        return true;
     }
 
 }

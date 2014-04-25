@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -15,6 +15,10 @@ class Livefyre_Activation {
 
     }
 
+    /*
+     * Nuke the caches and mark LF as deactivated.
+     *
+     */
     function deactivate() {
 
         $this->reset_caches();
@@ -22,8 +26,16 @@ class Livefyre_Activation {
 
     }
 
+    /*
+     * Runs through a series of checks to make sure that we know the state of the 
+     * customer.
+     * States:
+     * Upgraded: The user has upgraded from comments2 to LiveComments. Need to run a backfill. As
+     * well as handle some other features.
+     * Just reactivated: The user just had us off for a brief period of time. Do not rerun an import.
+     *
+     */
     function activate() {
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Activated." );
         $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
         if ( $existing_blogname ) {
             $site_id = $existing_blogname;
@@ -57,9 +69,12 @@ class Livefyre_Activation {
         }
     }
 
+    /*
+     * Upgrade comments in the Livefyre backend to be compatable in LiveComments.
+     *
+     */
     function run_backfill( $site_id ) {
         $backend_upgrade = $this->ext->get_option('livefyre_backend_upgrade', 'not_started' );
-        $this->lf_core->Livefyre_Logger->add( "backend_upgrade is set to: " . $backend_upgrade );
         if ( $backend_upgrade == 'not_started' ) {
             # Need to upgrade the backend for this plugin. It's never been done for this site.
             # Since this only happens once, notify the user and then run it.
@@ -68,8 +83,6 @@ class Livefyre_Activation {
 
             $resp = $http->request( $url, array( 'timeout' => 10 ) );
             if ( is_wp_error( $resp ) ) {
-                $this->lf_core->Raven->captureMessage( "Backfill error for site " . $site_id . ": " . $resp->get_error_message() );
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
                 update_option( 'livefyre_backend_upgrade', 'error' );
                 update_option( 'livefyre_backend_msg', $resp->get_error_message() );
                 return;
@@ -77,13 +90,10 @@ class Livefyre_Activation {
 
             $resp_code = $resp['response']['code'];
             $resp_message = $resp['response']['message'];
-            $this->lf_core->Livefyre_Logger->add( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message . "." );
 
             if ( $resp_code != '200' ) {
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Request returned an non successful value. " . $resp );
                 update_option( 'livefyre_backend_upgrade', 'error' );
                 $this->lf_core->Raven->captureMessage( "Backfill error for site " . $site_id . ": " . $resp->get_error_message() );
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
                 return;
             }
 
@@ -91,7 +101,6 @@ class Livefyre_Activation {
             $backfill_status = $json_data->status;
             $backfill_msg = $json_data->msg;
 
-            $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . "." );
             if ( $backfill_status == 'success' ) {
                 $backfill_msg = 'Request for Comments 2 upgrade has been sent';
             }
@@ -100,6 +109,10 @@ class Livefyre_Activation {
         }
     }
 
+    /*
+     * Nuke all of WordPress's caches.
+     *
+     */
     function reset_caches() {
     
         $this->ext->reset_caches();

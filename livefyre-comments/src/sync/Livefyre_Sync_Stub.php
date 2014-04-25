@@ -1,17 +1,20 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
 require_once 'Livefyre_Sync.php';
 
+/*
+ * Stubbed out version of Livefyre's Site Sync. This is stubbed
+ * out so that there isn't broken functionality when switching from
+ * the enterprise version to the community version. Since enterprise
+ * doesn't require site sync or imports, the code would break if our
+ * building script didn't handle this case.
+ */
 class Livefyre_Sync_Stub implements Livefyre_Sync {
-
-    function run_do_sync() {
-        return;
-    }
 
     function do_sync() {
         return;

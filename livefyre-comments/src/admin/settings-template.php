@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -18,9 +18,9 @@ if ( function_exists( 'home_url' ) ) {
 $site_id=get_option( 'livefyre_site_id', '' ); 
 
 if ( isset( $_GET['status'] ) ) {
-    update_option( 'livefyre_import_status', $_GET['status'] );
+    update_option( 'livefyre_import_status', sanitize_text_field( $_GET['status'] ) );
     if ( isset( $_GET['message'] ) ) {
-        update_option( 'livefyre_import_message', urldecode( $_GET['message'] ) );
+        update_option( 'livefyre_import_message', urldecode( sanitize_text_field( $_GET['message'] ) ) );
     }
 } elseif ( isset( $_GET['livefyre_reset_v3_notes'] ) ) {
     delete_option( 'livefyre_v3_notify_installed' );
@@ -82,7 +82,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 }
             }
             if( isset($_GET['allow_comments_id']) ) {
-                $allow_id = $_GET['allow_comments_id'];
+                $allow_id = sanitize_text_field( $_GET['allow_comments_id'] );
 
                 if ( $allow_id == 'all_posts' ) {
                     $livefyre_settings->update_posts( false, 'post' );
@@ -102,38 +102,44 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             ?>
             <div id="fyrestatus">
                 <?php
-                if ( get_option( 'livefyre_site_id', '' ) == '' ) {
-                // Don't allow the status sections if there isn't a site
-                // The second condition hides the button to start an import, if this was an upgrade from V2
-                ?>
-                    <h1>Livefyre Status: Needs Configuration</h1>
-                    <h2>You must confirm your blog configuration with Livefyre.</h2>
+                $status[0] = 'Good to go!';
+                $status[1] = 'green';
+                if ( get_option( 'livefyre_site_id ' ) == '' || 
+                    get_option( 'livefyre_site_key' ) == '' ) {
+                    $network = get_option( 'livefyre_domain_name', 'livefyre.com' );
+                    $network = ( $network == '' ? 'livefyre.com' : $network );
+                    $message = 'You must <a href="http://www.livefyre.com/installation/logout/?site_url='.urlencode(home_url()).'&domain=rooms.'.$network.'&version=3&type=wordpress&lfversion=3&postback_hook='.urlencode(home_url()).'&transport=http">confirm your blog configuration with livefyre.com</a> for it to work.';
+                    $status[0] = $message;
+                    $status[1] = 'red';
+                    echo '<h1><span class="statuscircle' .esc_attr($status[1]). '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
+                    ?>
                     <style>
                         <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
                     </style>
-                <?php
+                    <?php
                     return;
                 }
-                // Count of all activated conflicting plugins
-                $plugins_count = count($bad_plugins);
-                // Count of all posts with comments disabled
-                $disabled_posts_count = count($comments_disabled_posts);
-                // Count of all pages with comments disabled
-                $disabled_pages_count = count($comments_disabled_pages);
+                else {
+                    // Count of all activated conflicting plugins
+                    $plugins_count = count($bad_plugins);
+                    // Count of all posts with comments disabled
+                    $disabled_posts_count = count($comments_disabled_posts);
+                    // Count of all pages with comments disabled
+                    $disabled_pages_count = count($comments_disabled_pages);
 
-                $status = $livefyre_settings->get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
-                echo '<h1><span class="statuscircle' .esc_html($status[1]). '"></span>Livefyre Status: <span>' .esc_html($status[0]). '</span></h1>';
+                    $status = $livefyre_settings->get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                    echo '<h1><span class="statuscircle' .esc_html($status[1]). '"></span>Livefyre Status: <span>' .esc_html($status[0]). '</span></h1>';
 
-                $total_errors = $livefyre_settings->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
-                if ( $total_errors > 0 ) {
-                    echo '<h2>' 
-                    .esc_html($total_errors)
-                    .esc_html(($total_errors == 1 ? ' issue requires' : ' issues require'))
-                    .' your attention, please see below</h2>';
+                    $total_errors = $livefyre_settings->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                    if ( $total_errors > 0 ) {
+                        echo '<h2>' 
+                        .esc_html($total_errors)
+                        .esc_html(($total_errors == 1 ? ' issue requires' : ' issues require'))
+                        .' your attention, please see below</h2>';
+                    }
                 }
                 ?>
             </div>
-
             <?php
 
             if ( $upgrade_status == 'success' ) {
@@ -228,7 +234,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             commenting widget to load on the page a few seconds slower than if caching was enabled.</p>
                         <?php
                         if( isset( $_GET['lf_caching']) ) {
-                            update_option( 'livefyre_caching', $_GET['lf_caching'] );
+                            update_option( 'livefyre_caching', sanitize_text_field( $_GET['lf_caching'] ) );
                         }
                         ?>
                         <form id="fyrecacheform" action="options-general.php?page=livefyre">
@@ -321,13 +327,13 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 
                     if( isset( $_GET['save_display_settings']) ) {
                         if ( isset( $_GET['display_posts'] ) ) {
-                            update_option( 'livefyre_display_posts', $_GET['display_posts'] );
+                            update_option( 'livefyre_display_posts', sanitize_text_field( $_GET['display_posts'] ) );
                         }
                         else {
                             update_option( 'livefyre_display_posts', 'false' );
                         }
                         if ( isset( $_GET['display_pages'] ) ) {
-                            update_option( 'livefyre_display_pages', $_GET['display_pages'] );
+                            update_option( 'livefyre_display_pages', sanitize_text_field( $_GET['display_pages'] ) );
                         }
                         else {
                             update_option( 'livefyre_display_pages', 'false' );
@@ -336,7 +342,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         foreach ($post_types as $post_type ) {
                             $post_type_name = 'livefyre_display_' .$post_type;
                             if ( isset( $_GET[$post_type] ) ) {
-                                update_option( $post_type_name, $_GET[$post_type] );
+                                update_option( $post_type_name, sanitize_text_field( $_GET[$post_type] ) );
                             }
                             else {
                                 update_option( $post_type_name, 'false' );
@@ -374,7 +380,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 <div id="fyrelanguages">
                     <?php
                     if( isset( $_GET['lf_language']) ) {
-                        update_option( 'livefyre_language', $_GET['lf_language'] );
+                        update_option( 'livefyre_language', sanitize_text_field( $_GET['lf_language'] ) );
                     }
                     ?>
                     <h1>Languages</h1>
@@ -415,7 +421,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 </div>
 
 <style>
-    <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
+    <?php wp_enqueue_style("livefyre-css", plugins_url() . '/livefyre-comments/src/admin/settings-template.css' );  ?>
 </style>
 
 <script type="text/javascript">

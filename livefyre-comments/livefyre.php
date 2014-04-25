@@ -4,10 +4,9 @@ Plugin Name: Livefyre Realtime Comments
 Plugin URI: http://livefyre.com
 Description: Implements Livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
-
 
 require_once( dirname( __FILE__ ) . "/src/Livefyre_WP_Core.php" );
 
@@ -17,6 +16,11 @@ define( 'LF_AMETA_PREFIX', 'livefyre_amap_' );
 define( 'LF_DEFAULT_HTTP_LIBRARY', 'Livefyre_Http_Extension' );
 define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
 
+/*
+ * Initial Livefyre WP class. Needed by WordPress to handle the initialization of the plugin.
+ * Build the initial Livefyre functionality for WordPress core.
+ *
+ */
 class Livefyre {
 
     function __construct() {

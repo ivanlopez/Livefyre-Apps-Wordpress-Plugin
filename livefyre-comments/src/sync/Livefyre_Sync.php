@@ -1,16 +1,11 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
 interface Livefyre_Sync {
-
-    /**
-     *
-     */
-    public function run_do_sync();
 
     /**
      *

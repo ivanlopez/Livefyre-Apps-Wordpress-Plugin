@@ -116,10 +116,13 @@ elif [[ $ENTERPRISE ]]; then
 		echo "Stubbing out Site Sync related items!"
 
         # Add in implemented Site Sync
-        sed_i 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"
         sed_i '/require_once( dirname( __FILE__ ) . "\/src\/sync\/sync_helpers.php" );/d' "$TEMPPATH/livefyre-comments/livefyre.php"
+        EXCLUDES="$EXCLUDES livefyre-comments/src/sync/Livefyre_Sync_Stub.php"
+    else
+        sed_i 's/Livefyre_Sync_Impl/Livefyre_Sync_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"
+        EXCLUDES="$EXCLUDES livefyre-comments/src/sync/sync_helpers.php"
         EXCLUDES="$EXCLUDES livefyre-comments/src/sync/Livefyre_Sync_Impl.php"
-	fi
+	fi 
 
     # Switch import to stub. Not needed for enterprise
     sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"

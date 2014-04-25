@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -38,6 +38,7 @@ settings_toggle_more = function() {
     <div id="fyrebody">
         <div id="fyrebodycontent">
             <?php
+            echo "File: " . __FILE__;
             $bad_plugins = Array();
             $all_bad_plugins = Array(
                     'disqus-comment-system/disqus.php' => 'Disqus: Commenting plugin.',
@@ -51,17 +52,8 @@ settings_toggle_more = function() {
                 }
             }
             if( isset($_GET['allow_comments_id']) ) {
-                $allow_id = $_GET['allow_comments_id'];
-
-                if ( $allow_id == 'all_posts' ) {
-                    $livefyre_settings->update_posts( false, 'post' );
-                }
-                else if ( $allow_id == 'all_pages' ) {
-                    $livefyre_settings->update_posts( false, 'page' );
-                }
-                else {
-                    $livefyre_settings->update_posts( $allow_id, false );
-                }
+                $allow_id = sanitize_text_field( $_GET['allow_comments_id'] );
+                $livefyre_settings->update_posts( $allow_id, false );
             }
             global $wpdb;
             $db_prefix = $wpdb->base_prefix;
@@ -99,10 +91,10 @@ settings_toggle_more = function() {
                 else if ( $good_status ) {
                     $status = Array('All systems go!', 'green');
                 }
-                echo '<h1><span class="statuscircle' .esc_html($status[1]). '"></span>Livefyre Status: <span>' .esc_html($status[0]). '</span></h1>';
+                echo '<h1><span class="statuscircle' .esc_attr($status[1]). '"></span>Livefyre Status: <span>' .esc_attr($status[0]). '</span></h1>';
                 echo "<h3>Using your " .esc_html(( 1 == get_option('livefyre_environment', '0') ?  "production" : "development" )). " environment.<h3>";
 
-                $total_errors = ( $plugins_count + $disabled_pages_count + $disabled_posts_count + $need_settings);
+                $total_errors = ( $plugins_count + /*$disabled_pages_count*/ + $disabled_posts_count + $need_settings);
                 if ( $total_errors > 0 ) {
                     echo '<h2>' . esc_html($total_errors . (($total_errors == 1 ) ? ' issue requires' : ' issues require')) . ' your attention, please see below</h2>';
                 }
@@ -150,7 +142,7 @@ settings_toggle_more = function() {
                 </div>
 
                 <div id="fyreallowcomments">
-                    <?php echo '<h1>Allow Comments Status (' .esc_html(($disabled_posts_count + $disabled_pages_count)). ')</h1>';
+                    <?php echo '<h1>Allow Comments Status (' .esc_html(($disabled_posts_count /*+ $disabled_pages_count*/)). ')</h1>';
                     if ( $disabled_posts_count || $disabled_pages_count) {
                         ?>
                         <p>We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts and pages listed below, which means that the Livefyre widget will not be present on them. 
@@ -161,9 +153,9 @@ settings_toggle_more = function() {
                         if ( $disabled_posts_count ) {
                             $livefyre_settings->display_no_allows( 'post', $comments_disabled_posts);
                         }
-                        if ( $disabled_pages_count ) {
-                            $livefyre_settings->display_no_allows( 'page', $comments_disabled_pages);
-                        }
+                        // if ( $disabled_pages_count ) {
+                        //     $livefyre_settings->display_no_allows( 'page', $comments_disabled_pages);
+                        // }
                     }
                     else {
                         echo '<p>There are no posts with comments not allowed</p>';
@@ -190,7 +182,7 @@ settings_toggle_more = function() {
                         <p class="lf_label">Livefyre Site Key: </p>
                         <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_key')). '</p>'; ?>
                     <h1>Links</h1>
-                        <a href="http://"<?php esc_html($this->ext->get_option( 'livefyre_domain_name', 'livefyre.com' )) ?>"/admin" target="_blank">Livefyre Admin</a>
+                        <a href='http://livefyre.com' target="_blank">Livefyre</a>
                         <br />
                         <a href="http://support.livefyre.com" target="_blank">Livefyre Support</a>
                 </div>
@@ -204,13 +196,13 @@ settings_toggle_more = function() {
 
                     if( isset( $_GET['save_display_settings']) ) {
                         if ( isset( $_GET['display_posts'] ) ) {
-                            update_option( 'livefyre_display_posts', $_GET['display_posts'] );
+                            update_option( 'livefyre_display_posts', sanitize_text_field( $_GET['display_posts'] ) );
                         }
                         else {
                             update_option( 'livefyre_display_posts', 'false' );
                         }
                         if ( isset( $_GET['display_pages'] ) ) {
-                            update_option( 'livefyre_display_pages', $_GET['display_pages'] );
+                            update_option( 'livefyre_display_pages', sanitize_text_field( $_GET['display_pages'] ) );
                         }
                         else {
                             update_option( 'livefyre_display_pages', 'false' );
@@ -219,7 +211,7 @@ settings_toggle_more = function() {
                         foreach ($post_types as $post_type ) {
                             $post_type_name = 'livefyre_display_' .$post_type;
                             if ( isset( $_GET[$post_type] ) ) {
-                                update_option( $post_type_name, $_GET[$post_type] );
+                                update_option( $post_type_name, sanitize_text_field( $_GET[$post_type] ) );
                             }
                             else {
                                 update_option( $post_type_name, 'false' );
@@ -239,8 +231,8 @@ settings_toggle_more = function() {
                     ?>
                     <form id="fyredisplayform" action="options-general.php?page=livefyre">
                         <input type="hidden" name="page" value="livefyre" />
-                        <input type="checkbox" class="checkbox" name="display_posts" value="true" <?php echo $posts_checkbox;?> />Posts<br />
-                        <input type="checkbox" class="checkbox" name="display_pages" value="true" <?php echo $pages_checkbox;?> />Pages<br />
+                        <input type="checkbox" class="checkbox" name="display_posts" value="true" <?php echo esc_attr( $posts_checkbox );?> />Posts<br />
+                        <input type="checkbox" class="checkbox" name="display_pages" value="true" <?php echo esc_attr( $pages_checkbox );?> />Pages<br />
                         <?php 
                         foreach ($post_types as $post_type ) {
                             $post_type_name = 'livefyre_display_' .$post_type;
@@ -248,7 +240,7 @@ settings_toggle_more = function() {
                                 $post_type_checkbox = 'checked="yes"';
                             }
                             ?>
-                            <input type="checkbox" class="checkbox" name=<?php echo '"' .$post_type. '"';?> value="true" <?php echo $post_type_checkbox;?> /><?php echo $post_type; ?><br />
+                            <input type="checkbox" class="checkbox" name=<?php echo '"' .esc_attr( $post_type ). '"';?> value="true" <?php echo esc_attr( $post_type_checkbox );?> /><?php echo esc_attr( $post_type ); ?><br />
                             <?php
                         }
                         ?>
@@ -258,7 +250,7 @@ settings_toggle_more = function() {
                 <div id="fyrelanguages">
                     <?php
                     if( isset( $_GET['lf_language']) ) {
-                        update_option( 'livefyre_language', $_GET['lf_language'] );
+                        update_option( 'livefyre_language', sanitize_text_field( $_GET['lf_language'] ) );
                     }
                     ?>
                     <h1>Languages</h1>
@@ -266,10 +258,10 @@ settings_toggle_more = function() {
                     <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
                         <input type="hidden" name="page" value="livefyre" />
                         <select name="lf_language">
-                            <option value="English" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'English'); ?> >English</option>
-                            <option value="Spanish" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Spanish'); ?> >Spanish</option>
-                            <option value="French" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'French'); ?> >French</option>
-                            <option value="Portuguese" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Portuguese'); ?> >Portuguese</option>
+                            <option value="English" <?php echo esc_attr( $livefyre_settings->checkSelected('livefyre_language', 'English') ); ?> >English</option>
+                            <option value="Spanish" <?php echo esc_attr( $livefyre_settings->checkSelected('livefyre_language', 'Spanish') ); ?> >Spanish</option>
+                            <option value="French" <?php echo esc_attr( $livefyre_settings->checkSelected('livefyre_language', 'French') ); ?> >French</option>
+                            <option value="Portuguese" <?php echo esc_attr( $livefyre_settings->checkSelected('livefyre_language', 'Portuguese') ); ?> >Portuguese</option>
                         </select><br />
                         <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
                     </form><br>
@@ -281,5 +273,5 @@ settings_toggle_more = function() {
 </div>
 
 <style>
-    <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
+    <?php wp_enqueue_style("livefyre-e-css", plugins_url() . '/livefyre-comments/src/admin/settings-template.css' );  ?>
 </style>

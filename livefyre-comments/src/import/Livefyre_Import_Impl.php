@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -41,25 +41,7 @@ class Livefyre_Import_Impl implements Livefyre_Import {
     
     }
 
-    function run_begin() {
-
-        try {
-            $this->begin();
-        }
-        catch (Exception $e) {
-            try {
-                $this->lf_core->Livefyre_Logger->add('Livefyre Import: Exception occured in begin - ' . esc_html($e->getMessage()));
-                $this->lf_core->Raven->captureException($e);
-            }
-            catch (Exception $f) {}
-            throw $e;
-        }
-
-    }
-
     function begin() {
-
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Beginning an import process." );
 
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre' || !isset($_GET['livefyre_import_begin'])) {
             return;
@@ -92,22 +74,6 @@ class Livefyre_Import_Impl implements Livefyre_Import {
         
     }
 
-    function run_check_activity_map_import() {
-        
-        try {
-            $this->check_activity_map_import();
-        }
-        catch (Exception $e) {
-            try {
-                $this->lf_core->Livefyre_Logger->add('Livefyre Import : Exception occured in check_activity_map_import - ' . esc_html($e->getMessage()));
-                $this->lf_core->Raven->captureException($e);
-            }
-            catch (Exception $f) {}
-            throw $e;
-        }
-
-    }
-
     function check_activity_map_import() {
 
         if (!isset($_POST['activity_map'])) {
@@ -121,7 +87,6 @@ class Livefyre_Import_Impl implements Livefyre_Import {
 
         foreach ($rows as $row) {
             $rowparts = explode(",", $row);
-            $this->lf_core->Livefyre_Logger->add( "comment import req received from livefyre, inserting: $rowparts[0], $rowparts[1], $rowparts[2]" );
             $this->ext->activity_log( $rowparts[0], $rowparts[1], $rowparts[2] );
             $i++;
         }
@@ -135,26 +100,9 @@ class Livefyre_Import_Impl implements Livefyre_Import {
 
     }
 
-    function run_check_import() {
-        
-        try {
-            $this->check_import();
-        }
-        catch (Exception $e) {
-            try {
-                $this->lf_core->Livefyre_Logger->add('Livefyre Import: Exception occured in check_import - ' . $e->getMessage());
-                $this->lf_core->Raven->captureException($e);
-            }
-            catch (Exception $f) {}
-            throw $e;
-        }
-
-    }
-
     function check_import() {
 
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Checking on an import." );
-        if ($this->ext->detect_default_comment() && $this->ext->get_option('livefyre_import_status', 'uninitialized') == 'uninitialized') {
+        if ($this->detect_default_comment() && $this->ext->get_option('livefyre_import_status', 'uninitialized') == 'uninitialized') {
             $this->ext->update_option('livefyre_import_status', 'complete');
             $this->ext->delete_option( 'livefyre_v3_notify_installed' );
             return;
@@ -167,23 +115,18 @@ class Livefyre_Import_Impl implements Livefyre_Import {
         $sig = $_POST['sig'];
         $sig_created = urldecode($_POST['sig_created']);
         // Check the signature
-        $this->lf_core->Livefyre_Logger->add( 'comment import req received from livefyre' );
         $key = $this->ext->get_option('livefyre_site_key');
-        $string = 'import|' . $_GET['offset'] . '|' . $sig_created;
-        $this->lf_core->Livefyre_Logger->add( ' -comment import req sig inputs: ' . $string . ' input sig:' . $sig );
+        $string = 'import|' . sanitize_text_field( $_GET['offset'] ) . '|' . $sig_created;
         if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created-time()) > 259200) {
-            $this->lf_core->Livefyre_Logger->add( ' -sig failed' );
             echo 'sig-failure';
             exit;
         } else {
-            $this->lf_core->Livefyre_Logger->add( ' -sig correct, rendering' );
             $siteId = $this->ext->get_option('livefyre_site_id', '');
             if ($siteId != '') {
-                $response = $this->extract_xml($siteId, intval($_GET['offset']));
+                $response = $this->extract_xml($siteId, intval( sanitize_text_field( $_GET['offset'] ) ) );
                 echo esc_html($response);
                 exit;
             } else {
-                $this->lf_core->Livefyre_Logger->add( ' -tried to render, but no blogid' );
                 echo 'missing-blog-id';
                 exit;
             }
@@ -231,7 +174,6 @@ class Livefyre_Import_Impl implements Livefyre_Import {
 
     function extract_xml( $siteId, $offset=0 ) {
 
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Extracting XML." );
         $maxqueries = 50;
         $maxlength = 500000;
         $index = $offset;
@@ -345,6 +287,23 @@ class Livefyre_Import_Impl implements Livefyre_Import {
 
         return '<?xml version="1.0" encoding="UTF-8"?><site xmlns="http://livefyre.com/protocol" type="wordpress">' . $articles . '</site>';
     
+    }
+
+    function detect_default_comment() {
+        // Checks to see if the site only has the default WordPress comment
+        // If the site has 0 comments or only has the default comment, we skip the import
+        if ( wp_count_comments()->total_comments > 1) {
+            // If the site has more than one comment, show import button like normal
+            return False;
+        }
+        // We take all the comments from post id 1, because this post has the default comment if it was not deleted
+        $comments = get_comments('post_id=1');
+        if ( count( $comments ) == 0 || ( count( $comments ) == 1 && $comments[0]->comment_author == 'Mr WordPress' ) ) {
+            // If there are 0 approved comments or if there is only the default WordPress comment, return True
+            return True;
+        }
+        // If there is 1 comment but it is not the default comment, return False
+        return False;
     }
 
 }

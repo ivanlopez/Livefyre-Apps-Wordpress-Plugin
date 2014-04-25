@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -15,14 +15,14 @@ Author URI: http://livefyre.com/
         <div id="fyrebodycontent">
             <div id="fyrestatus">
                 <?php
-
+                echo "File: " . __FILE__;
                 $bad_status = $this->ext->get_network_option( 'livefyre_domain_name', '' ) == ''
                     || $this->ext->get_network_option( 'livefyre_domain_key', '' ) == '';
                 $status = Array('All systems go!', 'green');
                 if( $bad_status ) {
                     $status = Array('Settings blank', 'red');
                 }
-                echo '<h1><span class="statuscircle' .esc_html($status[1]). '"></span>Livefyre Status: <span>' .esc_html($status[0]). '</span></h1>';
+                echo '<h1><span class="statuscircle' .esc_attr($status[1]). '"></span>Livefyre Status: <span>' .esc_attr($status[0]). '</span></h1>';
 
                 $total_errors = 1;
                 if ( $bad_status ) {
@@ -65,5 +65,5 @@ Author URI: http://livefyre.com/
 </div>
 
 <style>
-    <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
+    <?php wp_enqueue_style("livefyre-e-m-css", plugins_url() . '/livefyre-comments/src/admin/settings-template.css' ); ?>
 </style>

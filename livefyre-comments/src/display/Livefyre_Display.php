@@ -1,19 +1,21 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
 class Livefyre_Display {
 
+    /*
+     * Designates what Livefyre's widget is binding to.
+     *
+     */
     function __construct( $lf_core ) {
-    
-        $this->lf_core = $lf_core;
-        $this->ext = $lf_core->ext;
         
-        if ( ! $this->livefyre_comments_off() ) {
-            add_action( 'wp_head', array( &$this, 'lf_embed_head_script' ) );
+        if ( !self::livefyre_comments_off() ) {
+            add_action( 'wp_enqueue_scripts', array( &$this, 'lf_embed_head_script' ) );
+            add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
             add_action( 'wp_footer', array( &$this, 'lf_debug' ) );
             // Set comments_template filter to maximum value to always override the default commenting widget
@@ -23,30 +25,47 @@ class Livefyre_Display {
     
     }
 
+    /*
+     * Helper function to test if comments shouldn't be displayed.
+     *
+     */
     function livefyre_comments_off() {
     
-        return ( $this->ext->get_option( 'livefyre_site_id', '' ) == '' );
+        return ( get_option( 'livefyre_site_id', '' ) == '' );
 
     }
 
+    /*
+     * Gets the Livefyre priority.
+     *
+     */
     function lf_widget_priority() {
 
-        return intval( $this->ext->get_option( 'livefyre_widget_priority', 99 ) );
+        return intval( get_option( 'livefyre_widget_priority', 99 ) );
 
     }
     
+    /*
+     * Embed Livefyre's JS lib.
+     *
+     */
     function lf_embed_head_script() {
-        global $wp_query;
-        $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
-        if ($profile_sys == 'lfsp') {
-                $lfsp_source_url = $this->ext->get_network_option( 'livefyre_lfsp_source_url', '' );
-                echo '<script type="text/javascript" src="' . esc_html($lfsp_source_url) . '"></script>';
+        if ( get_option('liveyfre_domain_name', '' ) == '' || get_option( 'liveyfre_domain_name') == 'livefyre.com' ) {
+            $source_url = 'http://zor.livefyre.com/wjs/v3.0/javascripts/livefyre.js';    
         }
-        echo '<script type="text/javascript" src="http://zor.'
-            . esc_html(( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' ))
-            . '/wjs/v3.0/javascripts/livefyre.js"></script>';
+        else {
+            $source_url = 'http://zor.'
+                . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
+                . '/wjs/v3.0/javascripts/livefyre.js';
+        }
+        wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );
     }
-    
+        
+    /*
+     * Builds the Livefyre JS code that will build the conversation and load it onto the page. The
+     * bread and butter of the whole plugin.
+     *
+     */
     function lf_init_script() {
     /*  Reset the query data because theme code might have moved the $post gloabl to point 
         at different post rather than the current one, which causes our JS not to load properly. 
@@ -55,14 +74,16 @@ class Livefyre_Display {
         wp_reset_query();
 
         global $post, $current_user, $wp_query;
-        $network = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         if ( comments_open() && $this->livefyre_show_comments() ) {   // is this a post page?
-            if( $parent_id = wp_is_post_revision( $wp_query->post->ID ) ) {
-                $original_id = $parent_id;
-            } else {
-                $original_id = $wp_query->post->ID;
-            }
-            $post_obj = get_post( $wp_query->post->ID );
+            $network = get_option( 'livefyre_domain_name', 'livefyre.com' );
+            $network = ( $network == '' ? 'livefyre.com' : $network );
+            $siteId = get_option( 'livefyre_site_id' );
+            $siteKey = get_option( 'livefyre_site_key' );
+            $environment = "livefyre.com";
+            $post = get_post();
+            $articleId = get_the_ID();
+            $title = get_the_title($articleId);
+            $url = get_permalink($articleId);
             $tags = array();
             $posttags = get_the_tags( $wp_query->post->ID );
             if ( $posttags ) {
@@ -70,50 +91,48 @@ class Livefyre_Display {
                     array_push( $tags, $tag->name );
                 }
             }
-            $domain = $this->lf_core->lf_domain_object;
-            $site = $this->lf_core->site;
-            if ( empty( $tags ) ) {
-                $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id));
+            $collectionMeta = array(
+                'articleId' => $articleId,
+                'title' => $title,
+                'url' => $url,
+                'tage' => $posttags
+            );
+            $checksum = md5( json_encode( $collectionMeta ) );
+            $collectionMeta['checksum'] = $checksum;
+            $collectionMeta['articleId'] = $articleId;
+            $jwtString = JWT::encode($collectionMeta, $siteKey);
+            $collectionMetaString = "'$jwtString'";
+            $lfConfig = 'var lfConfig = [{
+                "collectionMeta": ' .$collectionMetaString. ',
+                "checksum": "' .$checksum. '",
+                "siteId": ' .$siteId. ',
+                "articleId": ' .$articleId. ',
+                "el": "livefyre-comments"
+            }]';
+            $networkConfig = array();
+            if ( get_option( 'livefyre_language', 'English') != 'English' ) {
+                $networkConfig['strings'] = 'customStrings';
             }
-            else {
-                $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id), $tags=$tags );
+            if ( $network != 'livefyre.com' ) {
+                $networkConfig['domain'] = $network;
             }
-            $conv = $article->conversation();
-            $initcfg = array();
-
-            if ( $network != LF_DEFAULT_PROFILE_DOMAIN ) {
-                if ( function_exists( 'livefyre_onload_handler' ) ) {
-                    $initcfg['onload'] = livefyre_onload_handler();
-                }
-                if ( function_exists( 'livefyre_delegate_name' ) ) {
-                    $initcfg['delegate'] = livefyre_delegate_name();
-                }
-                if ( get_option( 'livefyre_auth_delegate_name', '' ) != '' ) {
-                    $initcfg['delegate'] = get_option( 'livefyre_auth_delegate_name', '' );
-                }
-                if ( function_exists ( 'livefyre_strings_chooser') ) {
-                    $filename = livefyre_strings_chooser();
-                    $initcfg['strings'] = $this->load_custom_strings( $filename );
-                }
-                else {
-                    $language = get_option( 'livefyre_language', 'English' );
-                    $initcfg['strings'] = $this->load_strings( $language );
-                }
-            }
-            else {
-                $language = get_option( 'livefyre_language', 'English' );
-                $initcfg['strings'] = $this->load_strings( $language );
-            }
-            // Do we need to add in some things for Enterprise?
-            echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg );
+            #for each in $networkConfig, build the string
+            $lfLoad = "fyre.conv.load($networkConfig, lfConfig)";
+            $commentsJS = "$lfConfig;\n         $lfLoad;";
+            echo "<script>$commentsJS</script>";
         }
 
         if ( !is_single() ) {
-            echo '<script type="text/javascript" data-lf-domain="' . $network . '" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
+            $ccjs = 'http://zor.livefyre.com/wjs/v1.0/javascripts/CommentCount.js';
+            echo '<script type="text/javascript" data-lf-domain="' . esc_attr( $network ) . '" id="ncomments_js" src="' . esc_html( $ccjs ) . '"></script>';
         }
 
     }
 
+    /*
+     * Debug script that will point customers to what could be potential issues.
+     *
+     */
     function lf_debug() {
 
         global $post;
@@ -137,12 +156,21 @@ class Livefyre_Display {
         
     }
 
+    /*
+     * The template for the Livefyre div element.
+     *
+     */
     function livefyre_comments( $cmnts ) {
 
         return dirname( __FILE__ ) . '/comments-template.php';
 
     }
 
+    /*
+     * Handles the toggles on the settings page that decide which post types should be shown.
+     * Also prevents comments from appearing on non single items and previews.
+     *
+     */
     function livefyre_show_comments() {
         
         global $post;
@@ -167,27 +195,29 @@ class Livefyre_Display {
 
     }
 
-
+    /*
+     * Build the Livefyre comment count variable.
+     *
+     */
     function livefyre_comments_number( $count ) {
 
         global $post;
-        return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . esc_html(get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
+        return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
 
     }
 
-    function load_strings( $language ) {
+    /*
+     * Loads in JS variable to enable the widget to be internationalized.
+     *
+     */
+    function load_strings() {
 
+        $language = get_option( 'livefyre_language', 'English' );
         if ( $language == 'English' ) {
-            return '';
+            return;
         }
-        echo file_get_contents( dirname(dirname(dirname( __FILE__ ))) . '/languages/' . $language );
-        return 'customStrings';
-    }
-
-    function load_custom_strings ( $filepath ) {
-
-        echo file_get_contents( $filepath );
-        return 'customStrings';
+        $lang_file = plugins_url() . "/livefyre-comments/languages/" . $language;
+        wp_enqueue_script( 'livefyre-lang-js', esc_url( $lang_file ) );
     }
     
 }

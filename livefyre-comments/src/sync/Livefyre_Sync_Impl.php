@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 
@@ -24,27 +24,8 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
 
     }
 
-    function run_do_sync() {
-
-        try {
-            $this->do_sync();
-        }
-        catch (Exception $e) {
-            try {
-                $this->lf_core->Raven->captureException($e);
-                $error_message = 'Livefyre: Exception occured during do_sync - ' . $e->getMessage();
-                $this->lf_core->Livefyre_Logger->add($error_message);
-            }
-            catch (Exception $f) {}
-            throw $e;
-        }
-
-    }
-
-
     function do_sync() {
 
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Running a site sync." );
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
             Schedule the next sync if we got >50 or the server says "more-data".
@@ -78,7 +59,6 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
         if ( !is_array( $json_array ) ) {
             $this->schedule_sync( LF_SYNC_LONG_TIMEOUT );
             $error_message = 'Error during do_sync: Invalid response ( not a valid json array ) from sync request to url: ' . $url . ' it responded with: ' . $str_comments;
-            $this->lf_core->Livefyre_Logger->add( "Livefyre: Invalid response ( not a valid json array) from sync request." );
             $this->livefyre_report_error( $error_message );
             return array_merge(
                 $result,
@@ -125,7 +105,6 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
                 );
                 if($first) {
                     $first_id_msg = 'Livefyre: Processing activity page starting with ' . $data['lf_activity_id'];
-                    $this->lf_core->Livefyre_Logger->add($first_id_msg);
                     $first = false;
                 }
                 if ( isset( $json->lf_parent_comment_id ) ) {
@@ -147,10 +126,8 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
         if ( $last_activity_id ) {
             $activity_update = $this->ext->update_option( 'livefyre_activity_id', $last_activity_id );
             if ( !$activity_update ) {
-                $this->lf_core->Livefyre_Logger->add( 'Livefyre: Activity ID failed to be rewritten' );
             }
             $last_id_msg = 'Livefyre: Set last activity ID processed to ' . $last_activity_id;
-            $this->lf_core->Livefyre_Logger->add( $last_id_msg );
         }
         $this->schedule_sync( $timeout );
         return $result;
@@ -159,7 +136,11 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
 
     function schedule_sync( $timeout ) {
 
-        $this->ext->schedule_sync( $timeout );
+        $hook = 'livefyre_sync';
+
+        // try to clear the hook, for race condition safety
+        wp_clear_scheduled_hook( $hook );
+        wp_schedule_single_event( time() + $timeout, $hook );
 
     }
     
@@ -189,7 +170,7 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
             return;
 
         $domain = $this->lf_core->lf_domain_object;
-        $server_token = base64_decode( $_GET[ 'server_token' ] );
+        $server_token = base64_decode( sanitize_text_field( $_GET[ 'server_token' ] ) );
         header( 'Content-type: application/json' );
         if ( $domain->validate_server_token( $server_token ) ) {
             // Everything looks good, we respond with the current user's details.
@@ -248,16 +229,30 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
 
     }
 
+    function get_app_comment_id( $lf_comment_id ) {
+    
+        global $wpdb;
+        $wp_comment_id = wp_cache_get( $lf_comment_id, 'livefyre-comment-map' );
+        if ( false === $wp_comment_id ) {
+            $wp_comment_id = $wpdb->get_var( $wpdb->prepare( "SELECT comment_id FROM $wpdb->commentmeta WHERE meta_key = %s LIMIT 1", LF_CMETA_PREFIX . $lf_comment_id ) );
+            if ( $wp_comment_id ) {
+                wp_cache_set( $lf_comment_id, $wp_comment_id, 'livefyre-comment-map' );
+            }
+        }
+        return $wp_comment_id;
+
+    }
+
     function livefyre_insert_activity( $data ) {
         if ( isset( $data[ 'lf_comment_parent' ] ) && $data[ 'lf_comment_parent' ]!= null ) {
-            $app_comment_parent = $this->ext->get_app_comment_id( $data[ 'lf_comment_parent' ] );
+            $app_comment_parent = $this->get_app_comment_id( $data[ 'lf_comment_parent' ] );
             if ( $app_comment_parent == null ) {
                 //something is wrong.  might want to log this, essentially flattening because parent is not mapped
             }
         } else { 
             $app_comment_parent = null;
         }
-        $app_comment_id = $this->ext->get_app_comment_id( $data[ 'lf_comment_id' ] );
+        $app_comment_id = $this->get_app_comment_id( $data[ 'lf_comment_id' ] );
         $at = $data[ 'lf_action_type' ];
         $data[ 'comment_approved' ] = ( ( isset( $data[ 'lf_state' ] ) && $data[ 'lf_state' ] == 'active' ) ? 1 : 0 );
         $data[ 'comment_parent' ] = $app_comment_parent;
@@ -280,19 +275,19 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
             $mod = count( $at_parts ) > 1 ? $at_parts[ 1 ] : '';
             if ( $action == 'comment-moderate' ) {
                 if ( $mod == 'mod-approve' ) {
-                    $this->ext->update_comment_status( $app_comment_id, 'approve' );
+                    $this->update_comment_status( $app_comment_id, 'approve' );
                 } elseif ( $mod == 'mod-hide' && $data[ 'lf_state' ] == 'hidden' ) {
                     $this->ext->delete_comment( $app_comment_id );
                 } elseif ( $mod == 'mod-unapprove') {
-                    $this->ext->update_comment_status( $app_comment_id, 'hold' );
+                    $this->update_comment_status( $app_comment_id, 'hold' );
                 } elseif ( $mod == 'mod-mark-spam' || $mod == 'mod-bozo') {
-                    $this->ext->update_comment_status( $app_comment_id, 'spam' );
+                    $this->update_comment_status( $app_comment_id, 'spam' );
                 }
             } elseif ( ($action == 'comment-update' || $action == 'comment-add') && isset( $data[ 'comment_content' ] ) && $data[ 'comment_content' ] != '' ) {
                 // even if its supposed to be an "add", when we find the app comment ID, it must be an update
                 $this->ext->update_comment( $data );
                 if ( $data[ 'lf_state' ] == 'unapproved' ) {
-                    $this->ext->update_comment_status( $app_comment_id, 'hold' );
+                    $this->update_comment_status( $app_comment_id, 'hold' );
                 }
             } elseif ($action == 'comment-delete') {
                 $this->ext->delete_comment( $app_comment_id );
@@ -305,7 +300,7 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
             if ( $data[ 'lf_state' ] != 'deleted' && $data[ 'lf_state' ] != 'hidden' ) {
                 $app_comment_id = $this->ext->insert_comment( $data );
                 if ( $data[ 'lf_state' ] == 'unapproved' ) {
-                    $this->ext->update_comment_status( $app_comment_id, 'unapproved' );
+                    $this->update_comment_status( $app_comment_id, 'unapproved' );
                 }
             }
         } else {
@@ -316,6 +311,80 @@ class Livefyre_Sync_Impl implements Livefyre_Sync {
         $this->ext->activity_log( $app_comment_id, $data[ 'lf_comment_id' ], $data[ 'lf_activity_id' ] );
         return true;
 
+    }
+
+    private static $comment_fields = array(
+        "comment_author",
+        "comment_author_email",
+        "comment_author_url",
+        "comment_author_IP",
+        "comment_content",
+        "comment_ID",
+        "comment_post_ID",
+        "comment_parent",
+        "comment_approved",
+        "comment_date"
+    );
+
+    function sanitize_inputs ( $data ) {
+        
+        // sanitize inputs
+        $cleaned_data = array();
+        foreach ( $data as $key => $value ) {
+            // 1. do we care ? if so, add it
+            if ( in_array( $key, self::$comment_fields ) ) {
+                $cleaned_data[ $key ] = $value;
+            }
+        }
+        return wp_filter_comment( $cleaned_data );
+        
+    }
+
+    function delete_comment( $id ) {
+
+        return wp_delete_comment( $id );
+
+    }
+
+    function insert_comment( $data ) {
+
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_insert_comment', array( $sanitary_data ) );
+
+    }
+
+    function update_comment( $data ) {
+
+        $sanitary_data = $this->sanitize_inputs( $data );
+        return $this->without_wp_notifications( 'wp_update_comment', array( $sanitary_data ) );
+
+    }
+    
+    function without_wp_notifications( $func_name, $args ) {
+    
+        $old_notify_setting = get_option( 'comments_notify', false );
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', '' );
+        }
+        $ret_val = call_user_func_array( $func_name, $args );
+        if ( $old_notify_setting !== false ) {
+            update_option( 'comments_notify', $old_notify_setting );
+        }
+        return $ret_val;
+    
+    }
+
+    function update_comment_status( $app_comment_id, $status ) {
+
+        if ( get_comment( $app_commetn_id ) == NULL ) {
+            return;
+        }
+    
+        // Livefyre says unapproved, WordPress says hold.
+        $wp_status = ( $status == 'unapproved' ? 'hold' : $status );
+        $args = array( $app_comment_id, $wp_status );
+        $this->without_wp_notifications( 'wp_set_comment_status', $args );
+    
     }
     
 }
