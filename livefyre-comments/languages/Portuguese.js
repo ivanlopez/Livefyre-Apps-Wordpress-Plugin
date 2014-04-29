@@ -58,7 +58,7 @@ var customStrings = {
 	mentionTitle: "Compartilhar mention",
 	mentionSubtitleFacebook: "Compartilhar post no Facebook para:",
 	mentionSubtitleTwitter: "Compartilhar post no Twitter para:",
-	mentionDefaultText: "mencionei você em um comentário no Livefyre!",
+	mentionDefaultText: "@Joao mencionei você em um comentário no Livefyre!",
 	mentionConfirmButton: "OK",
 	mentionCancelButton: "Cancelar",
 	mentionSuccessMsg: "Compartilhado com sucesso!",
