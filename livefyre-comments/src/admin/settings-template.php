@@ -138,7 +138,7 @@ $deactivated_time = get_option( 'livefyre_deactivated', ': '.time() );
 $deactivated_time = explode(': ', $deactivated_time);
 if ( time() - $deactivated_time[1] >= 4838400 ) {
     $import_status = 'uninitialized';
-    update_option( 'livefyre_deactivated', '' );
+    delete_option( 'livefyre_deactivated' );
 }
 
 $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
