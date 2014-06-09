@@ -1,6 +1,11 @@
-<?php 
+<?php
+/*
+Author: Livefyre, Inc.
+Version: 4.1.0
+Author URI: http://livefyre.com/
+*/
     global $livefyre, $wp_query;
-    if ( $livefyre->Display->livefyre_show_comments() ) {
+    if ( $livefyre->lf_core->Display->livefyre_show_comments() ) {
         // Determine the post id
         if ( $parent_id = wp_is_post_revision( $wp_query->post->ID ) ) {
             $post_id = $parent_id;
@@ -9,13 +14,13 @@
         }
         $transient_key = 'livefyre_bootstrap_' . $post_id;
         $cached_html = get_transient( $transient_key );
+        $caching_enabled = ( $livefyre->lf_core->ext->get_option( 'livefyre_caching', 'on' ) == 'on' );
         if ( !$cached_html ) {
             $cached_html = '';
-            $use_v3 = ($livefyre->ext->get_post_version( $post_id ) != '1');
             
-            $url = $livefyre->bootstrap_url_v3 . '/' . base64_encode($post_id) . '/bootstrap.html';
+            $url = $livefyre->lf_core->bootstrap_url_v3 . '/' . base64_encode($post_id) . '/bootstrap.html';
             
-            $result = $livefyre->lf_domain_object->http->request( $url, array( 'method' => 'GET' ) );
+            $result = $livefyre->lf_core->lf_domain_object->http->request( $url, array( 'method' => 'GET' ) );
             if ( is_array( $result ) && isset($result['response']) && $result['response']['code'] == 200 && strlen($result['body']) > 0 ) {
                 $cached_html = $result['body'];
             }
@@ -40,14 +45,16 @@
             if (strpos($cached_html, '<div') === false) {
                 // if we don't see the required container,
                 // something is wrong with the response
-                $cached_html = ($use_v3 ? '' : '<div id="livefyre"></div>');
+                $cached_html = '';
             }
-            set_transient( $transient_key , $cached_html, 300 );
+
+            if ( $caching_enabled ) {
+                set_transient( $transient_key , $cached_html, 300 );
+            }
         }
         echo '<div id="livefyre-comments">' . $cached_html . '</div>';
     }
 
-    echo "<!-- Livefyre Comments Version: " . $livefyre->plugin_version."-->";
     if ( pings_open() ) {
         $num_pings = count( get_comments( array( 'post_id' => $post->ID, 'type' => 'pingback', 'status' => 'approve' ) ) ) + count( get_comments( array( 'post_id'=>$post->ID, 'type'=>'trackback', 'status'=>'approve' ) ) );
         if ( $num_pings > 0 ):

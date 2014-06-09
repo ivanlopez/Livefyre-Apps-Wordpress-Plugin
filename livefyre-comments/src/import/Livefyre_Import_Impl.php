@@ -1,9 +1,16 @@
 <?php
+/*
+Author: Livefyre, Inc.
+Version: 4.1.0
+Author URI: http://livefyre.com/
+*/
+
+require_once 'Livefyre_Import.php';
 
 global $livefyre_comment_filter_enabled;
 global $wpdb;
 
-class Livefyre_Import {
+class Livefyre_Import_Impl implements Livefyre_Import {
     
     function __construct( $lf_core ) {
 
@@ -14,11 +21,16 @@ class Livefyre_Import {
     }
 
     static function skip_trackback_filter($c) {
-        if ($c->comment_type == 'trackback' || $c->comment_type == 'pingback') { return false; }
+
+        if ($c->comment_type == 'trackback' || $c->comment_type == 'pingback') {
+            return false;
+        }
         return true;
+
     }
     
     function admin_import_notice() {
+
         return; //todo: re-enable this
         if (!is_admin() || $_GET["page"] != "livefyre" ||
             $this->ext->get_option('livefyre_import_status', '') != '' ||
@@ -26,9 +38,11 @@ class Livefyre_Import {
             return;
         }
         echo "<div id='livefyre-import-notice' class='updated fade'><p><a href='?page=livefyre&livefyre_import_begin=true'>Click here</a> to import your comments.</p></div>";
+    
     }
 
     function run_begin() {
+
         try {
             $this->begin();
         }
@@ -40,6 +54,7 @@ class Livefyre_Import {
             catch (Exception $f) {}
             throw $e;
         }
+
     }
 
     function begin() {
@@ -78,6 +93,7 @@ class Livefyre_Import {
     }
 
     function run_check_activity_map_import() {
+        
         try {
             $this->check_activity_map_import();
         }
@@ -89,6 +105,7 @@ class Livefyre_Import {
             catch (Exception $f) {}
             throw $e;
         }
+
     }
 
     function check_activity_map_import() {
@@ -115,9 +132,11 @@ class Livefyre_Import {
         $this->ext->delete_option('livefyre_v3_notify_installed');
         echo "ok";
         exit;
+
     }
 
     function run_check_import() {
+        
         try {
             $this->check_import();
         }
@@ -129,6 +148,7 @@ class Livefyre_Import {
             catch (Exception $f) {}
             throw $e;
         }
+
     }
 
     function check_import() {
@@ -168,9 +188,11 @@ class Livefyre_Import {
                 exit;
             }
         }
+
     }
 
     function check_utf_conversion() {
+        
         global $livefyre_comment_filter_enabled;
 
         if (!isset($livefyre_comment_filter_enabled)) {
@@ -183,9 +205,11 @@ class Livefyre_Import {
             }
         }
         return $livefyre_comment_filter_enabled;
+
     }
 
     function comment_data_filter( $comment, $test=false ) {
+        
         if ($test || $this->check_utf_conversion()) {
             $before = $comment;
             if (function_exists( 'iconv' )) {
@@ -202,6 +226,7 @@ class Livefyre_Import {
         $comment = preg_replace('/\>/', '&gt;', $comment);
         $comment = preg_replace('/\</', '&lt;', $comment);
         return $comment;
+
     }
 
     function extract_xml( $siteId, $offset=0 ) {
@@ -239,7 +264,7 @@ class Livefyre_Import {
                     $newArticle .= '<created>' . preg_replace('/\s/', 'T', $post->post_date_gmt) . 'Z</created>';
                 }
                 $comment_array = get_approved_comments($post->ID);
-                $comment_array = array_filter($comment_array, array('Livefyre_Import', 'skip_trackback_filter'));
+                $comment_array = array_filter($comment_array, array('Livefyre_Import_Impl', 'skip_trackback_filter'));
                 foreach ($comment_array as $comment) {
                     $comment_content = $this->comment_data_filter($comment->comment_content);
                     if ($comment_content == "") {
@@ -281,38 +306,45 @@ class Livefyre_Import {
         } else {
             return 'to-offset:' . ($inner_idx + $index) . "\n" . $this->wrap_xml($articles);
         }
+
     }
 
     function filter_unicode_longs( $long ) {
+
         return ($long == 0x9 || $long == 0xa || $long == 0xd || ($long >= 0x20 && $long <= 0xd7ff) || ($long >= 0xe000 && $long <= 0xfffd) || ($long >= 0x10000 && $long <= 0x10ffff));
+    
     }
 
     function report_error( $message ) { 
+
         $args = array('data' => array('message' => $message, 'method' => 'POST'));
         $url = $this->lf_core->http_url . '/site/' . $this->ext->get_option('livefyre_site_id');
         $this->lf_core->lf_domain_object->http->request($url . '/error', $args);
+    
     }
 
     function unicode_code_to_utf8( $unicode_list ) {
+
         $result = "";
         foreach ($unicode_list as $key => $value) {
             $one_character = pack("L", $value);
             $result .= iconv("UTF-32", "UTF-8", $one_character);
         }
         return $result;
+
     }
 
     function utf8_to_unicode_code( $utf8_string ) {
+
         $expanded = iconv("UTF-8", "UTF-32", $utf8_string);
         return unpack("L*", $expanded);
+
     }
 
     function wrap_xml( &$articles ) {
+
         return '<?xml version="1.0" encoding="UTF-8"?><site xmlns="http://livefyre.com/protocol" type="wordpress">' . $articles . '</site>';
+    
     }
 
 }
-
-
-
-?>

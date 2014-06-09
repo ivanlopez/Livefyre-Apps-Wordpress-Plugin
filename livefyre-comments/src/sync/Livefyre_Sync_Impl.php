@@ -1,312 +1,20 @@
 <?php
 /*
-Livefyre Realtime Comments Core Module
-
-This library is shared between all Livefyre plugins.
-
-Author: Livefyre, Inc. 
+Author: Livefyre, Inc.
+Version: 4.1.0
 Author URI: http://livefyre.com/
 */
-define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
-define( 'LF_DEFAULT_TLD', 'livefyre.com' );
+
+require_once( dirname( __FILE__ ) . "/Livefyre_Sync.php" );
+
 define( 'LF_SYNC_LONG_TIMEOUT', 25200 );
 define( 'LF_SYNC_SHORT_TIMEOUT', 3 );
 define( 'LF_SYNC_MAX_INSERTS', 25 );
 define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
 define( 'LF_SYNC_MORE', 'more-data' );
 define( 'LF_SYNC_ERROR', 'error' );
-define( 'LF_PLUGIN_VERSION', '4.0.6' );
 
-global $livefyre;
-
-class Livefyre_core {
-
-    function __construct() { 
-
-        $this->add_extension();
-        $this->require_php_api();
-        $this->require_Livefyre_Logger();
-        $this->define_globals();
-        $this->require_subclasses();
-        $this->require_raven();
-        $this->Livefyre_Logger->add( "Livefyre: Constructing a Livefyre_core." );
-        
-    }
-    
-    function define_globals() {
-    
-        $this->options = array( 
-            'livefyre_site_id', // - name ( id ) of the livefyre record associated with this blog
-            'livefyre_site_key' // - shared key used to sign requests to/from livefyre
-        );
-
-        $client_key = $this->ext->get_network_option( 'livefyre_domain_key', '' );
-        $profile_domain = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
-        $dopts = array(
-            'livefyre_tld' => LF_DEFAULT_TLD
-        );
-        $uses_default_tld = (strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0);
-        $this->lf_domain_object = new Livefyre_Domain( $profile_domain, $client_key, null, $dopts);
-        $site_id = $this->ext->get_option( 'livefyre_site_id' );
-        $this->site = $this->lf_domain_object->site( 
-            $site_id, 
-            trim( $this->ext->get_option( 'livefyre_site_key' ) )
-        );
-        $this->debug_mode = false;
-        $this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? LF_DEFAULT_TLD : $profile_domain );
-        $this->http_url = ( $uses_default_tld ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
-        $this->api_url = "http://api.$this->top_domain";
-        $this->quill_url = "http://quill.$this->top_domain";
-        $this->admin_url = "http://admin.$this->top_domain";
-        $this->assets_url = "http://zor." . LF_DEFAULT_TLD;
-        $this->bootstrap_url = "http://bootstrap.$this->top_domain";
-        
-        // for non-production environments, we use a dev url and prefix the path with env name
-        $bootstrap_domain = 'bootstrap-json-dev.s3.amazonaws.com';
-        $environment = $dopts['livefyre_tld'] . '/';
-        if ( $uses_default_tld ) {
-            $bootstrap_domain = 'data.bootstrap.fyre.co';
-            $environment = '';
-        }
-
-        $this->bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
-        
-        $this->home_url = $this->ext->home_url();
-        $this->plugin_version = LF_PLUGIN_VERSION;
-
-    }
-    
-    function require_php_api() {
-
-        require_once(dirname(__FILE__) . "/livefyre-api/libs/php/Livefyre.php");
-
-    }
-
-    function require_Livefyre_Logger() {
-
-        require_once(dirname(__FILE__) . "/libs/php/Logger/livefyre_logger.php");
-
-    }
-
-    function require_raven() {
-
-        require_once(dirname(__FILE__) . "/libs/php/Raven/Autoloader.php");
-        Raven_Autoloader::register();
-        $this->Raven = new Raven_Client('http://0f5245e17ee1418a905268a6032ef829:3c1ef304db44449ab27988d6f0b4dfcf@sentry.livefyre.com:9000/3');
-    }
-
-    function add_extension() {
-
-        if ( class_exists( 'Livefyre_Application' ) ) {
-            $this->ext = new Livefyre_Application( $this );
-        } else {
-            die( "There is no Application Module ( WordPress, Joomla, or other )included with this plugin .  Error: Class Livefyre_Application not defined . " );
-        }
-    }
-
-    function require_subclasses() {
-
-        $this->Health_Check = new Livefyre_Health_Check( $this );
-        $this->Activation = new Livefyre_Activation( $this );
-        $this->Sync = new Livefyre_Sync( $this );
-        $this->Import = new Livefyre_Import( $this );
-        $this->Admin = new Livefyre_Admin( $this );
-        $this->Display = new Livefyre_Display( $this );
-        $this->Federation = new Livefyre_Federation( $this );
-        $this->Livefyre_Logger = new Livefyre_Logger();
-    }
-
-} //  Livefyre_core
-
-class Livefyre_Health_Check {
-
-    function __construct( $lf_core ) {
-
-        $this->lf_core = $lf_core;
-        $this->ext = $lf_core->ext;
-        $this->ext->setup_health_check( $this );
-
-    }
-
-    function livefyre_health_check() {
-
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Making a health check." );
-
-        if ( !isset( $_GET[ 'livefyre_ping_hash' ] ) )
-            return;
-
-        //check the signature
-        if ( $_GET[ 'livefyre_ping_hash' ] != md5( $this->lf_core->home_url ) ) {
-            echo "hash does not match! my url is: $this->lf_core->home_url";
-            exit;
-        } else {
-            echo "\nhash matched for url: $this->lf_core->home_url\n";
-            echo "site's server thinks the time is: " . gmdate( 'd/m/Y H:i:s', time() );
-            $notset = '[NOT SET]';
-            foreach ( $this->lf_core->options as $optname ) {
-                echo "\n\nlivefyre option: $optname";
-                $optval = $this->ext->get_option( $optname, $notset );
-                #obscure the secret key ( first 2 chars only )
-                $val = ( $optname == 'livefyre_secret' && $optval != $notset ) ? substr( $optval, 0, 2 ) : $optval;
-                echo "\n          value: $val";
-            }
-            exit;
-        }
-    }
-}
-
-class Livefyre_Activation {
-
-    function __construct( $lf_core ) {
-    
-        $this->lf_core = $lf_core;
-        $this->ext = $lf_core->ext;
-        $this->ext->setup_activation( $this );
-
-    }
-
-    function deactivate() {
-
-        $this->reset_caches();
-        $this->ext->update_option( 'livefyre_deactivated', 'Deactivated: ' . time() );
-
-    }
-
-    function activate() {
-        $this->lf_core->Livefyre_Logger->add( "Livefyre: Activated." );
-        $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
-        if ( $existing_blogname ) {
-            $site_id = $existing_blogname;
-            $existing_key = $this->ext->get_option( 'livefyre_secret', false );
-            $this->ext->update_option( 'livefyre_site_id', $site_id );
-            $this->ext->delete_option( 'livefyre_blogname' );
-            $this->ext->update_option( 'livefyre_site_key', $existing_key );
-            $this->ext->delete_option( 'livefyre_secret' );
-        } else {
-            $site_id = $this->ext->get_option( 'livefyre_site_id', false );
-        }
-        if ( !$this->ext->get_network_option( 'livefyre_domain_name', false ) ) {
-            // Initialize default profile domain i.e. livefyre.com
-            $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
-        }
-        if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
-            // Set a flag to show the 'hey you just upgraded' (or installed) flash message
-            // Set the timestamp so we know which posts use V2 vs V3
-            if ( $site_id ) {
-                $this->ext->update_option( 'livefyre_v3_installed', current_time('timestamp') );
-                $this->ext->update_option( 'livefyre_v3_notify_upgraded', 1 );
-                $this->run_backfill( $site_id ); //only run backfill on existing blogs
-            } else {
-                // !IMPORTANT
-                // livefyre_v3_installed == 0 is used elsewhere to determine if this
-                // installation was derived from a former V2 installation
-                $this->ext->update_option( 'livefyre_v3_installed', 0 );
-                $this->ext->update_option( 'livefyre_v3_notify_installed', 1 );
-                $this->ext->update_option( 'livefyre_backend_upgrade', 'skipped' );
-            }
-        }
-    }
-
-    function run_backfill( $site_id ) {
-        $backend_upgrade = $this->ext->get_option('livefyre_backend_upgrade', 'not_started' );
-        $this->lf_core->Livefyre_Logger->add( "backend_upgrade is set to: " . $backend_upgrade );
-        if ( $backend_upgrade == 'not_started' ) {
-            # Need to upgrade the backend for this plugin. It's never been done for this site.
-            # Since this only happens once, notify the user and then run it.
-            $url = $this->lf_core->quill_url . '/import/wordpress/' . $site_id . '/upgrade';
-            $http = $this->lf_core->lf_domain_object->http;
-
-            $resp = $http->request( $url, array( 'timeout' => 10 ) );
-            if ( is_wp_error( $resp ) ) {
-                $this->lf_core->Raven->captureMessage( "Backfill error for site " . $site_id . ": " . $resp->get_error_message() );
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
-                update_option( 'livefyre_backend_upgrade', 'error' );
-                update_option( 'livefyre_backend_msg', $resp->get_error_message() );
-                return;
-            }
-
-            $resp_code = $resp['response']['code'];
-            $resp_message = $resp['response']['message'];
-            $this->lf_core->Livefyre_Logger->add( "Livefyre: Backfill Request: Code: " . $resp_code . " Message: " . $resp_message . "." );
-
-            if ( $resp_code != '200' ) {
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Request returned an non successful value. " . $resp );
-                update_option( 'livefyre_backend_upgrade', 'error' );
-                $this->lf_core->Raven->captureMessage( "Backfill error for site " . $site_id . ": " . $resp->get_error_message() );
-                $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend upgrade error: " . $resp->get_error_message() );
-                return;
-            }
-
-            $json_data = json_decode( $resp['body'] );
-            $backfill_status = $json_data->status;
-            $backfill_msg = $json_data->msg;
-
-            $this->lf_core->Livefyre_Logger->add( "Livefyre: Backend Response: Status: " . $backfill_status . " Message: " . $backfill_msg . "." );
-            if ( $backfill_status == 'success' ) {
-                $backfill_msg = 'Request for Comments 2 upgrade has been sent';
-            }
-            update_option( 'livefyre_backend_upgrade', $backfill_status );
-            update_option( 'livefyre_backend_msg', $backfill_msg );
-        }
-    }
-
-    function reset_caches() {
-    
-        $this->ext->reset_caches();
-        
-    }
-
-}
-
-/* START: This code not approved by automattic, yet */
-class Livefyre_Federation {
-    
-    function __construct( $lf_core ) {
-
-        $this->lf_core = $lf_core;
-        $this->ext = $lf_core->ext;
-        $this->ext->setup_federation( $this );
-
-    }
-    
-    function token_request_handler() {
-    
-         // If the request signature matches what we expect, 
-         // echo a token for the currently logged-in user and die()
-         if ( !isset( $_GET[ 'livefyre_token_request' ] ) ) {
-              return;
-         }
-         
-         if ( isset( $_GET[ 'callback' ] ) ) {
-              header( "Content-type: text/javascript" );
-              echo $_GET[ 'callback' ] . '(' . $this->userauth_json() . ')';
-         } else {
-              header( "Content-type: application/json" );
-              echo $this->userauth_json();
-         }
-         die();
-         
-    }
-    
-    function userauth_json() {
-
-        $domain = $this->lf_core->lf_domain_object;
-        $user_id = $this->ext->get_current_user_attr( "id" );
-        $display_name = $this->ext->get_current_user_attr( "display_name" );
-        if ( $user_id == null ) {
-            // Someone asked for a token but they're not logged in,
-            // respond empty since there is no token to render
-            return null;
-        }
-        $user = $domain->user( $user_id, $display_name );
-        return $user->auth_json();
-
-    }
-    
-}
-/* END: This code not approved by automattic, yet */
-
-class Livefyre_Sync {
+class Livefyre_Sync_Impl implements Livefyre_Sync {
     
     function __construct( $lf_core ) {
 
@@ -317,6 +25,7 @@ class Livefyre_Sync {
     }
 
     function run_do_sync() {
+
         try {
             $this->do_sync();
         }
@@ -329,10 +38,12 @@ class Livefyre_Sync {
             catch (Exception $f) {}
             throw $e;
         }
+
     }
 
 
     function do_sync() {
+
         $this->lf_core->Livefyre_Logger->add( "Livefyre: Running a site sync." );
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
@@ -354,7 +65,7 @@ class Livefyre_Sync {
             $final_path_seg = $max_activity . '/';
         }
         $url = $this->site_rest_url() . '/sync/' . $final_path_seg;
-        $qstring = 'page_size=' . $inserts_remaining . '&sig_created=' . time();
+        $qstring = 'page_size=' . $inserts_remaining . '&plugin_version=' . LF_PLUGIN_VERSION . '&sig_created=' . time();
         $key = $this->ext->get_option( 'livefyre_site_key' );
         $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
         $http_result = $this->lf_core->lf_domain_object->http->request( $url, array('timeout' => 120) );
@@ -405,7 +116,6 @@ class Livefyre_Sync {
                     'comment_author_email'  => $json->author_email,
                     'comment_author_url'  => $json->author_url,
                     'comment_type'  => '', 
-                    'lf_comment_parent'  => $json->lf_parent_comment_id,
                     'lf_comment_id'  => $json->lf_comment_id,
                     'user_id'  => null,
                     'comment_author_IP'  => $json->author_ip,
@@ -417,6 +127,9 @@ class Livefyre_Sync {
                     $first_id_msg = 'Livefyre: Processing activity page starting with ' . $data['lf_activity_id'];
                     $this->lf_core->Livefyre_Logger->add($first_id_msg);
                     $first = false;
+                }
+                if ( isset( $json->lf_parent_comment_id ) ) {
+                    $data[ 'lf_comments_parent' ] = $json->lf_parent_comment_id;
                 }
                 if ( isset( $json->body_text ) ) {
                     $data[ 'comment_content' ] = $json->body_text;
@@ -602,8 +315,7 @@ class Livefyre_Sync {
         if ( !( $app_comment_id > 0 ) ) return false;
         $this->ext->activity_log( $app_comment_id, $data[ 'lf_comment_id' ], $data[ 'lf_activity_id' ] );
         return true;
+
     }
     
 }
-
-?>

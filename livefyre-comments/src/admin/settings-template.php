@@ -1,4 +1,13 @@
 <?php
+/*
+Author: Livefyre, Inc.
+Version: 4.1.0
+Author URI: http://livefyre.com/
+*/
+
+require_once( dirname( __FILE__ ) . "/Livefyre_Settings.php" );
+$livefyre_settings = new Livefyre_Settings();
+
 global $wpdb;
 if ( function_exists( 'home_url' ) ) {
     $home_url=home_url();
@@ -20,6 +29,7 @@ if ( isset( $_GET['status'] ) ) {
 ?>
 
 <script type="text/javascript">
+
 //Lightweight JSONP fetcher - www.nonobtrusive.com
 var JSONP=(function(){var a=0,c,f,b,d=this;function e(j){var i=document.createElement("script"),h=false;i.src=j;i.async=true;i.onload=i.onreadystatechange=function(){if(!h&&(!this.readyState||this.readyState==="loaded"||this.readyState==="complete")){h=true;i.onload=i.onreadystatechange=null;if(i&&i.parentNode){i.parentNode.removeChild(i)}}};if(!c){c=document.getElementsByTagName("head")[0]}c.appendChild(i)}function g(h,j,k){f="?";j=j||{};for(b in j){if(j.hasOwnProperty(b)){f+=b+"="+j[b]+"&"}}var i="json"+(++a);d[i]=function(l){k(l);d[i]=null;try{delete d[i]}catch(m){}};e(h+f+"callback="+i);return i}return{get:g}}());
 
@@ -85,111 +95,18 @@ function livefyre_start_ajax(iv) {
     checkStatusLF();
 }
 
-import_toggle_less = function() {
-    var info = document.getElementById('import_information');
-    info.style.display = 'none';
-    var button = document.getElementById('import_toggle_button');
-    button.onclick = import_toggle_more;
-    var toggle_text = document.getElementById('import_toggle_text');
-    toggle_text.innerHTML = 'More Info';
-}
-
-import_toggle_more = function() {
-    var info = document.getElementById('import_information');
-    info.style.display = 'block';
-    var button = document.getElementById('import_toggle_button');
-    button.onclick = import_toggle_less;
-    var toggle_text = document.getElementById('import_toggle_text');
-    toggle_text.innerHTML = 'Less Info';
-}
-
 </script>
 
 <?php
 
-function update_posts ( $id, $post_type ) {
-    global $wpdb;
-    $db_prefix = $wpdb->base_prefix;
-    if( $id ) {
-        $query = "
-            UPDATE $wpdb->posts SET comment_status = 'open'
-            WHERE ID = " .$id. "
-                AND comment_status = 'closed' 
-                AND post_type IN ('page','post')
-                AND post_status = 'publish'
-            ";
-    }
-    else {
-        $query = "
-            UPDATE $wpdb->posts SET comment_status = 'open'
-            WHERE comment_status = 'closed'
-                AND post_type = '" .$post_type. "'
-                AND post_status = 'publish'
-            ";
-    }
-    return $wpdb->get_results( $query );
-}
-
-function select_posts ( $post_type ) {
-    global $wpdb;
-    $query = "
-        SELECT ID, post_title
-        FROM $wpdb->posts
-        WHERE comment_status = 'closed' 
-            AND post_type = '" .$post_type. "'
-            AND post_status = 'publish'
-        ORDER BY DATE(`post_date`) DESC
-        LIMIT 50
-        ";
-    return $wpdb->get_results( $query );
-}
-
-function get_fyre_status ( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
-    
-    if ( get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) == 0 ) {
-        return Array('All systems go!', 'green');
-    }
-    if ( $plugins_count >= 1 ) {
-        return Array('Error, conflicting plugins', 'red');
-    }
-    return Array('Warning, potential issues', 'yellow');
-
-}
-
-function get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status ) {
-
-    return ( $plugins_count + $disabled_pages_count + $disabled_posts_count + ( $import_status != 'complete' ? 1 : 0) );
-
-}
-
-function display_no_allows ( $post_type, $list ) {
-
+if (isset($_GET['hide_import_message'])) {
+    $this->lf_core->Livefyre_Utility->update_import_status('complete');
     ?>
-    <div id="fyreallowheader">
-        <?php
-        if ( $post_type == 'post' ) {
-        ?>
-            <h1>Post:</h1>
-            <a href="?page=livefyre&allow_comments_id=all_posts" text-decoration:"none">Enable All</a>
-        <?php
-        }
-        else {
-        ?>
-            <h1>Page:</h1>
-            <a href="?page=livefyre&allow_comments_id=all_pages" text-decoration:"none">Enable All</a>
-        <?php
-        }
-        ?>
-    </div>
-    <ul>
-        <?php
-        foreach ( $list as $ncpost ) {
-            echo '<li>ID: <span>' .$ncpost->ID. "</span>  Title:</span> <span><a href=" .get_permalink($ncpost->ID). ">" .$ncpost->post_title. "</a></span>";
-            echo '<a href="?page=livefyre&allow_comments_id=' .$ncpost->ID. '" class="fyreallowbutton">Enable</a></li>';
-        }
-    ?>
-    <ul>
+    <script type="text/javascript">
+        window.location.href = window.location.pathname + '?page=livefyre';
+    </script>
     <?php
+    exit;
 }
 
 if (isset($_POST['textfield'])) {
@@ -198,6 +115,15 @@ if (isset($_POST['textfield'])) {
 }
 
 $import_status = get_option('livefyre_import_status','uninitialized');
+
+// Handle legacy values
+if ( $import_status == 'csv_uploaded') {
+    $import_status = 'complete';
+}
+elseif ( $import_status == 'started' ) {
+    $import_status = 'pending';
+}
+
 // Start the animation only if the button was clicked
 if ( $import_status == 'pending' ) {
     // Only report status of the import
@@ -212,7 +138,7 @@ $deactivated_time = get_option( 'livefyre_deactivated', ': '.time() );
 $deactivated_time = explode(': ', $deactivated_time);
 if ( time() - $deactivated_time[1] >= 4838400 ) {
     $import_status = 'uninitialized';
-    update_option( 'livefyre_deactivated', '' );
+    delete_option( 'livefyre_deactivated' );
 }
 
 $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
@@ -241,20 +167,20 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 $allow_id = $_GET['allow_comments_id'];
 
                 if ( $allow_id == 'all_posts' ) {
-                    update_posts( false, 'post' );
+                    $livefyre_settings->update_posts( false, 'post' );
                 }
                 else if ( $allow_id == 'all_pages' ) {
-                    update_posts( false, 'page' );
+                    $livefyre_settings->update_posts( false, 'page' );
                 }
                 else {
-                    update_posts( $allow_id, false );
+                    $livefyre_settings->update_posts( $allow_id, false );
                 }
             }
             $db_prefix = $wpdb->base_prefix;
             // Get all the posts with comments disabled
-            $comments_disabled_posts = select_posts( 'post' );
+            $comments_disabled_posts = $livefyre_settings->select_posts( 'post' );
             // Get all the pages with comments disabled
-            $comments_disabled_pages = select_posts( 'page' );
+            $comments_disabled_pages = $livefyre_settings->select_posts( 'page' );
             ?>
             <div id="fyrestatus">
                 <?php
@@ -277,10 +203,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                 // Count of all pages with comments disabled
                 $disabled_pages_count = count($comments_disabled_pages);
 
-                $status = get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                $status = $livefyre_settings->get_fyre_status( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 echo '<h1><span class="statuscircle' .$status[1]. '"></span>Livefyre Status: <span>' .$status[0]. '</span></h1>';
 
-                $total_errors = get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
+                $total_errors = $livefyre_settings->get_total_errors( $plugins_count, $disabled_posts_count, $disabled_pages_count, $import_status );
                 if ( $total_errors > 0 ) {
                     echo '<h2>' 
                     .$total_errors
@@ -312,9 +238,9 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     if ( $import_status == 'error' ) {
                     ?>
                         <h1>Livefyre Import Status: <span>Failed</span></h1>
-                        <div id="import_toggle_button" onclick="import_toggle_less()" cursor="pointer">
+                        <div id="import_toggle_button" cursor="pointer">
                             <img id="import_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                            <div id='import_toggle_text'>Less Info</div>
+                            <div id="import_toggle_text">Less Info</div>
                         </div>
                         <div id="import_information">
                             <?php echo "<p>Message: " .get_option( 'livefyre_import_message', '' ). "</p>"?>
@@ -328,6 +254,7 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             <strong>Note:</strong> If you have multiple sites on your WordPress that you would like to import comments for, please make note of that
                             in the email.</p>
                             <p>Livefyre will still be active and functional on your site, but your imported comments will not be displayed in the comment stream.</p>
+                            <input id="fyrehideimport" class="fyrebutton" type="submit" value="Got it, thanks!" />
                         </div>
                     <?php
                     }
@@ -369,6 +296,45 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
             }
             ?>
 
+            <div id="fyrecommunitysettings">
+                <h1>Livefyre Settings</h1>
+                <div id="settings_toggle_button" cursor="pointer">
+                    <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
+                    <div id="settings_toggle_text">More Info</div>
+                </div>
+                <div id="settings_information" class="hidden">
+                    <div id="cache_toggle">
+                        <h2>Caching</h2>
+                        <p>By defaut, this plugin will automatically store the static HTML of each Livefyre commenting widget in the WordPress database as transient value.
+                            If you would like to turn this off, you can do so here. However, without caching there will be a significant performance penalty causing the 
+                            commenting widget to load on the page a few seconds slower than if caching was enabled.</p>
+                        <?php
+                        if( isset( $_GET['lf_caching']) ) {
+                            update_option( 'livefyre_caching', $_GET['lf_caching'] );
+                        }
+                        ?>
+                        <form id="fyrecacheform" action="options-general.php?page=livefyre">
+                            <input type="hidden" name="page" value="livefyre" />
+                            <select name="lf_caching">
+                                <option value="on" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'on'); ?> >On</option>
+                                <option value="off" <?php echo $livefyre_settings->checkSelected('livefyre_caching', 'off'); ?> >Off</option>
+                            </select><br />
+                            <input type="submit" class="fyrebutton" value="Submit" />
+                        </form>
+                    </div>
+                    <div id="cache_delete">
+                        <h2>Clear Cache</h2>
+                        <p>By clicking the button below, you can delete all the transient values the plugin has stored in your options table.</p>
+                        <form id="fyrecacheform" action="options-general.php?page=livefyre">
+                            <input type="hidden" name="page" value="livefyre" />
+                            <input type="hidden" name="lf_clear_cache" value="1" />
+                            <input type="hidden" name="settings_page" value="1" />
+                            <input type="submit" class="fyrebutton" value="Clear Cache" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div id="fyrepotentials" class="clearfix">
                 <div id="fyreconflictplugs">
                     <?php echo '<h1>Conflicting Plugins (' .$plugins_count. ')</h1>';
@@ -402,10 +368,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                             clicking “Conversations", and then clicking "Stream Settings."</p>
                         <?php
                         if ( $disabled_posts_count ) {
-                            display_no_allows( 'post', $comments_disabled_posts);
+                            $livefyre_settings->display_no_allows( 'post', $comments_disabled_posts);
                         }
                         if ( $disabled_pages_count ) {
-                            display_no_allows( 'page', $comments_disabled_pages);
+                            $livefyre_settings->display_no_allows( 'page', $comments_disabled_pages);
                         }
                     }
                     else {
@@ -431,6 +397,10 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                     <h1>Display Comments</h1>
                     <p class="lf_text">I would like comments displayed on:</p>
                     <?php
+
+                    $excludes = array( '_builtin' => false );
+                    $post_types = get_post_types( $args = $excludes );
+
                     if( isset( $_GET['save_display_settings']) ) {
                         if ( isset( $_GET['display_posts'] ) ) {
                             update_option( 'livefyre_display_posts', $_GET['display_posts'] );
@@ -443,6 +413,16 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         }
                         else {
                             update_option( 'livefyre_display_pages', 'false' );
+                        }
+
+                        foreach ($post_types as $post_type ) {
+                            $post_type_name = 'livefyre_display_' .$post_type;
+                            if ( isset( $_GET[$post_type] ) ) {
+                                update_option( $post_type_name, $_GET[$post_type] );
+                            }
+                            else {
+                                update_option( $post_type_name, 'false' );
+                            }
                         }
                     }
 
@@ -459,7 +439,37 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
                         <input type="hidden" name="page" value="livefyre" />
                         <input type="checkbox" class="checkbox" name="display_posts" value="true" <?php echo $posts_checkbox;?> />Posts<br />
                         <input type="checkbox" class="checkbox" name="display_pages" value="true" <?php echo $pages_checkbox;?> />Pages<br />
+                        <?php 
+                        foreach ($post_types as $post_type ) {
+                            $post_type_name = 'livefyre_display_' .$post_type;
+                            if ( get_option($post_type_name, 'true') == 'true' ) {
+                                $post_type_checkbox = 'checked="yes"';
+                            }
+                            ?>
+                            <input type="checkbox" class="checkbox" name=<?php echo '"' .$post_type. '"';?> value="true" <?php echo $post_type_checkbox;?> /><?php echo $post_type; ?><br />
+                            <?php
+                        }
+                        ?>
                         <input type="submit" class="fyrebutton" name="save_display_settings" value="Submit" />
+                    </form>
+                </div>
+                <div id="fyrelanguages">
+                    <?php
+                    if( isset( $_GET['lf_language']) ) {
+                        update_option( 'livefyre_language', $_GET['lf_language'] );
+                    }
+                    ?>
+                    <h1>Languages</h1>
+                    <p class="lf_text">I would like my language to be: </p>
+                    <form id="fyrelanguagesform" action="options-general.php?page=livefyre">
+                        <input type="hidden" name="page" value="livefyre" />
+                        <select name="lf_language">
+                            <option value="English" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'English'); ?> >English</option>
+                            <option value="Spanish" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Spanish'); ?> >Spanish</option>
+                            <option value="French" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'French'); ?> >French</option>
+                            <option value="Portuguese" <?php echo $livefyre_settings->checkSelected('livefyre_language', 'Portuguese'); ?> >Portuguese</option>
+                        </select><br />
+                        <input type="submit" class="fyrebutton" name="save_languages" value="Submit" />
                     </form>
                 </div>
                 <?php
@@ -489,3 +499,40 @@ $upgrade_status = get_option( 'livefyre_backend_upgrade', false );
 <style>
     <?php echo file_get_contents( dirname( __FILE__ ) . '/settings-template.css' )  ?>
 </style>
+
+
+<script type="text/javascript">
+
+function toggler(section) {
+    var info = document.getElementById(section + 'information');
+    var toggle_text = document.getElementById(section + 'toggle_text');
+    if(info.className !== 'hidden') {
+        info.className = 'hidden';
+        toggle_text.innerHTML = 'More Info';
+        return;
+    }
+    info.className = '';
+    toggle_text.innerHTML = 'Less Info';
+}
+
+document.getElementById('settings_toggle_button').onclick = function() {
+    toggler('settings_');
+}
+
+var import_button = document.getElementById('import_toggle_button');
+
+if (import_button != null) {
+    import_button.onclick = function() {
+        toggler('import_');
+    }
+}
+
+var hide_import_button = document.getElementById('fyrehideimport');
+
+if (hide_import_button != null) {
+    hide_import_button.onclick = function() {
+        window.location.href = window.location.href + '&hide_import_message=1'
+    }
+}
+
+</script>
