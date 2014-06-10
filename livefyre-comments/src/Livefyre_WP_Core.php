@@ -32,7 +32,7 @@ class Livefyre_WP_Core {
     function define_globals() {
 
         $client_key = $this->ext->get_network_option( 'livefyre_domain_key', '' );
-        $profile_domain = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+        $profile_domain = $this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com' );
         $dopts = array(
             'livefyre_tld' => LF_DEFAULT_TLD
         );

@@ -17,7 +17,7 @@ settings_toggle_less = function() {
     info.style.display = 'none';
     var button = document.getElementById('settings_toggle_button');
     button.onclick = settings_toggle_more;
-    var toggle_text = document.getElementById('toggle_text');
+    var toggle_text = document.getElementById('settings_toggle_text');
     toggle_text.innerHTML = 'More Info';
 }
 
@@ -26,7 +26,7 @@ settings_toggle_more = function() {
     info.style.display = 'block';
     var button = document.getElementById('settings_toggle_button');
     button.onclick = settings_toggle_less;
-    var toggle_text = document.getElementById('toggle_text');
+    var toggle_text = document.getElementById('settings_toggle_text');
     toggle_text.innerHTML = 'Less Info';
 }
 </script>
@@ -38,7 +38,6 @@ settings_toggle_more = function() {
     <div id="fyrebody">
         <div id="fyrebodycontent">
             <?php
-            echo "File: " . __FILE__;
             $bad_plugins = Array();
             $all_bad_plugins = Array(
                     'disqus-comment-system/disqus.php' => 'Disqus: Commenting plugin.',
@@ -104,7 +103,7 @@ settings_toggle_more = function() {
                 <h1>Livefyre Settings</h1>
                 <div id="settings_toggle_button" onclick="settings_toggle_less()" cursor="pointer">
                     <img id="settings_toggle" src= <?php echo '"' .plugins_url( '/livefyre-comments/images/more-info.png', 'livefyre-comments' ). '"' ?> rel="Info">
-                    <div id='toggle_text'>Less Info</div>
+                    <div id='settings_toggle_text'>Less Info</div>
                 </div>
                 <div id="settings_information">
                     <form method="post" action="options.php">

@@ -272,7 +272,7 @@ class Livefyre_Admin {
      */
     function domain_name_callback() {
 
-        echo "<input name='livefyre_domain_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN )) ."' />";
+        echo "<input name='livefyre_domain_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com')) ."' />";
     
     }
     

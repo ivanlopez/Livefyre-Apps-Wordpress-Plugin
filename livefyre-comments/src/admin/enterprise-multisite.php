@@ -15,7 +15,6 @@ Author URI: http://livefyre.com/
         <div id="fyrebodycontent">
             <div id="fyrestatus">
                 <?php
-                echo "File: " . __FILE__;
                 $bad_status = $this->ext->get_network_option( 'livefyre_domain_name', '' ) == ''
                     || $this->ext->get_network_option( 'livefyre_domain_key', '' ) == '';
                 $status = Array('All systems go!', 'green');
