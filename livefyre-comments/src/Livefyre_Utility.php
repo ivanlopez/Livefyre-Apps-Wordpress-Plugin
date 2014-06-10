@@ -21,6 +21,7 @@ class Livefyre_Utility {
 
         add_action( 'init', array( &$this, 'set_activity_id' ) );
         add_action( 'init', array( &$this, 'show_activity_id' ) );
+        add_action( 'init', array( &$this, 'set_import_status' ) );
         add_action( 'init', array( &$this, 'set_widget_priority' ) );
         add_action( 'init', array( &$this, 'show_widget_priority' ) );
     }
@@ -106,6 +107,7 @@ class Livefyre_Utility {
         exit;
     }
 
+<<<<<<< HEAD
     /*
      * TODO: Check for the validity of these requests. Due to security reasons, make sure
      * these only come from a Livefyre or the customer.
@@ -113,6 +115,55 @@ class Livefyre_Utility {
      */
     function validity_check() {
         return true;
+=======
+    function lf_clear_cache() {
+
+        if ( !( isset($_GET['lf_clear_cache']) && $_GET['lf_clear_cache'] == 1 ) ) {
+            return;
+        }
+        $result = array(
+            'status' => 'ok'
+        );
+        $success = $this->run_clear_cache();
+        if ( !$success ) {
+            $result['status'] = 'error';
+        }
+        if ( !isset($_GET['settings_page']) ) {
+            echo json_encode( $result );
+            exit;
+        }
+    }
+
+    function set_import_status() {
+
+        if ( !( isset($_GET['lf_set_import_status']) ) ) {
+            return;
+        }
+        $import_code = $_GET['lf_set_import_status'];
+        $import_status = ( $import_code == 0 ) ? 'error' : 'complete';
+        $result = array(
+            'status' => 'ok',
+            'import_status' => $import_status
+        );
+        $success = $this->update_import_status( $import_status );
+        if ( !$success ) {
+            $result['status'] = 'error';
+        }
+        echo json_encode( $result );
+        exit;
+    }
+
+    function update_import_status( $status ) {
+
+        return $this->ext->update_option( "livefyre_import_status", $status );
+    }
+
+    function run_clear_cache() {
+        
+        global $wpdb;
+        $query = $wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE ('_transient_livefyre%') OR `option_name` LIKE ('_transient_timeout_livefyre%')" );
+        return $query;
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
     }
 
 }

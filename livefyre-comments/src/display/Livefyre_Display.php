@@ -13,9 +13,14 @@ class Livefyre_Display {
      */
     function __construct( $lf_core ) {
         
+<<<<<<< HEAD
         if ( !self::livefyre_comments_off() ) {
             add_action( 'wp_enqueue_scripts', array( &$this, 'lf_embed_head_script' ) );
             add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
+=======
+        if ( ! $this->livefyre_comments_off() ) {
+            add_action( 'wp_enqueue_scripts', array( &$this, 'lf_embed_head_scripts' ) );
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
             add_action( 'wp_footer', array( &$this, 'lf_debug' ) );
             // Set comments_template filter to maximum value to always override the default commenting widget
@@ -44,6 +49,7 @@ class Livefyre_Display {
         return intval( get_option( 'livefyre_widget_priority', 99 ) );
 
     }
+<<<<<<< HEAD
     
     /*
      * Embed Livefyre's JS lib.
@@ -59,6 +65,35 @@ class Livefyre_Display {
                 . '/wjs/v3.0/javascripts/livefyre.js';
         }
         wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );
+=======
+
+    function lf_embed_head_scripts() {
+        global $wp_query;
+        $profile_sys = $this->ext->get_network_option( 'livefyre_profile_system', 'livefyre' );
+        if ($profile_sys == 'lfsp') {
+                $lfsp_source_url = $this->ext->get_network_option( 'livefyre_lfsp_source_url', '' );
+                wp_enqueue_script('lfsp', $lfsp_source_url);
+        }
+        
+        $zor_source_url = 'http://zor.'
+        . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : $this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com' ) )
+        . '/wjs/v3.0/javascripts/livefyre.js';
+        
+        wp_enqueue_script('zor', $zor_source_url, array(), null, false);
+
+        if ( function_exists ( 'livefyre_strings_chooser') ) {
+            $file_url = livefyre_strings_chooser();
+            wp_enqueue_script('lf_custom_strings', $file_url, array(), null, false);
+            return;
+        }
+
+        $language = get_option( 'livefyre_language', 'English' );
+        if ( $language == 'English' ) {
+            return;
+        }
+        wp_enqueue_script('lf_language', plugins_url('/languages/' . $language . '.js', dirname(dirname( __FILE__ ))), array(), null, false );
+        
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
     }
         
     /*
@@ -116,10 +151,41 @@ class Livefyre_Display {
             if ( $network != 'livefyre.com' ) {
                 $networkConfig['domain'] = $network;
             }
+<<<<<<< HEAD
             #for each in $networkConfig, build the string
             $lfLoad = "fyre.conv.load($networkConfig, lfConfig)";
             $commentsJS = "$lfConfig;\n         $lfLoad;";
             echo "<script>$commentsJS</script>";
+=======
+            $conv = $article->conversation();
+            $initcfg = array();
+
+            if ( $network != LF_DEFAULT_PROFILE_DOMAIN ) {
+                if ( function_exists( 'livefyre_onload_handler' ) ) {
+                    $initcfg['onload'] = livefyre_onload_handler();
+                }
+                if ( function_exists( 'livefyre_delegate_name' ) ) {
+                    $initcfg['delegate'] = livefyre_delegate_name();
+                }
+                if ( get_option( 'livefyre_auth_delegate_name', '' ) != '' ) {
+                    $initcfg['delegate'] = get_option( 'livefyre_auth_delegate_name', '' );
+                }
+                if ( function_exists ( 'livefyre_strings_chooser') ) {
+                    $filename = livefyre_strings_chooser();
+                    $initcfg['strings'] = $this->load_strings( $filename );
+                }
+                else {
+                    $language = get_option( 'livefyre_language', 'English' );
+                    $initcfg['strings'] = $this->load_strings( $language );
+                }
+            }
+            else {
+                $language = get_option( 'livefyre_language', 'English' );
+                $initcfg['strings'] = $this->load_strings( $language );
+            }
+            // Do we need to add in some things for Enterprise?
+            echo $conv->to_initjs_v3( 'livefyre-comments', $initcfg );
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
         }
 
         if ( !is_single() ) {
@@ -195,10 +261,13 @@ class Livefyre_Display {
 
     }
 
+<<<<<<< HEAD
     /*
      * Build the Livefyre comment count variable.
      *
      */
+=======
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
     function livefyre_comments_number( $count ) {
 
         global $post;
@@ -216,8 +285,12 @@ class Livefyre_Display {
         if ( $language == 'English' ) {
             return;
         }
+<<<<<<< HEAD
         $lang_file = plugins_url() . "/livefyre-comments/languages/" . $language;
         wp_enqueue_script( 'livefyre-lang-js', esc_url( $lang_file ) );
+=======
+        return 'customStrings';
+>>>>>>> 596dce696d2a1bec69af865fd0591c817ae5950b
     }
     
 }
