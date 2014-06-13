@@ -21,7 +21,7 @@ define( 'LF_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
  * Build the initial Livefyre functionality for WordPress core.
  *
  */
-class Livefyre {
+class Livefyre_WP {
 
     function __construct() {
     
@@ -31,4 +31,4 @@ class Livefyre {
 
 } // Livefyre
 
-$livefyre = new Livefyre();
+$livefyre = new Livefyre_WP();

@@ -78,8 +78,14 @@ class Livefyre_Display {
         if ( comments_open() && $this->livefyre_show_comments() ) {   // is this a post page?
             $network = get_option( 'livefyre_domain_name', 'livefyre.com' );
             $network = ( $network == '' ? 'livefyre.com' : $network );
+            $networkKey = get_option( 'livefyre_domain_key' );
+            $authDelegate = get_option( 'livefyre_auth_delegate_name', '' );
+            $callback = get_option( 'livefyre_callback_name', '' );
+            $lf = new Livefyre();
+            $lf_network = $lf->getNetwork($network, $networkKey);
             $siteId = get_option( 'livefyre_site_id' );
             $siteKey = get_option( 'livefyre_site_key' );
+            $lf_site = $lf_network->getSite($siteId, $siteKey);
             $environment = "livefyre.com";
             $post = get_post();
             $articleId = get_the_ID();
@@ -92,16 +98,18 @@ class Livefyre_Display {
                     array_push( $tags, $tag->name );
                 }
             }
-            $collectionMeta = array(
-                'articleId' => $articleId,
-                'title' => $title,
-                'url' => $url,
-                'tage' => $posttags
-            );
-            $checksum = md5( json_encode( $collectionMeta ) );
-            $collectionMeta['checksum'] = $checksum;
-            $collectionMeta['articleId'] = $articleId;
-            $jwtString = JWT::encode($collectionMeta, $siteKey);
+            // $post_categories = wp_get_post_categories( $articleId );
+            // $topics = array();
+            // foreach($post_categories as $c){
+            //     $cat = get_category( $c );
+            //     $topics[] = array( 'name' => $cat->name, 'slug' => $cat->slug );
+            // }
+            try{
+                $collectionMeta = $lf_site->buildCollectionMetaToken( $title, $articleId, $url, implode( $tags ) );
+                $checksum = $lf_site->buildChecksum( $title, $url, implode( $tags ) );
+            } catch (Exception $e) {
+                echo "Message: " . $e->getMessage();
+            }
             $collectionMetaString = "'$jwtString'";
             $convConfig = 'var convConfig = [{
                 "collectionMeta": ' .$collectionMetaString. ',
@@ -115,15 +123,19 @@ class Livefyre_Display {
                 $networkConfig['strings'] = 'customStrings';
             }
             if ( $network != 'livefyre.com' ) {
-                $networkConfig['network'] = $network;
+                $networkConfig['network'] = "\"$network\"";
+            }
+            if ( $authDelegate != '' ) {
+                $networkConfig['authDelegate'] = $authDelegate;
             }
             #for each in $networkConfig, build the string
             foreach ( $networkConfig as $key => $value ) {
-                $networkConfigString = "\"$key\": \"$value\",\n";
+                $networkConfigString .= "\"$key\": $value,\n";
             }
             $networkConfigString = "var networkConfig = {
                 $networkConfigString          }";
-            $lfLoad = "fyre.conv.load(networkConfig, convConfig)";
+            $callback = ($callback == '') ? "" : " , $callback";
+            $lfLoad = "fyre.conv.load(networkConfig, convConfig$callback)";
             $commentsJS = "$networkConfigString;\n          $convConfig;\n         $lfLoad;";
             echo "<script>
                 $commentsJS

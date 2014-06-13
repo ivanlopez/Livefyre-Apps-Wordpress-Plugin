@@ -67,8 +67,7 @@ class Livefyre_WP_Core {
      */
     function require_php_api() {
 
-        require_once(dirname(__FILE__) . "/../livefyre-api/libs/php/JWT.php");
-
+        require_once(dirname(__FILE__) . "/../livefyre-api/libs/php/Livefyre/Livefyre.php");
     }
 
     /*

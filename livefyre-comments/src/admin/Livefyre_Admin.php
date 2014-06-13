@@ -87,6 +87,7 @@ class Livefyre_Admin {
         register_setting( $settings_section, 'livefyre_domain_name' );
         register_setting( $settings_section, 'livefyre_domain_key' );
         register_setting( $settings_section, 'livefyre_auth_delegate_name' );
+        register_setting( $settings_section, 'livefyre_callback_name' );
 
         add_settings_section('lf_domain_settings',
             'Livefyre Network Settings',
@@ -114,6 +115,13 @@ class Livefyre_Admin {
             'livefyre_network',
             'lf_domain_settings' 
         );
+
+        add_settings_field('livefyre_callback_name',
+            'Livefyre Callback Name',
+            array( &$this, 'callback_callback' ),
+            'livefyre_network',
+            'lf_domain_settings' 
+        );
         
     }
     
@@ -131,6 +139,7 @@ class Livefyre_Admin {
         register_setting( $settings_section, 'livefyre_domain_name' );
         register_setting( $settings_section, 'livefyre_domain_key' );
         register_setting( $settings_section, 'livefyre_auth_delegate_name' );
+        register_setting( $settings_section, 'livefyre_callback_name' );
         register_setting( $settings_section, 'livefyre_environment' );
         
         if( self::returned_from_setup() ) {
@@ -175,6 +184,13 @@ class Livefyre_Admin {
         add_settings_field('livefyre_auth_delegate_name',
             'Livefyre AuthDelagate Name',
             array( &$this, 'auth_delegate_callback' ),
+            $name,
+            $section_name
+        );
+
+        add_settings_field('livefyre_callback_name',
+            'Livefyre Callback Name',
+            array( &$this, 'callback_callback' ),
             $name,
             $section_name
         );
@@ -244,6 +260,7 @@ class Livefyre_Admin {
         $this->ext->update_network_option( 'livefyre_domain_name', sanitize_text_field( $_POST[ 'livefyre_domain_name' ] ) );
         $this->ext->update_network_option( 'livefyre_domain_key', sanitize_text_field( $_POST[ 'livefyre_domain_key' ] ) );
         $this->ext->update_network_option( 'livefyre_auth_delegate_name', sanitize_text_field( $_POST[ 'livefyre_auth_delegate_name' ] ) );
+        $this->ext->update_network_option( 'livefyre_auth_delegate_name', sanitize_text_field( $_POST[ 'livefyre_callback_name' ] ) );
 
         wp_redirect( add_query_arg( array( 'page' => 'livefyre_network', 'updated' => 'true' ), network_admin_url( 'settings.php' ) ) );
         exit();
@@ -263,6 +280,16 @@ class Livefyre_Admin {
     function auth_delegate_callback() {
 
         echo "<input name='livefyre_auth_delegate_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )) ."' />";
+
+    }
+
+    /*
+     * Keeps the callback name value up to date with the backend
+     *
+     */
+    function callback_callback() {
+
+        echo "<input name='livefyre_callback_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_callback_name', '' )) ."' />";
 
     }
     

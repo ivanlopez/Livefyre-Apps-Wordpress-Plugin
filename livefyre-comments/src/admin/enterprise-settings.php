@@ -174,6 +174,9 @@ settings_toggle_more = function() {
                         <br />
                         <p class="lf_label">Livefyre Auth Delegate Name: </p>
                         <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_auth_delegate_name')). '</p>'; ?>
+                        <br />
+                        <p class="lf_label">Livefyre Callback Name: </p>
+                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_callback_name')). '</p>'; ?>
                     <h1>Site Settings</h1>
                         <p class="lf_label">Livefyre Site ID: </p>
                         <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_id')). '</p>'; ?>
