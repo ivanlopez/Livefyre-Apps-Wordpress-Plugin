@@ -98,12 +98,12 @@ class Livefyre_Display {
                     array_push( $tags, $tag->name );
                 }
             }
-            // $post_categories = wp_get_post_categories( $articleId );
-            // $topics = array();
-            // foreach($post_categories as $c){
-            //     $cat = get_category( $c );
-            //     $topics[] = array( 'name' => $cat->name, 'slug' => $cat->slug );
-            // }
+            $post_categories = wp_get_post_categories( $articleId );
+            $topics = array();
+            foreach($post_categories as $c){
+                $cat = get_category( $c );
+                $topics[] = array( 'name' => $cat->name, 'slug' => $cat->slug );
+            }
             try{
                 $collectionMeta = $lf_site->buildCollectionMetaToken( $title, $articleId, $url, implode( $tags ) );
                 $checksum = $lf_site->buildChecksum( $title, $url, implode( $tags ) );
