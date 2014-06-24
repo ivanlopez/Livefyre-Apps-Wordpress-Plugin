@@ -50,12 +50,12 @@ class Livefyre_Display {
      *
      */
     function lf_embed_head_script() {
-        if ( get_option('liveyfre_domain_name', '' ) == '' || get_option( 'liveyfre_domain_name') == 'livefyre.com' ) {
+        if ( get_option('livefyre_domain_name', '' ) == '' || get_option( 'livefyre_domain_name') == 'livefyre.com' ) {
             $source_url = 'http://zor.livefyre.com/wjs/v3.0/javascripts/livefyre.js';    
         }
         else {
             $source_url = 'http://zor.'
-                . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
+                . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "qa-ext.livefyre.com" : 'qa-ext.livefyre.com' )
                 . '/wjs/v3.0/javascripts/livefyre.js';
         }
         wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );
@@ -102,14 +102,32 @@ class Livefyre_Display {
             $topics = array();
             foreach($post_categories as $c){
                 $cat = get_category( $c );
-                $topics[] = array( 'name' => $cat->name, 'slug' => $cat->slug );
+                $sub =  array( 'label' => $cat->name, 
+                                'id' => 'urn:livefyre:'.$network.':site='.$siteId.":topic=".str_replace( "-", "_", $cat->slug )
+                );
+                array_push( $topics, $sub);
             }
+            function custom_sort($a,$b) {return strcmp($a['id'], $b['id']);}
+            usort($topics, 'custome_sort');
             try{
                 $collectionMeta = $lf_site->buildCollectionMetaToken( $title, $articleId, $url, implode( $tags ) );
                 $checksum = $lf_site->buildChecksum( $title, $url, implode( $tags ) );
             } catch (Exception $e) {
                 echo "Message: " . $e->getMessage();
             }
+            $extensions = array( 'wp_version' => get_bloginfo( 'version' ) );
+            // echo $extensions;
+            $collectionMetaString = "'$collectionMeta'";
+            $collectionMeta = array(
+                'articleId' => $articleId,
+                'title' => $title . "Changed!",
+                'url' => $url,
+                'tags' => $tags,
+                'topics' => $topics,
+                'extensions' => $extensions
+            );
+            $checksum = md5( json_encode( $collectionMeta ) );
+            $jwtString = JWT::encode($collectionMeta, $siteKey);
             $collectionMetaString = "'$jwtString'";
             $convConfig = 'var convConfig = [{
                 "collectionMeta": ' .$collectionMetaString. ',
