@@ -62,7 +62,7 @@ class Livefyre_Application {
      */
     static function use_site_option() {
         
-        return is_multisite() && !defined( 'LF_WP_VIP' );
+        return is_multisite() && !LF_WP_VIP;
     
     }
 
@@ -113,7 +113,6 @@ class Livefyre_Application {
      *
      */
     function setup_activation( $Obj ) {
-
         register_activation_hook( __FILE__, array( &$Obj, 'activate' ) );
         register_deactivation_hook( __FILE__, array( &$Obj, 'deactivate' ) );
 

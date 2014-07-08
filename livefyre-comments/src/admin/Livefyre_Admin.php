@@ -53,7 +53,7 @@ class Livefyre_Admin {
     
         # Should we collect domain (Livefyre profile domain) settings at
         # the blog level or multisite-wide?
-        return is_multisite() && !defined( 'LF_WP_VIP' );
+        return is_multisite() && !LF_WP_VIP;
     
     }
 
