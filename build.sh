@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Grab the arguments and decide which plguin to make
-while getopts n:mecsv option
+while getopts n:mecs option
 do
     case "${option}"
     in
@@ -10,7 +10,6 @@ do
         e) ENTERPRISE=1;;
         c) COMMUNITY=1;;
 	s) SITESYNC=1;;
-	v) WPVIP=1;;
         \?) exit;;
     esac
 done
@@ -125,11 +124,6 @@ elif [[ $ENTERPRISE ]]; then
         EXCLUDES="$EXCLUDES livefyre-comments/src/sync/Livefyre_Sync_Impl.php"
 	fi 
     
-    # Add WP VIP constant for vip.wordpress.com
-    if [[ $WPVIP ]]; then
-        sed_i "s/define( 'LF_WP_VIP', false )/define( 'LF_WP_VIP', true )/g" "$SRCPATH/Livefyre_WP_Core.php"
-    fi
-
     # Switch import to stub. Not needed for enterprise
     sed_i 's/Livefyre_Import_Impl/Livefyre_Import_Stub/g' "$SRCPATH/Livefyre_WP_Core.php"
 

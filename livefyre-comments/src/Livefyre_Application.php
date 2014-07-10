@@ -62,7 +62,7 @@ class Livefyre_Application {
      */
     static function use_site_option() {
         
-        return is_multisite() && !LF_WP_VIP;
+        return is_multisite();
     
     }
 

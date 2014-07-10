@@ -13,7 +13,6 @@ define( 'LF_PLUGIN_VERSION', '4.2.0' );
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
 define( 'LF_DEFAULT_TLD', 'livefyre.com' );
 define( 'LF_PLUGIN_PATH', WP_PLUGIN_DIR . '/livefyre-comments/');
-define( 'LF_WP_VIP', false );
 
 class Livefyre_WP_Core {
 
