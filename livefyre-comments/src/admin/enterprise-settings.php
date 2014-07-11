@@ -167,19 +167,19 @@ settings_toggle_more = function() {
                 <div id="fyresidesettings">
                     <h1>Network Settings</h1>
                         <p class="lf_label">Livefyre Network: </p>
-                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_domain_name')). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_domain_name')). '</p>'; ?>
                         <br />
                         <p class="lf_label">Livefyre Network Key: </p>
-                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_domain_key')). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_domain_key')). '</p>'; ?>
                         <br />
                         <p class="lf_label">Livefyre Auth Delegate Name: </p>
-                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_auth_delegate_name')). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_auth_delegate_name')). '</p>'; ?>
                     <h1>Site Settings</h1>
                         <p class="lf_label">Livefyre Site ID: </p>
-                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_id')). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_site_id')). '</p>'; ?>
                         <br />
                         <p class="lf_label">Livefyre Site Key: </p>
-                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_site_key')). '</p>'; ?>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_site_key')). '</p>'; ?>
                     <h1>Links</h1>
                         <a href='http://livefyre.com' target="_blank">Livefyre</a>
                         <br />

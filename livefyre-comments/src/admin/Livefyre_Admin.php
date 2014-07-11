@@ -9,13 +9,13 @@ define( 'LF_SITE_SETTINGS_PAGE', '/settings-template.php' );
 define( 'LF_MULTI_SETTINGS_PAGE', '/multisite-settings.php' );
 
 class Livefyre_Admin {
-    
+      
     /*
      * Sets all the actions for building the admin pages.
      *
      */
     function __construct( $lf_core ) {
-
+        
         $this->lf_core = $lf_core;
         $this->ext = $lf_core->ext;
         
@@ -71,7 +71,7 @@ class Livefyre_Admin {
      *
      */
     function register_network_admin_page() {
-    
+        $this->ext->networkMode = true;
         add_submenu_page( 'settings.php', 'Livefyre Network Settings', 'Livefyre', 'manage_options', 'livefyre_network', array( &$this, 'network_options_page' ) );
     
     }
@@ -240,7 +240,6 @@ class Livefyre_Admin {
     }
 
     function do_save_network_options() {
-
         $this->ext->update_network_option( 'livefyre_domain_name', sanitize_text_field( $_POST[ 'livefyre_domain_name' ] ) );
         $this->ext->update_network_option( 'livefyre_domain_key', sanitize_text_field( $_POST[ 'livefyre_domain_key' ] ) );
         $this->ext->update_network_option( 'livefyre_auth_delegate_name', sanitize_text_field( $_POST[ 'livefyre_auth_delegate_name' ] ) );
@@ -262,7 +261,7 @@ class Livefyre_Admin {
      */
     function auth_delegate_callback() {
 
-        echo "<input name='livefyre_auth_delegate_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )) ."' />";
+        echo "<input name='livefyre_auth_delegate_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_auth_delegate_name', '', $this->ext->networkMode)) ."' />";
 
     }
     
@@ -272,7 +271,7 @@ class Livefyre_Admin {
      */
     function domain_name_callback() {
 
-        echo "<input name='livefyre_domain_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com')) ."' />";
+        echo "<input name='livefyre_domain_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com', $this->ext->networkMode)) ."' />";
     
     }
     
@@ -282,7 +281,7 @@ class Livefyre_Admin {
      */
     function domain_key_callback() { 
     
-        echo "<input name='livefyre_domain_key' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_key' )) ."' />";
+        echo "<input name='livefyre_domain_key' value='". esc_attr($this->ext->get_network_option( 'livefyre_domain_key', '', $this->ext->networkMode)) ."' />";
         
     }
     
