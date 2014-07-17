@@ -20,7 +20,7 @@ class Livefyre_Activation {
      *
      */
     function deactivate() {
-
+        
         $this->reset_caches();
         $this->ext->update_option( 'livefyre_deactivated', 'Deactivated: ' . time() );
 
@@ -47,10 +47,27 @@ class Livefyre_Activation {
         } else {
             $site_id = $this->ext->get_option( 'livefyre_site_id', false );
         }
-        if ( !$this->ext->get_network_option( 'livefyre_domain_name', false ) ) {
-            // Initialize default profile domain i.e. livefyre.com
-            $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+        if(is_multisite()) {
+            if ( !$this->ext->get_network_option( 'livefyre_domain_name', false) ) {
+                // Initialize default profile domain i.e. livefyre.com
+                $defaultDomainName = $this->ext->get_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN, true);
+                $this->ext->update_network_option( 'livefyre_domain_name', $defaultDomainName );
+            }       
+            if ( !$this->ext->get_network_option( 'livefyre_auth_delegate_name', false) ) {
+                $defaultDelegate = $this->ext->get_network_option( 'livefyre_auth_delegate_name', '', true);
+                $this->ext->update_network_option( 'livefyre_auth_delegate_name', $defaultDelegate );
+            }   
+            if ( !$this->ext->get_network_option( 'livefyre_domain_key', false) ) {
+                $defaultKey = $this->ext->get_network_option( 'livefyre_domain_key', '', true);
+                $this->ext->update_network_option( 'livefyre_domain_key', $defaultKey );
+            }   
+        } else {
+            if ( !$this->ext->get_network_option( 'livefyre_domain_name', false) ) {
+                // Initialize default profile domain i.e. livefyre.com
+                $this->ext->update_network_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+            }
         }
+        
         if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {
             // Set a flag to show the 'hey you just upgraded' (or installed) flash message
             // Set the timestamp so we know which posts use V2 vs V3

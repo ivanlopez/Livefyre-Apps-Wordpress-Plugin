@@ -16,6 +16,8 @@ require_once( dirname( __FILE__ ) . "/Livefyre_Http_Extension.php");
  */
 class Livefyre_Application {
 
+    public $networkMode;
+    
     /*
      * Grab the current URL of the site.
      *
@@ -62,7 +64,7 @@ class Livefyre_Application {
      */
     static function use_site_option() {
         
-        return is_multisite() && !defined( 'LF_WP_VIP' );
+        return is_multisite();
     
     }
 
@@ -70,12 +72,15 @@ class Livefyre_Application {
      * Gets a network option if on Multisite.
      *
      */
-    function get_network_option( $optionName, $defaultValue = '' ) {
+    function get_network_option( $optionName, $defaultValue = '', $forceNetworkOption=false) {
     
-        if ( $this->use_site_option() ) {
+        if ( $this->use_site_option() && $this->networkMode) {
             return get_site_option( $optionName, $defaultValue );
         }
 
+        if($forceNetworkOption) {
+            $defaultValue = get_site_option( $optionName, $defaultValue );
+        }
         return get_option( $optionName, $defaultValue );
     
     }
@@ -86,7 +91,7 @@ class Livefyre_Application {
      */
     function update_network_option( $optionName, $defaultValue = '' ) {
 
-        if ( $this->use_site_option() ) {
+        if ( $this->use_site_option() && $this->networkMode) {
             return update_site_option( $optionName, $defaultValue );
         }
         
@@ -113,7 +118,6 @@ class Livefyre_Application {
      *
      */
     function setup_activation( $Obj ) {
-
         register_activation_hook( __FILE__, array( &$Obj, 'activate' ) );
         register_deactivation_hook( __FILE__, array( &$Obj, 'deactivate' ) );
 

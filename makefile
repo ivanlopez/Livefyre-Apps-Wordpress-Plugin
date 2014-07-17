@@ -1,6 +1,6 @@
 all: build
 
-build: community enterprise
+build: community enterprise enterprise-vip
 
 community: livefyre-comments/*
 	./build.sh -c
