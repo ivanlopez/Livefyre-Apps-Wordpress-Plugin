@@ -5,11 +5,11 @@ Livefyre Realtime Comments Core Module
 This library is shared between all Livefyre plugins.
 
 Author: Livefyre, Inc.
-Version: 4.2.0
+Version: 4.2.1
 Author URI: http://livefyre.com/
 */
 
-define( 'LF_PLUGIN_VERSION', '4.2.0' );
+define( 'LF_PLUGIN_VERSION', '4.2.1' );
 
 class Livefyre_WP_Core {
 
