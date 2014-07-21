@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.2.0
+Version: 4.2.1
 Author URI: http://livefyre.com/
 */
 
@@ -162,6 +162,7 @@ class Livefyre_Display {
             is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
             display-posts: <?php echo esc_html($display_posts) . "\n"; ?>
             display-pages: <?php echo esc_html($display_pages) . "\n"; ?>
+            plugin-version: <?php echo esc_html(LF_PLUGIN_VERSION) . "\n"; ?>
             -->
         <?php
         
