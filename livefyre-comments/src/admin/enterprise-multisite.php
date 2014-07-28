@@ -51,6 +51,9 @@ Author URI: http://livefyre.com/
                         <br />
                         <p class="lf_label">Auth Delegate: </p>
                         <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )). '</p>'; ?>
+                        <br />
+                        <p class="lf_label">Callback: </p>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option( 'livefyre_callback_name', '' )). '</p>'; ?>
                     <h1>Site Settings</h1>
                         <?php echo '<p class="lf_text">Specific to each site</p>'; ?>
                     <h1>Links</h1>
