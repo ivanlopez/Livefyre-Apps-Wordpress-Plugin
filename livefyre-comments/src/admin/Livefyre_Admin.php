@@ -117,7 +117,7 @@ class Livefyre_Admin {
         );
 
         add_settings_field('livefyre_callback_name',
-            'Livefyre Callback Name',
+            'Livefyre Callback Function Name',
             array( &$this, 'callback_callback' ),
             'livefyre_network',
             'lf_domain_settings' 
@@ -189,7 +189,7 @@ class Livefyre_Admin {
         );
 
         add_settings_field('livefyre_callback_name',
-            'Livefyre Callback Name',
+            'Livefyre Callback Function Name',
             array( &$this, 'callback_callback' ),
             $name,
             $section_name
