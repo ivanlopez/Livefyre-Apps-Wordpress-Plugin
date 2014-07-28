@@ -21,7 +21,6 @@ class Livefyre_Utility {
 
         add_action( 'init', array( &$this, 'set_activity_id' ) );
         add_action( 'init', array( &$this, 'show_activity_id' ) );
-        add_action( 'init', array( &$this, 'set_import_status' ) );
         add_action( 'init', array( &$this, 'set_widget_priority' ) );
         add_action( 'init', array( &$this, 'show_widget_priority' ) );
     }
