@@ -82,6 +82,8 @@ class Livefyre_Display {
             
             $siteId = get_option( 'livefyre_site_id' );
             $siteKey = get_option( 'livefyre_site_key' );
+            $authDelegate = get_option( 'livefyre_auth_delegate_name' );
+            $callback = get_option( 'livefyre_callback_name', '' );
             $environment = "livefyre.com";
             $post = get_post();
             $articleId = get_the_ID();
@@ -122,11 +124,15 @@ class Livefyre_Display {
             $networkConfigString = '';
             #for each in $networkConfig, build the string
             foreach ( $networkConfig as $key => $value ) {
-                $networkConfigString = "\"$key\": \"$value\",\n";
+                $networkConfigString .= "\"$key\": \"$value\",\n";
+            }
+            if ( $authDelegate != '' ) {
+                $networkConfigString .= "\"authDelegate\": $authDelegate";
             }
             $networkConfigString = "var networkConfig = {
                 $networkConfigString          }";
-            $lfLoad = "fyre.conv.load(networkConfig, convConfig)";
+            $callback = ($callback == '') ? "" : ", $callback";
+            $lfLoad = "fyre.conv.load(networkConfig, convConfig$callback)";
             $commentsJS = "$networkConfigString;\n          $convConfig;\n         $lfLoad;";
             echo "<script>
                 $commentsJS

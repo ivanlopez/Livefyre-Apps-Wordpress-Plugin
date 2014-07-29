@@ -35,6 +35,12 @@ Author URI: http://livefyre.com/
                         settings_fields( 'livefyre_domain_options' );
                         do_settings_sections( 'livefyre_network' );
                     ?>
+                    <p>*Livefyre settings (Network Name/Key) can be acquired from your technical account manager.</p>
+                    <p>For information about the authenication delegate, please refer to our documentation
+                    <a href="http://docs.livefyre.com/developers/plugins/wordpress/#authentication" target=_blank>here.</a></p>
+                    <p>The Callback Function must be a valid Javascript function declared before the wp_footer. Please, consult your
+                    theme design for where to place the variable. For further information, please visit our docs 
+                    <a href="http://docs.livefyre.com/developers/plugins/wordpress/" target=_blank>here.</a></p>
                     <p class="submit">
                         <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
                     </p>
@@ -51,6 +57,9 @@ Author URI: http://livefyre.com/
                         <br />
                         <p class="lf_label">Auth Delegate: </p>
                         <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option( 'livefyre_auth_delegate_name', '' )). '</p>'; ?>
+                        <br />
+                        <p class="lf_label">Callback: </p>
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option( 'livefyre_callback_name', '' )). '</p>'; ?>
                     <h1>Site Settings</h1>
                         <?php echo '<p class="lf_text">Specific to each site</p>'; ?>
                     <h1>Links</h1>
