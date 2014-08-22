@@ -50,14 +50,9 @@ class Livefyre_Display {
      *
      */
     function lf_embed_head_script() {
-        if ( get_option('livefyre_domain_name', '' ) == '' || get_option( 'livefyre_domain_name') == 'livefyre.com' ) {
-            $source_url = 'http://zor.livefyre.com/wjs/v3.0/javascripts/livefyre.js';    
-        }
-        else {
-            $source_url = 'http://zor.'
-                . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "qa-ext.livefyre.com" : 'qa-ext.livefyre.com' )
+        $source_url = 'http://zor.'
+                . ( get_option( 'livefyre_environment', '0' == 1 ) ?  "livefyre.com" : 't402.livefyre.com' )
                 . '/wjs/v3.0/javascripts/livefyre.js';
-        }
         wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );
 
     }
@@ -108,14 +103,17 @@ class Livefyre_Display {
                 array_push( $topics, $sub);
             }
             function custom_sort($a,$b) {return strcmp($a['id'], $b['id']);}
-            usort($topics, 'custome_sort');
+            usort($topics, 'custom_sort');
             try{
                 $collectionMeta = $lf_site->buildCollectionMetaToken( $title, $articleId, $url, implode( $tags ) );
                 $checksum = $lf_site->buildChecksum( $title, $url, implode( $tags ) );
             } catch (Exception $e) {
                 echo "Message: " . $e->getMessage();
             }
-            $extensions = array( 'wp_version' => get_bloginfo( 'version' ) );
+            $extensions = array(
+                'wp_version' => get_bloginfo( 'version' ),
+                'post_author' => $post->post_author
+            );
             // echo $extensions;
             $collectionMetaString = "'$collectionMeta'";
             $collectionMeta = array(
