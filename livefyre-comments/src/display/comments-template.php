@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.1.1
 Author URI: http://livefyre.com/
 */
     global $livefyre, $wp_query;
