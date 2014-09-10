@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.1.0
+Version: 4.1.1
 Author URI: http://livefyre.com/
 */
 
@@ -43,7 +43,7 @@ class Livefyre_Display {
                 wp_enqueue_script('lfsp', $lfsp_source_url);
         }
         
-        if ( get_option('liveyfre_domain_name', '' ) == '' || get_option( 'liveyfre_domain_name') == 'livefyre.com' ) {
+        if ( get_option('livefyre_domain_name', '' ) == '' || get_option( 'livefyre_domain_name') == 'livefyre.com' ) {
             $source_url = 'http://zor.livefyre.com/wjs/v3.0/javascripts/livefyre.js';    
         }
         else {

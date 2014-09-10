@@ -4,7 +4,7 @@ Plugin Name: Livefyre Realtime Comments
 Plugin URI: http://livefyre.com
 Description: Implements Livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
-Version: 4.1.3
+Version: 4.1.1
 Author URI: http://livefyre.com/
 */
 

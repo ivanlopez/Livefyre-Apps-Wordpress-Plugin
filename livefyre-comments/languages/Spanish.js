@@ -1,7 +1,7 @@
 var customStrings = {
 	signIn: "Iniciar sesión",
 	signInGuest: "Ingresa o publicar como invitado",
-	signOut: “Cerrar sesión",
+	signOut: "Cerrar sesión",
 	editProfile: "Editar perfil",
 	siteAdmin: "Administración",
 	postButton: "Publicar comentario",
@@ -132,5 +132,5 @@ var customStrings = {
 	unfeaturedButton: "Desresaltar",
 	featureCommentTooltip: "Destacar",
 	featuredCommentTooltip: "Desresaltar",
-	featuredCommentsTag: "Destacado"	
+	featuredCommentsTag: "Destacado"
 };
