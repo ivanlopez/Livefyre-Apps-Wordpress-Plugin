@@ -43,11 +43,15 @@ class Livefyre_Display {
                 wp_enqueue_script('lfsp', $lfsp_source_url);
         }
         
-        $zor_source_url = 'http://zor.'
-        . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : $this->ext->get_network_option( 'livefyre_domain_name', 'livefyre.com' ) )
-        . '/wjs/v3.0/javascripts/livefyre.js';
-        
-        wp_enqueue_script('zor', $zor_source_url, array(), null, false);
+        if ( get_option('liveyfre_domain_name', '' ) == '' || get_option( 'liveyfre_domain_name') == 'livefyre.com' ) {
+            $source_url = 'http://zor.livefyre.com/wjs/v3.0/javascripts/livefyre.js';    
+        }
+        else {
+            $source_url = 'http://zor.'
+                . ( 1 == get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
+                . '/wjs/v3.0/javascripts/livefyre.js';
+        }
+        wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );
 
         if ( function_exists ( 'livefyre_strings_chooser') ) {
             $file_url = livefyre_strings_chooser();
