@@ -1,5 +1,13 @@
 <?php
+<<<<<<< HEAD:apps/comments/src/LFAPPS_Comments_Extension.php
 require_once( LFAPPS__PLUGIN_PATH . "/libs/php/LFAPPS_Http_Extension.php");
+=======
+/*
+Author: Livefyre, Inc.
+Version: 4.2.1
+Author URI: http://livefyre.com/
+*/
+>>>>>>> origin/staging:livefyre-comments/src/Livefyre_Application.php
 
 class LFAPPS_Comments_Extension {
     

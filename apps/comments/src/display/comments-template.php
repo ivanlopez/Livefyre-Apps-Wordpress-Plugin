@@ -1,5 +1,14 @@
 <?php
 /*
+<<<<<<< HEAD:apps/comments/src/display/comments-template.php
+=======
+Author: Livefyre, Inc.
+Version: 4.2.1
+Author URI: http://livefyre.com/
+*/
+
+/*
+>>>>>>> origin/staging:livefyre-comments/src/display/comments-template.php
  * Template file for Livefyre's div element. Decides if cached Livefyre HTML
  * exists and uses it.
  *

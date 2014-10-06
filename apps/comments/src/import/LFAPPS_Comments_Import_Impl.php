@@ -1,5 +1,16 @@
 <?php
+<<<<<<< HEAD:apps/comments/src/import/LFAPPS_Comments_Import_Impl.php
 require_once 'LFAPPS_Comments_Import.php';
+=======
+
+/*
+  Author: Livefyre, Inc.
+Version: 4.2.1
+  Author URI: http://livefyre.com/
+ */
+
+require_once 'Livefyre_Import.php';
+>>>>>>> origin/staging:livefyre-comments/src/import/Livefyre_Import_Impl.php
 
 global $livefyre_comment_filter_enabled;
 global $wpdb;

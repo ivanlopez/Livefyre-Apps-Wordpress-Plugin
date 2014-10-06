@@ -115,6 +115,12 @@ settings_toggle_more = function() {
                             settings_fields( 'livefyre_site_options' );
                             do_settings_sections( 'livefyre' );
                         ?>
+                        <p>*Livefyre settings (Site Id/Key, Network Name/Key) can be acquired from your technical account manager.</p>
+                        <p>For information about the authenication delegate, please refer to our documentation
+                        <a href="http://docs.livefyre.com/developers/plugins/wordpress/#authentication" target=_blank>here.</a></p>
+                        <p>The Callback Function must be a valid Javascript function declared before the wp_footer. Please, consult your
+                        theme design for where to place the variable. For further information, please visit our docs 
+                        <a href="http://docs.livefyre.com/developers/plugins/wordpress/" target=_blank>here.</a></p>
                         <p class="submit">
                             <input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
                         </p>
@@ -177,7 +183,14 @@ settings_toggle_more = function() {
                         <?php echo '<p class="lf_text">' .esc_html($this->ext->get_option('livefyre_domain_key')). '</p>'; ?>
                         <br />
                         <p class="lf_label">Livefyre Auth Delegate Name: </p>
+<<<<<<< HEAD:apps/comments/src/admin/enterprise-settings.php
                         <?php echo '<p class="lf_text">' .esc_html($this->ext->get_option('livefyre_auth_delegate_name')). '</p>'; ?>
+=======
+                        <?php echo '<p class="lf_text">' .esc_html($this->ext->get_network_option('livefyre_auth_delegate_name')). '</p>'; ?>
+                        <br />
+                        <p class="lf_label">Livefyre Callback Name: </p>
+                        <?php echo '<p class="lf_text">' .esc_html(get_option('livefyre_callback_name')). '</p>'; ?>
+>>>>>>> origin/staging:livefyre-comments/src/admin/enterprise-settings.php
                     <h1>Site Settings</h1>
                         <p class="lf_label">Livefyre Site ID: </p>
                         <?php echo '<p class="lf_text">' .esc_html($this->ext->get_option('livefyre_site_id')). '</p>'; ?>

@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.2.0
+Version: 4.2.1
 Author URI: http://livefyre.com/
 */
 
@@ -63,6 +63,68 @@ class Livefyre_Admin {
         
         add_submenu_page( 'options-general.php', 'Livefyre Settings', 'Livefyre', 'manage_options', 'livefyre', array( &$this, 'site_options_page' ) );
     }
+<<<<<<< HEAD:apps/comments/src/admin/Livefyre_Admin.php
+=======
+
+    /*
+     * Registers a network admin page if Multisite is enabled.
+     *
+     */
+    function register_network_admin_page() {
+        $this->ext->networkMode = true;
+        add_submenu_page( 'settings.php', 'Livefyre Network Settings', 'Livefyre', 'manage_options', 'livefyre_network', array( &$this, 'network_options_page' ) );
+    
+    }
+
+    /*
+     * Sets network level settings on the admin page for Multisite.
+     *
+     */
+    function network_options_init( $settings_section = 'livefyre_domain_options' ) {
+    
+        $settings_section = 'livefyre_domain_options';
+
+        register_setting( $settings_section, 'livefyre_domain_name' );
+        register_setting( $settings_section, 'livefyre_domain_key' );
+        register_setting( $settings_section, 'livefyre_auth_delegate_name' );
+        register_setting( $settings_section, 'livefyre_callback_name' );
+
+        add_settings_section('lf_domain_settings',
+            'Livefyre Network Settings',
+            array( &$this, 'settings_callback' ),
+            'livefyre_network' 
+        );
+        
+        add_settings_field('livefyre_domain_name',
+            'Livefyre Network Name',
+            array( &$this, 'domain_name_callback' ),
+            'livefyre_network',
+            'lf_domain_settings' 
+        );
+        
+        add_settings_field('livefyre_domain_key',
+            'Livefyre Network Key',
+            array( &$this, 'domain_key_callback' ),
+            'livefyre_network',
+            'lf_domain_settings' 
+        );
+        
+        add_settings_field('livefyre_auth_delegate_name',
+            'Livefyre AuthDelagate Name',
+            array( &$this, 'auth_delegate_callback' ),
+            'livefyre_network',
+            'lf_domain_settings' 
+        );
+
+        add_settings_field('livefyre_callback_name',
+            'Livefyre Callback Function Name',
+            array( &$this, 'callback_callback' ),
+            'livefyre_network',
+            'lf_domain_settings' 
+        );
+        
+    }
+>>>>>>> origin/staging:livefyre-comments/src/admin/Livefyre_Admin.php
     
     /*
      * Sets the site settings for Multisite and Non-Multisite.
@@ -78,6 +140,7 @@ class Livefyre_Admin {
         register_setting( $settings_section, 'livefyre_domain_name' );
         register_setting( $settings_section, 'livefyre_domain_key' );
         register_setting( $settings_section, 'livefyre_auth_delegate_name' );
+        register_setting( $settings_section, 'livefyre_callback_name' );
         register_setting( $settings_section, 'livefyre_environment' );
         
         if( self::returned_from_setup() ) {
@@ -122,6 +185,13 @@ class Livefyre_Admin {
         add_settings_field('livefyre_auth_delegate_name',
             'Livefyre AuthDelagate Name',
             array( &$this, 'auth_delegate_callback' ),
+            $name,
+            $section_name
+        );
+
+        add_settings_field('livefyre_callback_name',
+            'Livefyre Callback Function Name',
+            array( &$this, 'callback_callback' ),
             $name,
             $section_name
         );
@@ -186,6 +256,26 @@ class Livefyre_Admin {
 
     }
 
+<<<<<<< HEAD:apps/comments/src/admin/Livefyre_Admin.php
+=======
+    function do_save_network_options() {
+        $this->ext->update_network_option( 'livefyre_domain_name', sanitize_text_field( $_POST[ 'livefyre_domain_name' ] ) );
+        $this->ext->update_network_option( 'livefyre_domain_key', sanitize_text_field( $_POST[ 'livefyre_domain_key' ] ) );
+        $this->ext->update_network_option( 'livefyre_auth_delegate_name', sanitize_text_field( $_POST[ 'livefyre_auth_delegate_name' ] ) );
+        $this->ext->update_network_option( 'livefyre_callback_name', sanitize_text_field( $_POST[ 'livefyre_callback_name' ] ) );
+
+        wp_redirect( add_query_arg( array( 'page' => 'livefyre_network', 'updated' => 'true' ), network_admin_url( 'settings.php' ) ) );
+        exit();
+        
+    }
+
+    function network_options_page() {
+        
+        include( dirname(__FILE__) . LF_MULTI_SETTINGS_PAGE);
+        
+    }
+
+>>>>>>> origin/staging:livefyre-comments/src/admin/Livefyre_Admin.php
     /*
      * Keeps the current authentication delegate value up to date with the backend
      *
@@ -214,6 +304,11 @@ class Livefyre_Admin {
     
         echo "<input name='livefyre_domain_key' value='". esc_attr($this->ext->get_option( 'livefyre_domain_key', '', $this->ext->networkMode)) ."' />";
         
+    }
+
+    function callback_callback() {
+        
+        echo "<input name='livefyre_callback_name' value='". esc_attr($this->ext->get_network_option( 'livefyre_callback_name', '' )) ."' />"; 
     }
     
     /*

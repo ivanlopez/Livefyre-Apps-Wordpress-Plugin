@@ -1,5 +1,15 @@
 <?php
+<<<<<<< HEAD:apps/comments/src/sync/LFAPPS_Comments_Sync.php
 interface LFAPPS_Comments_Sync {
+=======
+/*
+Author: Livefyre, Inc.
+Version: 4.2.1
+Author URI: http://livefyre.com/
+*/
+
+interface Livefyre_Sync {
+>>>>>>> origin/staging:livefyre-comments/src/sync/Livefyre_Sync.php
 
     /**
      *
