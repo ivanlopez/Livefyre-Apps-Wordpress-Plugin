@@ -49,6 +49,19 @@
                                     ?>
                                 </td>
                             </tr>
+                            <tr>
+                                <td colspan='2' class="info">
+                                    <strong>Note:</strong>
+                                    <p>There multiple other configuration options available for LiveChat and you can specify them by
+                                    declaring "liveChatConfig" variable in your theme header. For example:</p>
+                                    <blockquote class="code">
+                                    <?php echo esc_html("<script>
+                                         var liveChatConfig = { disableAvatars: true; }
+                                         </script>"); ?>                                            
+                                    </blockquote>
+                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/chat/#convConfigObject">Click here</a> for a full explanation of LiveChat options.</p>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                     <div id="major-publishing-actions">									
@@ -132,10 +145,10 @@
                     <p>LiveChat can also be activated by placing a shortcode inside your content.</p>
                     <p>The shortcode usage is pretty simple. Let's say we wish to generate a LiveChat stream inside post content. We could enter something like this
                         inside the content editor:</p>
-                    <p class='code'>[livechat]</p>
+                    <p class='code'>[livefyre_livechat]</p>
                     <p>LiveChat streams are separated by the "Article ID" and if not specified it will use the current post ID. You can define the "Article ID"
                         manually like this:</p>
-                    <p class='code'>[livechat article_id="123"]</p>
+                    <p class='code'>[livefyre_livechat article_id="123"]</p>
                 </div> 
             </div>
         </div>

@@ -28,7 +28,7 @@ $conv_config_str = json_encode($conv_config);
 <script type="text/javascript">
 
 Livefyre.require(['sidenotes#v1'], function (Sidenotes) {
-    
+    load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {
         convConfigSidenotes = jQuery.extend(convConfigSidenotes, livefyreSidenotesConfig);

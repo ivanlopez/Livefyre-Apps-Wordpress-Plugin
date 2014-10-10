@@ -32,7 +32,7 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
          */
         private static function init_hooks() {
             if(self::blog_active())
-                add_shortcode('liveblog', array('LFAPPS_Blog', 'init_shortcode'));
+                add_shortcode('livefyre_liveblog', array('LFAPPS_Blog', 'init_shortcode'));
         }
         
         public static function init_shortcode($atts=array()) {

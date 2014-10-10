@@ -10,7 +10,7 @@ class LFAPPS_Comments_Display {
     function __construct( $lf_core ) {
         
         if (LFAPPS_Comments::comments_active()) {
-            add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
+            //add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
             
             // Set comments_template filter to maximum value to always override the default commenting widget
@@ -18,7 +18,7 @@ class LFAPPS_Comments_Display {
             add_filter( 'comments_template', array( &$this, 'livefyre_comments_template' ), $this->lf_widget_priority() );
             add_filter( 'comments_number', array( &$this, 'livefyre_comments_number' ), 10, 2 );
             
-            add_shortcode('livecomments', array('LFAPPS_Comments_Display', 'init_shortcode'));
+            add_shortcode('livefyre_livecomments', array('LFAPPS_Comments_Display', 'init_shortcode'));
         }
     
     }

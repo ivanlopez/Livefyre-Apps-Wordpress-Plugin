@@ -88,18 +88,18 @@ jQuery(document).ready(function($) {
     }
     
     if($('#lfapps input[name="auth_type"]').length) {
-        if($('#lfapps input[name="auth_type"]:checked').val() === 'wordpress') {
-            $(".authdelegate-only").hide();
-        } else {
+        if($('#lfapps input[name="auth_type"]:checked').val() === 'auth_delegate') {
             if($(".enterprise-only").is(':visible')) {
                 $(".authdelegate-only").show();
-            }
+            }            
+        } else {
+            $(".authdelegate-only").hide();
         }
         $('#lfapps input[name="auth_type"]').click(function() {
-            if($(this).val() === 'wordpress') {
-                $(".authdelegate-only").hide();
-            } else {
+            if($(this).val() === 'auth_delegate') {
                 $(".authdelegate-only").show();
+            } else {
+                $(".authdelegate-only").hide();                
             }
         });
     }
