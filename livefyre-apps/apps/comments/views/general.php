@@ -51,6 +51,19 @@
                                     ?>
                                 </td>
                             </tr>
+                            <tr>
+                                <td colspan='2' class="info">
+                                    <strong>Note:</strong>
+                                    <p>There multiple other configuration options available for LiveComments and you can specify them by
+                                    declaring "liveCommentsConfig" variable in your theme header. For example:</p>
+                                    <blockquote class="code">
+                                    <?php echo esc_html("<script>
+                                         var liveCommentsConfig = { readOnly: true; }
+                                         </script>"); ?>                                            
+                                    </blockquote>
+                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/comments/#convConfigObject">Click here</a> for a full explanation of LiveComments options.</p>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                     <div id="major-publishing-actions">									
@@ -134,10 +147,10 @@
                     <p>LiveComments can also be activated by placing a shortcode inside your content.</p>
                     <p>The shortcode usage is pretty simple. Let's say we wish to generate a LiveComments stream inside post content. We could enter something like this
                         inside the content editor:</p>
-                    <p class='code'>[livecomments]</p>
+                    <p class='code'>[livefyre_livecomments]</p>
                     <p>LiveComments streams are separated by the "Article ID" and if not specified it will use the current post ID. You can define the "Article ID"
                         manually like this:</p>
-                    <p class='code'>[livecomments article_id="123"]</p>
+                    <p class='code'>[livefyre_livecomments article_id="123"]</p>
                 </div> 
             </div>
         </div>

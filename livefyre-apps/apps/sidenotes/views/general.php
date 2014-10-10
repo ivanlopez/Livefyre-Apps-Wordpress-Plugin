@@ -62,7 +62,7 @@
                                          var livefyreSidenotesConfig = { iconVisibility: \"hover\"; }
                                          </script>"); ?>                                            
                                     </blockquote>
-                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full of Livefyre Sidenotes options.</p>
+                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full explanation of Livefyre Sidenotes options.</p>
                                 </td>
                             </tr>
                             <?php endif; ?>                            

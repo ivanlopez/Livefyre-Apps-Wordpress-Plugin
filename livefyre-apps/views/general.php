@@ -58,8 +58,10 @@
                                         <td align="left" class="spacer">
                                             <input id="wp_auth_type_wordpress" name="auth_type" type="radio" value="wordpress" <?php echo Livefyre_Apps::get_option('auth_type') === 'wordpress' ? 'checked' : ''; ?>>
                                             <label for='wp_auth_type_wordpress'><?php esc_html_e('Native Wordpress', 'lfapps'); ?></label>
-                                            <input id="wp_auth_type_custom" name="auth_type" type="radio" value="auth_delegate" <?php echo Livefyre_Apps::get_option('auth_type') === 'auth_delegate' ? 'checked' : ''; ?>>
+                                            <input id="wp_auth_type_custom" name="auth_type" type="radio" value="custom" <?php echo Livefyre_Apps::get_option('auth_type') === 'custom' ? 'checked' : ''; ?>>
                                             <label for='wp_auth_type_custom'><?php esc_html_e('Custom', 'lfapps'); ?></label>
+                                            <input id="wp_auth_type_delegate" name="auth_type" type="radio" value="auth_delegate" <?php echo Livefyre_Apps::get_option('auth_type') === 'auth_delegate' ? 'checked' : ''; ?>>
+                                            <label for='wp_auth_type_delegate'><?php esc_html_e('Legacy Delegate', 'lfapps'); ?></label>
                                         </td>
                                     </tr>
                                     <tr class="enterprise-only authdelegate-only">
@@ -205,6 +207,7 @@
                 </div>
             </div>
         </div>
+        <?php /*
         <div class="postbox-container">
             <div id="normal-sortables" class="meta-box-sortables ui-sortable">
                 <div id="referrers" class="postbox ">
@@ -232,6 +235,7 @@
                 </div>
             </div>
         </div>
+        */ ?>
     </div>        
 </div>
 
