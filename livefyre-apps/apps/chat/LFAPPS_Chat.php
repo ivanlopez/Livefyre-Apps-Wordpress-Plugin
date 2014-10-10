@@ -41,7 +41,7 @@ if (!class_exists('LFAPPS_Chat')) {
                 add_filter('comments_template', array('LFAPPS_Chat', 'comments_template'), self::lf_widget_priority());
                 add_filter('comments_number', array('LFAPPS_Chat', 'comments_number'), 10, 2);
 
-                add_shortcode('livechat', array('LFAPPS_Chat', 'init_shortcode'));
+                add_shortcode('livefyre_livechat', array('LFAPPS_Chat', 'init_shortcode'));
             }
         }
 

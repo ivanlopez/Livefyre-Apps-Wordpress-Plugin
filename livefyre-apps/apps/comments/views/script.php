@@ -20,18 +20,22 @@ if($display_template) {
 ?>
 <script type="text/javascript">
     var networkConfig = {
-        network: "<?php echo esc_js($network->getName()); ?>"<?php echo $strings !== null ? ', strings: ' . esc_js($strings) : ''; ?>
+        network: "<?php echo esc_js($network->getName()); ?>"
     };
-    var convConfigComments = {
+    var convConfigComments<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",
         el: "<?php echo esc_js($livefyre_element); ?>",
         collectionMeta: "<?php echo esc_js($collectionMetaToken); ?>",
         checksum: "<?php echo esc_js($checksum); ?>"
     };
+    if(typeof(liveCommentsConfig) !== 'undefined') {
+        convConfigComments<?php echo esc_js($articleId); ?> = jQuery.extend(liveCommentsConfig, convConfigComments<?php echo esc_js($articleId); ?>);
+    }
 
-    Livefyre.require(['fyre.conv#3'], function(Conv) {
-        new Conv(networkConfig, [convConfigComments], function(commentsWidget) {
+    Livefyre.require(['fyre.conv#3'], function(ConvComments) {
+        load_livefyre_auth();
+        new ConvComments(networkConfig, [convConfigComments<?php echo esc_js($articleId); ?>], function(commentsWidget) {
         }());
     });
 </script>

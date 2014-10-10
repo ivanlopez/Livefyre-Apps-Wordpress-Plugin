@@ -3,16 +3,21 @@
     var networkConfig = {
         network: "<?php echo esc_js($network->getName()); ?>"<?php echo $strings !== null ? ', strings: ' . esc_js($strings) : ''; ?>
     };
-    var convConfigBlog = {
+    var convConfigBlog<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",
         el: "<?php echo esc_js($livefyre_element); ?>",
         collectionMeta: "<?php echo esc_js($collectionMetaToken); ?>",
         checksum: "<?php echo esc_js($checksum); ?>"
     };
+    
+    if(typeof(liveBlogConfig) !== 'undefined') {
+        convConfigBlog<?php echo esc_js($articleId); ?> = jQuery.extend(liveBlogConfig, convConfigBlog<?php echo esc_js($articleId); ?>);
+    }
 
-    Livefyre.require(['fyre.conv#3'], function(Conv) {
-        new Conv(networkConfig, [convConfigBlog], function(blogWidget) {
+    Livefyre.require(['fyre.conv#3'], function(ConvBlog) {
+        load_livefyre_auth();
+        new ConvBlog(networkConfig, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {            
         }());
     });
 </script>
