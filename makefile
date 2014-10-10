@@ -1,2 +1,2 @@
-zip: livefyre-apps/*
-	./build.sh -c
+zip: 
+	zip -r livefyre-apps.zip livefyre-apps/
