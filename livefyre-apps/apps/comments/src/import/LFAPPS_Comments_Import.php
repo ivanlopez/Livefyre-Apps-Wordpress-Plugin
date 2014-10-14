@@ -1,15 +1,5 @@
 <?php
-<<<<<<< HEAD:apps/comments/src/import/LFAPPS_Comments_Import.php
 interface LFAPPS_Comments_Import {
-=======
-/*
-Author: Livefyre, Inc.
-Version: 4.2.1
-Author URI: http://livefyre.com/
-*/
-
-interface Livefyre_Import {
->>>>>>> origin/staging:livefyre-comments/src/import/Livefyre_Import.php
 
     /**
      *

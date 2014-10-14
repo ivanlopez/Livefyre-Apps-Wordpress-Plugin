@@ -1,7 +1,7 @@
 <?php
 /*
 Author: Livefyre, Inc.
-Version: 4.2.1
+Version: 4.2.0
 Author URI: http://livefyre.com/
 */
 if(!defined('WP_CONTENT_URL')) {

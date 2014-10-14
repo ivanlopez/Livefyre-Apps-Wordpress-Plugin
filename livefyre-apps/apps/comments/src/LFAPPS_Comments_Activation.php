@@ -1,15 +1,5 @@
 <?php
-<<<<<<< HEAD:apps/comments/src/LFAPPS_Comments_Activation.php
 class LFAPPS_Comments_Activation {
-=======
-/*
-Author: Livefyre, Inc.
-Version: 4.2.1
-Author URI: http://livefyre.com/
-*/
-
-class Livefyre_Activation {
->>>>>>> origin/staging:livefyre-comments/src/Livefyre_Activation.php
 
     function __construct( $lf_core ) {
     

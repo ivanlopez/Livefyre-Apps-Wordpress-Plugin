@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD:apps/comments/src/sync/LFAPPS_Comments_Sync_Impl.php
 require_once( dirname( __FILE__ ) . "/LFAPPS_Comments_Sync.php" );
 
 define( 'LFAPPS_SYNC_LONG_TIMEOUT', 25200 );
@@ -10,24 +9,6 @@ define( 'LFAPPS_SYNC_MORE', 'more-data' );
 define( 'LFAPPS_SYNC_ERROR', 'error' );
 
 class LFAPPS_Comments_Sync_Impl implements LFAPPS_Comments_Sync {
-=======
-/*
-Author: Livefyre, Inc.
-Version: 4.2.1
-Author URI: http://livefyre.com/
-*/
-
-require_once( dirname( __FILE__ ) . "/Livefyre_Sync.php" );
-
-define( 'LF_SYNC_LONG_TIMEOUT', 25200 );
-define( 'LF_SYNC_SHORT_TIMEOUT', 3 );
-define( 'LF_SYNC_MAX_INSERTS', 25 );
-define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
-define( 'LF_SYNC_MORE', 'more-data' );
-define( 'LF_SYNC_ERROR', 'error' );
-
-class Livefyre_Sync_Impl implements Livefyre_Sync {
->>>>>>> origin/staging:livefyre-comments/src/sync/Livefyre_Sync_Impl.php
     
     function __construct( $lf_core ) {
 
