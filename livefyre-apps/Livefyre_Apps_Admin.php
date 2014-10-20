@@ -94,8 +94,9 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
          * Check to see if this request is a response back from livefyre.com which sets the site id + key
          * @return boolean
          */
+
         public static function verified_blog() {
-            return isset($_GET['lf_login_complete']) && $_GET['lf_login_complete'] === '1' 
+            return isset($_GET['lf_login_complete']) && $_GET['lf_login_complete'] === 'true' 
                     && isset( $_GET['page'] ) && $_GET['page'] === 'livefyre_apps';
         }
         
@@ -128,6 +129,7 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
         public static function menu_general() {
             //process data returned from livefyre.com community sign up
             if(self::verified_blog()) {
+                Livefyre_Apps::update_option('livefyre_domain_name', 'livefyre.com');
                 Livefyre_Apps::update_option('livefyre_site_id', sanitize_text_field( $_GET["site_id"] ));
                 Livefyre_Apps::update_option('livefyre_site_key', sanitize_text_field( $_GET["secretkey"] ));
             }

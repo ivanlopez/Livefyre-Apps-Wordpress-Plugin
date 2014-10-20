@@ -75,7 +75,7 @@
                             <?php if(Livefyre_Apps::get_option('package_type') === 'community'): ?>
                             <div class="lfapps-community-signup">
                                 <p><?php esc_html_e('New to Livefyre or forgotten your Site ID/Key?', 'lfapps'); ?><br/>
-                                    <a href="http://www.livefyre.com/install" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
+                                    <a href="http://t402.livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
                             </div>
                             <div class="clear"></div>
                             <?php endif; ?>
@@ -131,7 +131,7 @@
                                         <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveSidenotes">Click here</a> for more information.</p>
                                     </div>
                                 </div>
-                                <div class='lfapps-appmgt-box'>                                    
+                                <div class='lfapps-appmgt-box enterprise-only'>                                    
                                     <label for='lfapps_blog_enable'> 
                                         <?php
                                         $icon_src = Livefyre_Apps::is_app_enabled('blog') ? 'lf-blog-icon.png' : 'lf-blog-icon-grey.png';
@@ -146,7 +146,7 @@
                                         <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveBlog">Click here</a> for more information.</p>
                                     </div>
                                 </div>
-                                <div class='lfapps-appmgt-box'>                                    
+                                <div class='lfapps-appmgt-box enterprise-only'>                                    
                                     <label for='lfapps_chat_enable'> 
                                         <?php
                                         $icon_src = Livefyre_Apps::is_app_enabled('chat') ? 'lf-chat-icon.png' : 'lf-chat-icon-grey.png';
