@@ -58,7 +58,7 @@
                                     declaring "liveCommentsConfig" variable in your theme header. For example:</p>
                                     <blockquote class="code">
                                     <?php echo esc_html("<script>
-                                         var liveCommentsConfig = { readOnly: true; }
+                                         var liveCommentsConfig = { 'readOnly': true }
                                          </script>"); ?>                                            
                                     </blockquote>
                                     <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/comments/#convConfigObject">Click here</a> for a full explanation of LiveComments options.</p>

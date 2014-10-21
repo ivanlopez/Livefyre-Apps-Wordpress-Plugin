@@ -71,7 +71,7 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
             }
             
             if(Livefyre_Apps::get_option('livefyre_sidenotes_selectors', '') === '' || Livefyre_Apps::get_option('livefyre_sidenotes_selectors') === 'true') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_selectors', '#livefyre-sidenotes-wrap p:not(:has(img)),#livefyre-sidenotes-wrap > p > a > img, #livefyre-sidenotes-wrap > ul > li');
+                Livefyre_Apps::update_option('livefyre_sidenotes_selectors', '#livefyre-sidenotes-wrap p:not(:has(img)),#livefyre-sidenotes-wrap > p img, #livefyre-sidenotes-wrap > ul > li');
             }
         }
         
