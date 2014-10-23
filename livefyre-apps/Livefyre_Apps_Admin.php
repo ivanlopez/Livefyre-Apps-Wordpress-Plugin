@@ -73,8 +73,8 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             wp_register_style( 'lfapps.css', LFAPPS__PLUGIN_URL . 'assets/css/lfapps.css', array(), LFAPPS__VERSION );
 			wp_enqueue_style( 'lfapps.css');
             
-            wp_register_script( 'lfapps.js', LFAPPS__PLUGIN_URL . 'assets/js/lfapps.js', array('jquery', 'postbox', 'thickbox'), LFAPPS__VERSION );
-			wp_enqueue_script( 'lfapps.js');
+            wp_register_script( 'lfapps-admin.js', LFAPPS__PLUGIN_URL . 'assets/js/lfapps-admin.js', array('jquery', 'postbox', 'thickbox'), LFAPPS__VERSION );
+			wp_enqueue_script( 'lfapps-admin.js');
         }
         
         /**
@@ -166,6 +166,7 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
                 } else {
                     Livefyre_Apps::update_option('auth_type', 'wordpress'); 
                 }
+                Livefyre_Apps::update_option('livefyre_environment', isset( $_POST["livefyre_environment"] ) ? 'production' : 'staging');
                 Livefyre_Apps::$form_saved = true;
             }
             

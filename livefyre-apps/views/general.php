@@ -70,6 +70,13 @@
                                             <input id="livefyre_auth_delegate_name" name="livefyre_auth_delegate_name" type="text" value="<?php echo esc_attr(Livefyre_Apps::get_option('livefyre_auth_delegate_name')); ?>" class='regular-text'>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <th align="left" scope="row"><?php esc_html_e('Environment', 'lfapps'); ?></th>
+                                        <td align="left">
+                                            <input id="livefyre_environment" name="livefyre_environment" type="checkbox" value="production" <?php echo Livefyre_Apps::get_option('livefyre_environment') == 'production' ? 'checked' : ''; ?>>
+                                            <label for="livefyre_environment"><?php esc_html_e('Check this if you are using Production Credentials', 'lfapps'); ?></label>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <?php if(Livefyre_Apps::get_option('package_type') === 'community'): ?>
