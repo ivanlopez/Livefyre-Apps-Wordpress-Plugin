@@ -82,7 +82,7 @@
                             <?php if(Livefyre_Apps::get_option('package_type') === 'community'): ?>
                             <div class="lfapps-community-signup">
                                 <p><?php esc_html_e('New to Livefyre or forgotten your Site ID/Key?', 'lfapps'); ?><br/>
-                                    <a href="http://t402.livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
+                                    <a href="http://livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
                             </div>
                             <div class="clear"></div>
                             <?php endif; ?>
