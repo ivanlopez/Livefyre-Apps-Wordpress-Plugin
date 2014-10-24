@@ -27,11 +27,11 @@ $conv_config_str = json_encode($conv_config);
 ?>
 <script type="text/javascript">
 
-Livefyre.require(['sidenotes#v1'], function (Sidenotes) {
+Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('sidenotes'); ?>'], function (Sidenotes) {
     load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {
-        convConfigSidenotes = jQuery.extend(convConfigSidenotes, livefyreSidenotesConfig);
+        convConfigSidenotes = lf_extend(convConfigSidenotes, livefyreSidenotesConfig);
     }
     new Sidenotes(convConfigSidenotes);
 });

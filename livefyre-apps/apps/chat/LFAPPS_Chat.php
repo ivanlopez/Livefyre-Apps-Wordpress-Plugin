@@ -95,10 +95,8 @@ if (!class_exists('LFAPPS_Chat')) {
                 $display_template = false;
                 LFAPPS_View::render_partial('script', compact('siteId', 'siteKey', 'network', 'articleId', 'collectionMetaToken', 'checksum', 'strings', 'livefyre_element', 'display_template'), 'chat');
 
-                if (!is_single()) {
-                    $ccjs = 'http://zor.livefyre.com/wjs/v1.0/javascripts/CommentCount.js';
-                    echo '<script type="text/javascript" data-lf-domain="' . esc_attr($network->getName()) . '" id="ncomments_js" src="' . esc_attr($ccjs) . '"></script>';
-                }
+                $ccjs = '//cdn.livefyre.com/libs/commentcount/v1.0/commentcount.js';
+                echo '<script type="text/javascript" data-lf-domain="' . esc_attr($network->getName()) . '" id="ncomments_js" src="' . esc_attr($ccjs) . '"></script>';
             }
         }
 

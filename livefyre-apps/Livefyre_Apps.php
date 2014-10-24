@@ -86,6 +86,9 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
         }
         
         public static function load_resources() {
+            wp_register_script('lfapps.js', LFAPPS__PLUGIN_URL . 'assets/js/lfapps.js', array(), LFAPPS__VERSION, false);
+            wp_enqueue_script('lfapps.js');
+            
             wp_register_script('Livefyre.js', 'http://cdn.livefyre.com/Livefyre.js', array(), LFAPPS__VERSION, false);
             wp_enqueue_script('Livefyre.js');
         }
@@ -105,6 +108,12 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
                     'comments'=>true
                 );
                 self::update_option('apps', $apps);
+            }
+            
+            if(!self::get_option('livefyre_environment') 
+                    || (self::get_option('livefyre_environment') != 'staging' 
+                        && self::get_option('livefyre_environment') != 'production')) {
+                self::update_option('livefyre_environment', 'staging');
             }
             
             //set default package type (community/enterprise)
@@ -236,6 +245,24 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             $network_key = self::get_option('livefyre_domain_key', '');
             $network = Livefyre::getNetwork(self::get_option('livefyre_domain_name', 'livefyre.com'), strlen($network_key) > 0 ? $network_key : null);  
             return $network->buildUserAuthToken($current_user->ID.'', $current_user->display_name, 3600);
+        }
+        
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @param string $name
+         * @return string
+         */
+        public static function get_package_reference($name) {
+            $uat = self::get_option('livefyre_environment') == 'staging';
+            switch($name) {
+                case 'sidenotes':
+                    return 'sidenotes#' . ($uat ? 'uat' : 'v1');
+                break;
+                case 'fyre.conv':
+                    return 'fyre.conv#' . ($uat ? 'uat' : '3');
+                break;
+            }
+            return '';
         }
     }
 }

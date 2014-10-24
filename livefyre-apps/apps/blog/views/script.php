@@ -12,10 +12,10 @@
     };
     
     if(typeof(liveBlogConfig) !== 'undefined') {
-        convConfigBlog<?php echo esc_js($articleId); ?> = jQuery.extend(liveBlogConfig, convConfigBlog<?php echo esc_js($articleId); ?>);
+        convConfigBlog<?php echo esc_js($articleId); ?> = lf_extend(liveBlogConfig, convConfigBlog<?php echo esc_js($articleId); ?>);
     }
 
-    Livefyre.require(['fyre.conv#3'], function(ConvBlog) {
+    Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('fyre.conv'); ?>'], function(ConvBlog) {
         load_livefyre_auth();
         new ConvBlog(networkConfig, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {            
         }());

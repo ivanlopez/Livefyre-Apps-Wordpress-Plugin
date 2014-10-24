@@ -30,10 +30,10 @@ if($display_template) {
         checksum: "<?php echo esc_js($checksum); ?>"
     };
     if(typeof(liveCommentsConfig) !== 'undefined') {
-        convConfigComments<?php echo esc_js($articleId); ?> = jQuery.extend(liveCommentsConfig, convConfigComments<?php echo esc_js($articleId); ?>);
+        convConfigComments<?php echo esc_js($articleId); ?> = lf_extend(liveCommentsConfig, convConfigComments<?php echo esc_js($articleId); ?>);
     }
 
-    Livefyre.require(['fyre.conv#3'], function(ConvComments) {
+    Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('fyre.conv'); ?>'], function(ConvComments) {
         load_livefyre_auth();
         new ConvComments(networkConfig, [convConfigComments<?php echo esc_js($articleId); ?>], function(commentsWidget) {
         }());
