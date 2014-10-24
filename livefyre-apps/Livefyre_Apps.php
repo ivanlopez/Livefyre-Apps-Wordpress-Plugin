@@ -253,13 +253,14 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @return string
          */
         public static function get_package_reference($name) {
+            $enterprise = self::get_option('package_type') == 'enterprise';
             $uat = self::get_option('livefyre_environment') == 'staging';
             switch($name) {
                 case 'sidenotes':
-                    return 'sidenotes#' . ($uat ? 'uat' : 'v1');
+                    return 'sidenotes#' . (($uat && $enterprise) ? 'uat' : 'v1');
                 break;
                 case 'fyre.conv':
-                    return 'fyre.conv#' . ($uat ? 'uat' : '3');
+                    return 'fyre.conv#' . (($uat && $enterprise) ? 'uat' : '3');
                 break;
             }
             return '';
