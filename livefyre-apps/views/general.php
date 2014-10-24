@@ -70,7 +70,7 @@
                                             <input id="livefyre_auth_delegate_name" name="livefyre_auth_delegate_name" type="text" value="<?php echo esc_attr(Livefyre_Apps::get_option('livefyre_auth_delegate_name')); ?>" class='regular-text'>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="enterprise-only">
                                         <th align="left" scope="row"><?php esc_html_e('Environment', 'lfapps'); ?></th>
                                         <td align="left">
                                             <input id="livefyre_environment" name="livefyre_environment" type="checkbox" value="production" <?php echo Livefyre_Apps::get_option('livefyre_environment') == 'production' ? 'checked' : ''; ?>>
