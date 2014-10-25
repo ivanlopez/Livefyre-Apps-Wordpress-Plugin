@@ -247,10 +247,11 @@
 </div>
 
 <?php add_thickbox(); ?>
+
 <?php if(!Livefyre_Apps::get_option('initial_modal_shown', false)): ?>
 <script>
     jQuery(document).ready(function(){
-        tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=600&height=260");        
+        tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=680&height=310");        
     });
 </script>
 <?php endif; ?>
