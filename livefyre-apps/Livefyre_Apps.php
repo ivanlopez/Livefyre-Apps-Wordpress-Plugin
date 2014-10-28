@@ -28,6 +28,10 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             'French'=>'French',
             'Portuguese'=>'Portuguese'
         );
+        private static $conflicting_plugins = array(
+            'livefyre-comments/livefyre.php'=>'Livefyre Comments',
+            'livefyre-sidenotes/livefyre_sidenotes.php'=>'Livefyre Sidenotes'
+        );
         private static $options_name = 'livefyre_apps_options';
         public static $form_saved = false;
         public static $form_saved_msg = false;
@@ -47,6 +51,10 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * Initialise Livefyre Apps that have been switched on
          */
         private static function init_apps() {
+            $conflicting_plugins = self::get_conflict_plugins();
+            if(count($conflicting_plugins) > 0) {
+                return false;
+            }
             $apps = self::get_option('apps');
             foreach($apps as $app=>$switch) {
                 if($switch) {
@@ -231,6 +239,10 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @return boolean
          */
         public static function active() {
+            $conflicting_plugins = self::get_conflict_plugins();
+            if(count($conflicting_plugins) > 0) {
+                return false;
+            }
             $package_type = Livefyre_Apps::get_option('package_type');
             if($package_type === 'community') {
                 return self::check_site_keys();
@@ -264,6 +276,21 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
                 break;
             }
             return '';
+        }
+        
+        /**
+         * Get list of plugins that conflict with Livefyre Apps
+         * @return array
+         */
+        public static function get_conflict_plugins() {
+            $plugins = array();
+            include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+            foreach (self::$conflicting_plugins as $key => $value) {
+                if (is_plugin_active($key)) {
+                    $plugins[$key] = $value;
+                }
+            }
+            return $plugins;
         }
     }
 }

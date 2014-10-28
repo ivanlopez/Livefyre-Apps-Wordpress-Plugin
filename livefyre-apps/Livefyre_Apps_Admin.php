@@ -6,7 +6,7 @@ if(!defined('LFAPPS__PLUGIN_PATH'))
 require_once LFAPPS__PLUGIN_PATH . 'libs/php/LFAPPS_View.php';
 
 if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
-    class Livefyre_Apps_Admin {
+    class Livefyre_Apps_Admin {        
         private static $initiated = false;
     
         public static function init() {
@@ -40,6 +40,10 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
          * Initialise Livefyre Apps that have been switched on (Admin Classes)
          */
         private static function init_apps() {
+            $conflicting_plugins = Livefyre_Apps::get_conflict_plugins();
+            if(count($conflicting_plugins) > 0) {
+                return;
+            }
             //check if we are inside admin and apps are being switched on/off
             self::process_app_switches();
             
@@ -123,10 +127,19 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             }
         }
         
+        public static function menu_plugin_conflict() {
+            LFAPPS_View::render('plugin_conflict');
+        }
+        
         /**
          * Run Livefyre Apps General page
          */
-        public static function menu_general() {
+        public static function menu_general() {           
+            $conflicting_plugins = Livefyre_Apps::get_conflict_plugins();
+            if(count($conflicting_plugins) > 0) {
+                self::menu_plugin_conflict();
+                return;
+            }
             //process data returned from livefyre.com community sign up
             if(self::verified_blog()) {
                 Livefyre_Apps::update_option('livefyre_domain_name', 'livefyre.com');
