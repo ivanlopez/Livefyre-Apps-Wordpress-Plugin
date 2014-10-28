@@ -81,23 +81,15 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
     border: 1px solid;
+    border-color: #000;
     padding: 15px 10px;
     cursor: pointer;
-    color: white;
-}
-
-.lfapps-community {
-    border-color: #fff;
-    background-color: #e14621;
-}
-
-.lfapps-enterprise {
-    border-color: #fff;
-    background-color: #34314a;
+    color: #000;
+    min-height: 120px;
 }
 
 .lfapps-env-box:hover {
-    background-color: #646972;
+    background-color: #DEDEDE;
 }
 
 .lfapps-env-box h4 {
@@ -128,12 +120,9 @@
 }
 .lfapps-environment-container .lfapps-community,
 .lfapps-environment-container .lfapps-enterprise {
-    color: white;
-    text-align: center;
-    padding: 3px 5px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
+    color: black;
     border-radius: 3px;
+    border-color: #000;
     display: block;
     margin-bottom: 5px;
 }

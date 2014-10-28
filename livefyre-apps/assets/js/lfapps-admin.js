@@ -14,7 +14,7 @@ jQuery(document).ready(function($) {
     if($(".lfapps-change-env-btn").length) {
         $(".lfapps-change-env-btn").click(function(e) {
             e.preventDefault();
-            tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=600&height=260");
+            tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=680&height=310");
         });
     }
     if($("#lfapps_comments_enable").length) {

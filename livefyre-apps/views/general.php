@@ -70,7 +70,7 @@
                                             <input id="livefyre_auth_delegate_name" name="livefyre_auth_delegate_name" type="text" value="<?php echo esc_attr(Livefyre_Apps::get_option('livefyre_auth_delegate_name')); ?>" class='regular-text'>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="enterprise-only">
                                         <th align="left" scope="row"><?php esc_html_e('Environment', 'lfapps'); ?></th>
                                         <td align="left">
                                             <input id="livefyre_environment" name="livefyre_environment" type="checkbox" value="production" <?php echo Livefyre_Apps::get_option('livefyre_environment') == 'production' ? 'checked' : ''; ?>>
@@ -82,7 +82,7 @@
                             <?php if(Livefyre_Apps::get_option('package_type') === 'community'): ?>
                             <div class="lfapps-community-signup">
                                 <p><?php esc_html_e('New to Livefyre or forgotten your Site ID/Key?', 'lfapps'); ?><br/>
-                                    <a href="http://t402.livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
+                                    <a href="http://livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
                             </div>
                             <div class="clear"></div>
                             <?php endif; ?>
@@ -247,10 +247,11 @@
 </div>
 
 <?php add_thickbox(); ?>
+
 <?php if(!Livefyre_Apps::get_option('initial_modal_shown', false)): ?>
 <script>
     jQuery(document).ready(function(){
-        tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=600&height=260");        
+        tb_show("","#TB_inline?inlineId=lfapps-initial-modal&width=680&height=310");        
     });
 </script>
 <?php endif; ?>
