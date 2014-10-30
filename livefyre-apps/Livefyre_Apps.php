@@ -156,7 +156,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             if(get_option('livefyre_site_key', false) !== false) {
                 self::update_option('livefyre_site_key', get_option('livefyre_site_key'));
             } elseif(get_option('livefyre_sidenotes_site_key', false) !== false) {
-                self::update_option('livefyre_site_id', get_option('livefyre_sidenotes_site_id'));
+                self::update_option('livefyre_site_key', get_option('livefyre_sidenotes_site_key'));
             }
             if(get_option('livefyre_domain_name', false) !== false) {
                 self::update_option('livefyre_domain_name', get_option('livefyre_domain_name'));
