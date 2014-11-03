@@ -167,8 +167,9 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             if(get_option('livefyre_auth_delegate_name', false) !== false) {
                 self::update_option('livefyre_auth_delegate_name', get_option('livefyre_auth_delegate_name'));
             }
-            if(get_option('livefyre_environment', false) !== false) {
-                self::update_option('livefyre_environment', get_option('livefyre_environment'));
+            self::update_option('livefyre_environment', 'staging');
+            if(get_option('livefyre_environment', false) === '1') {
+                self::update_option('livefyre_environment', 'production');
             }
             if(get_option('livefyre_language', false) !== false) {
                 self::update_option('livefyre_language', get_option('livefyre_language'));
