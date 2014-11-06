@@ -46,9 +46,17 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             }
             //check if we are inside admin and apps are being switched on/off
             self::process_app_switches();
+            if(isset($_GET['type'])) {
+                if($_GET['type'] === 'community' || $_GET['type'] === 'enterprise') {
+                    Livefyre_Apps::update_option('package_type', sanitize_text_field($_GET['type']));
+                }
+            }
             
             $apps = Livefyre_Apps::get_option('apps');
             foreach($apps as $app=>$switch) {
+                if(Livefyre_Apps::get_option('package_type') == 'community' && ($app == 'chat' || $app == 'blog')) {
+                    $switch = false;
+                }
                 if($switch) {
                     self::init_app($app);
                 }
