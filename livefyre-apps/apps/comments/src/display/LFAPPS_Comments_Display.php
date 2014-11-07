@@ -131,7 +131,10 @@ class LFAPPS_Comments_Display {
      * The template for the Livefyre div element.
      *
      */
-    function livefyre_comments_template( ) {
+    public static function livefyre_comments_template( ) {
+        if(!self::livefyre_show_comments() && LFAPPS_Chat::show_chat()) {
+            return LFAPPS_Chat::comments_template();
+        }
         return dirname( __FILE__ ) . '/comments-template.php';        
     }
 
