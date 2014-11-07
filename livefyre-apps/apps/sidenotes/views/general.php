@@ -46,8 +46,10 @@
                             <tr>
                                 <th align="left" scope="row">
                                     <?php esc_html_e('Selectors', 'lfapps-sidenotes'); ?><br/>
-                                    <span class="info"><?php esc_html_e('(The selectors option is used to specify which content can be Sidenoted)', 'lfapps-sidenotes'); ?></span>
+                                    <span class="info"><?php esc_html_e('(The selectors option is used to specify which content can be Sidenoted. More information can be found ', 'lfapps-sidenotes'); ?> <a href="http://answers.livefyre.com/developers/app-integrations/sidenotes/#Selectors" target="_blank">here</a>)</span>
                                 </th>
+                            </tr>
+                            <tr>
                                 <td align="left" valign="top">
                                     <textarea id='livefyre_sidenotes_selectors' name='livefyre_sidenotes_selectors' cols='60' rows='6'><?php echo esc_html(Livefyre_Apps::get_option('livefyre_sidenotes_selectors')); ?></textarea>
                                 </td>
