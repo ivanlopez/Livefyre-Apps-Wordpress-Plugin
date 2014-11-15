@@ -22,7 +22,6 @@
                             <tr>
                                 <th align="left" scope="row">
                                     <?php esc_html_e('Enable LiveChat on', 'lfapps-chat'); ?>
-                                    <span class="info"><?php esc_html_e('(Select the types of posts on which you wish to enable LiveChat)', 'lfapps-chat'); ?></span>
                                 </th>
                                 <td align="left" valign="top">
                                     <?php
@@ -43,10 +42,15 @@
                                         }
                                         ?>
                                         <input <?php echo $disabled ? 'disabled' : ''; ?> type="checkbox" id="<?php echo esc_attr($post_type_name); ?>" name="<?php echo esc_attr($post_type_name); ?>" value="true" <?php echo $checked; ?>/>
-                                        <label for="<?php echo esc_attr($post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(Enabled in LiveComments)</em></small>' : ''; ?></label><br/>
+                                        <label for="<?php echo esc_attr($post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(LiveComments enabled.)</em></small>' : ''; ?></label><br/>
                                         <?php
                                     }
                                     ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan='2'>
+                                    <?php esc_html_e('(Select the types of posts on which you wish to enable LiveChat. Note: Only LiveChat or LiveComments may be enabled for each of these options.)', 'lfapps-chat'); ?>
                                 </td>
                             </tr>
                             <tr>

@@ -33,9 +33,9 @@
         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
-                <h3 class="hndle"><span><?php esc_html_e('LiveBlog Usage', 'lfapps-blog'); ?></span></h3>
+                <h3 class="hndle"><span><?php esc_html_e('LiveBlog Shortcode', 'lfapps-blog'); ?></span></h3>
                 <div class='inside'>
-                    <p>LiveBlog can be activated by placing a shortcode inside your content.</p>
+                    <p>To activate LiveBlog, you must add a shortcode to your content.</p>
                     <p>The shortcode usage is pretty simple. Let's say we wish to generate a LiveBlog inside post content. We could enter something like this
                         inside the content editor:</p>
                     <p class='code'>[livefyre_liveblog]</p>

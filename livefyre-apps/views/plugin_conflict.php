@@ -23,7 +23,7 @@
                             <li><?php echo esc_html('- ' . $plugin); ?></li>
                             <?php endforeach; ?>
                         </ul>
-                        <p><a href="<?php echo esc_url(admin_url('plugins.php')); ?>">Click here</a> to manage your plugins</a></p>
+                        <p>Check your plugin settings to make sure that Livefyre Comments and Livefyre Sidenotes are deactivated.</p>
                     </div>
                 </div>
             </div>

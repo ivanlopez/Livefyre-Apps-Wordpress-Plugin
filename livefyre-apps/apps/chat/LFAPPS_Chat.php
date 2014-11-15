@@ -33,7 +33,6 @@ if (!class_exists('LFAPPS_Chat')) {
          */
         private static function init_hooks() {
             if (LFAPPS_Chat::chat_active()) {
-                add_action('wp_enqueue_scripts', array('LFAPPS_Chat', 'load_strings'));
                 add_action('wp_footer', array('LFAPPS_Chat', 'init_script'));
 
                 // Set comments_template filter to maximum value to always override the default commenting widget
@@ -156,8 +155,10 @@ if (!class_exists('LFAPPS_Chat')) {
          * The template for the Livefyre div element.
          *
          */
-
         public static function comments_template() {
+            if(!self::show_chat() && LFAPPS_Comments_Display::livefyre_show_comments()) {
+                return LFAPPS_Comments_Display::livefyre_comments_template();
+            }
             return LFAPPS__PLUGIN_PATH . 'apps/chat/views/comments-template.php';
         }
 
@@ -169,20 +170,7 @@ if (!class_exists('LFAPPS_Chat')) {
         public static function comments_number($count) {
 
             global $post;
-            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">' . esc_html($count) . '</span>';
-        }
-
-        /*
-         * Loads in JS variable to enable the widget to be internationalized.
-         *
-         */
-
-        public static function load_strings() {
-
-            $language = Livefyre_Apps::get_option('livefyre_language', 'English');
-
-            $lang_file = LFAPPS__PLUGIN_URL . "apps/comments/languages/" . $language . '.js';
-            wp_enqueue_script('livefyre-lang-js', esc_url($lang_file));
+            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">' . $count . '</span>';
         }
 
         /**
@@ -213,7 +201,8 @@ if (!class_exists('LFAPPS_Chat')) {
                     } elseif (!Livefyre_Apps::is_app_enabled('comments')) {
                         $display = true;
                     }
-                } elseif ($display_chat === true) {
+                } elseif ($display_chat === true 
+                        && (!Livefyre_Apps::is_app_enabled('comments') || ($display_comments === '' || $display_comments === false))) {
                     $display = true;
                 }
                 Livefyre_Apps::update_option($post_type_name_chat, $display);

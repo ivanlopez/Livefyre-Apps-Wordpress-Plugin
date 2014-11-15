@@ -10,7 +10,6 @@ class LFAPPS_Comments_Display {
     function __construct( $lf_core ) {
         
         if (LFAPPS_Comments::comments_active()) {
-            //add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
             
             // Set comments_template filter to maximum value to always override the default commenting widget
@@ -131,7 +130,10 @@ class LFAPPS_Comments_Display {
      * The template for the Livefyre div element.
      *
      */
-    function livefyre_comments_template( ) {
+    public static function livefyre_comments_template( ) {
+        if(!self::livefyre_show_comments() && LFAPPS_Chat::show_chat()) {
+            return LFAPPS_Chat::comments_template();
+        }
         return dirname( __FILE__ ) . '/comments-template.php';        
     }
 
@@ -172,19 +174,6 @@ class LFAPPS_Comments_Display {
 
         global $post;
         return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
-
-    }
-
-    /*
-     * Loads in JS variable to enable the widget to be internationalized.
-     *
-     */
-    function load_strings() {
-
-        $language = Livefyre_Apps::get_option( 'livefyre_language', 'English' );
-        
-        $lang_file = LFAPPS__PLUGIN_URL . "apps/comments/languages/" . $language . '.js';
-        wp_enqueue_script( 'livefyre-lang-js', esc_url( $lang_file ) );
 
     }
     
