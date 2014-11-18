@@ -33,7 +33,6 @@ if (!class_exists('LFAPPS_Chat')) {
          */
         private static function init_hooks() {
             if (LFAPPS_Chat::chat_active()) {
-                add_action('wp_enqueue_scripts', array('LFAPPS_Chat', 'load_strings'));
                 add_action('wp_footer', array('LFAPPS_Chat', 'init_script'));
 
                 // Set comments_template filter to maximum value to always override the default commenting widget
@@ -172,6 +171,7 @@ if (!class_exists('LFAPPS_Chat')) {
 
             global $post;
             return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">' . $count . '</span>';
+<<<<<<< HEAD
         }
 
         /*
@@ -185,6 +185,8 @@ if (!class_exists('LFAPPS_Chat')) {
 
             $lang_file = LFAPPS__PLUGIN_URL . "apps/comments/languages/" . $language . '.js';
             wp_enqueue_script('livefyre-lang-js', esc_url($lang_file));
+=======
+>>>>>>> b0f326a9c6eb419b0a00b502300ca2e31cbe7deb
         }
 
         /**
