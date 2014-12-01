@@ -95,7 +95,7 @@ if (!class_exists('LFAPPS_Chat')) {
                 LFAPPS_View::render_partial('script', compact('siteId', 'siteKey', 'network', 'articleId', 'collectionMetaToken', 'checksum', 'strings', 'livefyre_element', 'display_template'), 'chat');
 
                 $ccjs = '//cdn.livefyre.com/libs/commentcount/v1.0/commentcount.js';
-                echo '<script type="text/javascript" data-lf-domain="' . esc_attr($network->getName()) . '" id="ncomments_js" src="' . esc_attr($ccjs) . '"></script>';
+                echo '<script type="text/javascript" data-lf-domain="' . esc_attr($network->getName()) . '" id="ncomments_js" src="' . esc_html($ccjs) . '"></script>';
             }
         }
 
@@ -170,7 +170,7 @@ if (!class_exists('LFAPPS_Chat')) {
         public static function comments_number($count) {
 
             global $post;
-            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">' . $count . '</span>';
+            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">0 Comments</span>';
         }
 
         /**

@@ -173,7 +173,7 @@ class LFAPPS_Comments_Display {
     function livefyre_comments_number( $count ) {
 
         global $post;
-        return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
+        echo '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">0 Comments</span>';
 
     }
     
