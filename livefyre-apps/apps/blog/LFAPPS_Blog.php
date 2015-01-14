@@ -18,12 +18,14 @@ require_once LFAPPS__PLUGIN_PATH . 'libs/php/LFAPPS_View.php';
 
 if ( ! class_exists( 'LFAPPS_Blog' ) ) {
     class LFAPPS_Blog {
+        public static $default_package_version = '3.0.0';
         private static $initiated = false;
         
         public static function init() {
             if ( ! self::$initiated ) {
                 self::$initiated = true;
-                self::init_hooks();                
+                self::init_hooks();    
+                self::set_default_options();
             }
         }
                 
@@ -33,6 +35,12 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
         private static function init_hooks() {
             if(self::blog_active())
                 add_shortcode('livefyre_liveblog', array('LFAPPS_Blog', 'init_shortcode'));
+        }
+        
+        public static function set_default_options() {
+            if(get_option('livefyre_apps-livefyre_blog_version', '') === '') {
+                update_option('livefyre_apps-livefyre_blog_version', 'latest');
+            }            
         }
         
         public static function init_shortcode($atts=array()) {
@@ -61,12 +69,12 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
                 }
             }
             Livefyre_Apps::init_auth();
-            $network = Livefyre_Apps::get_option( 'livefyre_domain_name', 'livefyre.com' );
+            $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com' );
             $network = ( $network == '' ? 'livefyre.com' : $network );
 
-            $siteId = Livefyre_Apps::get_option( 'livefyre_site_id' );
-            $siteKey = Livefyre_Apps::get_option( 'livefyre_site_key' );
-            $network_key = Livefyre_Apps::get_option( 'livefyre_domain_key', '');
+            $siteId = get_option('livefyre_apps-livefyre_site_id' );
+            $siteKey = get_option('livefyre_apps-livefyre_site_key' );
+            $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
 
             $network = Livefyre::getNetwork($network, strlen($network_key) > 0 ? $network_key : null);            
             $site = $network->getSite($siteId, $siteKey);
@@ -75,7 +83,7 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
             $checksum = $site->buildChecksum($title, $url, $tags);
 
             $strings = null;
-            if ( Livefyre_Apps::get_option( 'livefyre_language', 'English') != 'English' ) {
+            if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
                 $strings = 'customStrings';
             }
 
@@ -91,6 +99,34 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
          */
         public static function blog_active() {
             return ( Livefyre_Apps::active());
+        }
+        
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_blog_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Blog::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
         }
     }
 }

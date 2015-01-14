@@ -1,7 +1,7 @@
 <script type="text/javascript">
     var livefyre_auth_loaded = false;
 </script>
-<?php if (Livefyre_Apps::get_option('package_type') === 'community'): ?>
+<?php if (get_option('livefyre_apps-package_type') === 'community'): ?>
     <script type="text/javascript">
         var load_livefyre_auth = function() {
             if(!livefyre_auth_loaded) {
@@ -12,7 +12,7 @@
             livefyre_auth_loaded = true;
         };
     </script>
-<?php elseif (Livefyre_Apps::get_option('auth_type') === 'wordpress'): ?>
+<?php elseif (get_option('livefyre_apps-auth_type') === 'wordpress'): ?>
     <script>
         var load_livefyre_auth = function() {
             if(!livefyre_auth_loaded) {        
@@ -47,12 +47,12 @@
             livefyre_auth_loaded = true;
         };
     </script>
-<?php elseif(Livefyre_Apps::get_option('auth_type') === 'auth_delegate'): ?>
+<?php elseif(get_option('livefyre_apps-auth_type') === 'auth_delegate'): ?>
     <script type="text/javascript">
         var load_livefyre_auth = function() {
             if(!livefyre_auth_loaded) {         
                 Livefyre.require(['auth'], function(auth) {
-                    auth.delegate(<?php echo esc_js(Livefyre_Apps::get_option('livefyre_auth_delegate_name')); ?>);
+                    auth.delegate(<?php echo esc_js(get_option('livefyre_apps-livefyre_auth_delegate_name')); ?>);
                 });
             }
             livefyre_auth_loaded = true;

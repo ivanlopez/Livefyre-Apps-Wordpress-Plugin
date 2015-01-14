@@ -55,9 +55,9 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             if(count($conflicting_plugins) > 0) {
                 return false;
             }
-            $apps = self::get_option('apps');
-            foreach($apps as $app=>$switch) {
-                if($switch) {
+            $apps = get_option('livefyre_apps-apps');
+            if(is_array($apps)) {
+                foreach($apps as $app) {
                     self::init_app($app);
                 }
             }
@@ -106,41 +106,44 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * + import previous Livefyre plugin options
          */
         private static function set_default_options() {
-            if(!Livefyre_Apps::get_option('livefyre_options_imported')) {
-                self::import_options();
+            if(!get_option('livefyre_apps-settings_imported')) {
+                self::import_options_into_settings();
             }
+            if(!get_option('livefyre_apps-livefyre_options_imported')) {
+                self::import_options();
+            }            
             
             //set default apps
-            if(!is_array(self::get_option('apps'))) {
+            if(get_option('livefyre_apps-apps', 'none') === 'none') {
                 $apps = array(
-                    'comments'=>true
+                    'comments'
                 );
-                self::update_option('apps', $apps);
+                update_option('livefyre_apps-apps', $apps);
             }
             
-            if(!self::get_option('livefyre_environment') 
-                    || (self::get_option('livefyre_environment') != 'staging' 
-                        && self::get_option('livefyre_environment') != 'production')) {
-                self::update_option('livefyre_environment', 'staging');
+            if(!get_option('livefyre_apps-livefyre_environment') 
+                    || (get_option('livefyre_apps-livefyre_environment') != 'staging' 
+                        && get_option('livefyre_apps-livefyre_environment') != 'production')) {
+                update_option('livefyre_apps-livefyre_environment', 'staging');
             }
             
             //set default package type (community/enterprise)
-            if(!self::get_option('package_type')) {
-                self::update_option('package_type', 'community');
+            if(!get_option('livefyre_apps-package_type')) {
+                update_option('livefyre_apps-package_type', 'community');
             }
             
             //set default auth type - if community always set to auth_delegate
-            if(!self::get_option('auth_type') || self::get_option('package_type') === 'community') {
-                self::update_option('auth_type', 'auth_delegate');
+            if(!get_option('livefyre_apps-auth_type') || get_option('livefyre_apps-package_type') === 'community') {
+                update_option('livefyre_apps-auth_type', 'auth_delegate');
             }
             
             //set default auth delegate name
-            if(!self::get_option('livefyre_auth_delegate_name')) {
-                self::update_option('livefyre_auth_delegate_name', 'authDelegate');
+            if(!get_option('livefyre_apps-livefyre_auth_delegate_name')) {
+                update_option('livefyre_apps-livefyre_auth_delegate_name', 'authDelegate');
             }
             //set default language
-            if(!self::get_option('livefyre_language')) {
-                self::update_option('livefyre_language', 'English');
+            if(!get_option('livefyre_apps-livefyre_language')) {
+                update_option('livefyre_apps-livefyre_language', 'English');
             }
         }
         
@@ -149,73 +152,59 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          */
         private static function import_options() {
             if(get_option('livefyre_site_id', false) !== false) {
-                self::update_option('livefyre_site_id', get_option('livefyre_site_id'));
+                update_option('livefyre_apps-livefyre_site_id', get_option('livefyre_site_id'));
             } elseif(get_option('livefyre_sidenotes_site_id', false) !== false) {
-                self::update_option('livefyre_site_id', get_option('livefyre_sidenotes_site_id'));
+                update_option('livefyre_apps-livefyre_site_id', get_option('livefyre_sidenotes_site_id'));
             }
             if(get_option('livefyre_site_key', false) !== false) {
-                self::update_option('livefyre_site_key', get_option('livefyre_site_key'));
+                update_option('livefyre_apps-livefyre_site_key', get_option('livefyre_site_key'));
             } elseif(get_option('livefyre_sidenotes_site_key', false) !== false) {
-                self::update_option('livefyre_site_key', get_option('livefyre_sidenotes_site_key'));
+                update_option('livefyre_apps-livefyre_site_key', get_option('livefyre_sidenotes_site_key'));
             }
             if(get_option('livefyre_domain_name', false) !== false) {
-                self::update_option('livefyre_domain_name', get_option('livefyre_domain_name'));
+                update_option('livefyre_apps-livefyre_domain_name', get_option('livefyre_domain_name'));
             }
             if(get_option('livefyre_domain_key', false) !== false) {
-                self::update_option('livefyre_domain_key', get_option('livefyre_domain_key'));
+                update_option('livefyre_apps-livefyre_domain_key', get_option('livefyre_domain_key'));
             }
             if(get_option('livefyre_auth_delegate_name', false) !== false) {
-                self::update_option('livefyre_auth_delegate_name', get_option('livefyre_auth_delegate_name'));
+                update_option('livefyre_apps-livefyre_auth_delegate_name', get_option('livefyre_auth_delegate_name'));
             }
-            self::update_option('livefyre_environment', 'staging');
+            update_option('livefyre_apps-livefyre_environment', 'staging');
             if(get_option('livefyre_environment', false) === '1') {
-                self::update_option('livefyre_environment', 'production');
+                update_option('livefyre_apps-livefyre_environment', 'production');
             }
             if(get_option('livefyre_language', false) !== false) {
-                self::update_option('livefyre_language', get_option('livefyre_language'));
+                update_option('livefyre_apps-livefyre_language', get_option('livefyre_language'));
             }
             
-            Livefyre_Apps::update_option('livefyre_options_imported', true);
+            update_option('livefyre_apps-livefyre_options_imported', true);                        
         }
         
         /**
-         * Get site option
-         * @param string $name
-         * @param mixed $default
+         * Import options from livefyre_apps_option array to individual setting fields
          */
-        public static function get_option($name, $default='') {
+        public static function import_options_into_settings() {
             $options = get_option(self::$options_name, array());
-            if(is_array($options) && isset($options[$name])) {
-                return $options[$name];
-            }
-            return $default;
-        }
-        
-        /**
-         * Set site options
-         * @param string $name Option name. Expected to not be SQL-escaped.
-         * @param mixed $value Option value. Must be serializable if non-scalar. Expected to not be SQL-escaped.
-         * @return boolean False if value was not updated and true if value was updated.
-         */
-        public static function update_option($name, $value) {
-            $options = get_option(self::$options_name, array());
-            if(is_array($options)) {
-                if(is_string($value)) {
-                    $value = stripslashes($value);
+            if(is_array($options) && count($options)) {
+                foreach($options as $option_key=>$option_val) {
+                    if($option_key === 'apps') {
+                        $option_val = array_keys($option_val);
+                    }
+                    update_option('livefyre_apps-'.$option_key, $option_val);
                 }
-                $options[$name] = $value;
-                return update_option(self::$options_name, $options);
             }
-            return false;
+            update_option('livefyre_apps-settings_imported', true);
         }
-        
+                
         /**
          * Check if app is enabled
          * @param string $app name of app
          */
         public static function is_app_enabled($app) {
-            $apps = self::get_option('apps', array());
-            return isset($apps[$app]) && $apps[$app] === true;
+            $apps = get_option('livefyre_apps-apps', array());
+            
+            return is_array($apps) && array_search($app, $apps) !== false;
         }
         
         /**
@@ -223,8 +212,8 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @return boolean
          */
         public static function check_site_keys() {
-            return strlen(self::get_option('livefyre_site_id')) > 0 
-                && strlen(self::get_option('livefyre_site_key')) > 0; 
+            return strlen(get_option('livefyre_apps-livefyre_site_id')) > 0 
+                && strlen(get_option('livefyre_apps-livefyre_site_key')) > 0; 
         }
         
         /**
@@ -232,7 +221,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @return boolean
          */
         public static function check_network() {
-            return strlen(self::get_option('livefyre_domain_name')) > 0; 
+            return strlen(get_option('livefyre_apps-livefyre_domain_name')) > 0; 
         }
         
         /**
@@ -244,7 +233,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             if(count($conflicting_plugins) > 0) {
                 return false;
             }
-            $package_type = Livefyre_Apps::get_option('package_type');
+            $package_type = get_option('livefyre_apps-package_type');
             if($package_type === 'community') {
                 return self::check_site_keys();
             } elseif($package_type === 'enterprise') {
@@ -255,8 +244,8 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
         
         public static function generate_wp_user_token() {
             $current_user = wp_get_current_user();
-            $network_key = self::get_option('livefyre_domain_key', '');
-            $network = Livefyre::getNetwork(self::get_option('livefyre_domain_name', 'livefyre.com'), strlen($network_key) > 0 ? $network_key : null);  
+            $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
+            $network = Livefyre::getNetwork(get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com'), strlen($network_key) > 0 ? $network_key : null);  
             return $network->buildUserAuthToken($current_user->ID.'', $current_user->display_name, 3600);
         }
         
@@ -265,18 +254,32 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @param string $name
          * @return string
          */
-        public static function get_package_reference($name) {
-            $enterprise = self::get_option('package_type') == 'enterprise';
-            $uat = self::get_option('livefyre_environment') == 'staging';
-            switch($name) {
-                case 'sidenotes':
-                    return 'sidenotes#' . (($uat && $enterprise) ? 'uat' : 'v1');
-                break;
-                case 'fyre.conv':
-                    return 'fyre.conv#' . (($uat && $enterprise) ? 'uat' : '3');
-                break;
+        public static function get_package_reference() {
+            $enterprise = get_option('livefyre_apps-package_type') == 'enterprise';
+            $uat = get_option('livefyre_apps-livefyre_environment') == 'staging';
+            return (($uat && $enterprise) ? 'uat' : null);       
+        }
+        
+        /**
+         * Get list of available package versions for a given package
+         * @param string $package name of package
+         * @return array list of versions
+         */
+        public static function get_available_package_versions($package) {
+            $url = 'http://cdn.livefyre.com/packages.json';
+            $versions = array();
+            
+            $http = new LFAPPS_Http_Extension;
+            $resp = $http->request($url, array( 'timeout' => 10 ));
+            
+            if (!is_wp_error( $resp ) ) {
+                $body = $resp['body'];
+                $data = json_decode($body, true);
+                if(isset($data[$package]) && isset($data[$package]['versions'])) {
+                    return $data[$package]['versions'];
+                }
             }
-            return '';
+            return $versions;
         }
         
         /**
