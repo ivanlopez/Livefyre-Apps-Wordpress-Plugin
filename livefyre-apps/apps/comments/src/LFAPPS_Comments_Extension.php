@@ -9,9 +9,40 @@ class LFAPPS_Comments_Extension {
      */
     function home_url() {
     
-        return get_option( 'home' );
+        return $this->get_option( 'home' );
         
-    }    
+    }
+    
+    /*
+     * Delete a WordPress option.
+     *
+     */
+    function delete_option( $optionName ) {
+    
+        return delete_option( $optionName );
+        
+    }
+    
+    /*
+     * Update a WordPress option.
+     *
+     */
+    function update_option( $optionName, $optionValue ) {
+    
+        return update_option( $optionName, $optionValue );
+        
+    }
+    
+    /*
+     * Get a WordPress option.
+     *
+     */
+    function get_option( $optionName, $defaultValue = '' ) {
+    
+        return get_option( $optionName, $defaultValue );
+        
+    }
+          
     /*
      * Reset all WordPress caches.
      *
@@ -48,7 +79,7 @@ class LFAPPS_Comments_Extension {
         $obj->comment_update();
         
         /* START: Public Plugin Only */
-        if ( get_option( 'livefyre_profile_system', 'livefyre' ) == 'wordpress' ) {
+        if ( $this->get_option( 'livefyre_profile_system', 'livefyre' ) == 'wordpress' ) {
             $obj->check_profile_pull();
             add_action( 'profile_update', array( &$obj, 'profile_update' ) );
             add_action( 'profile_update', array( &$this, 'profile_update' ) );

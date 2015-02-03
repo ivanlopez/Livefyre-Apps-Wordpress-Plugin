@@ -34,26 +34,26 @@ class LFAPPS_Comments_Activation {
         if ( $existing_blogname ) {
             $site_id = $existing_blogname;
             $existing_key = $this->ext->get_option( 'livefyre_secret', false );
-            Livefyre_Apps::update_option( 'livefyre_site_id', $site_id );
+            update_option('livefyre_apps-'. 'livefyre_site_id', $site_id );
             $this->ext->delete_option( 'livefyre_blogname' );
-            Livefyre_Apps::update_option( 'livefyre_site_key', $existing_key );
+            update_option('livefyre_apps-'. 'livefyre_site_key', $existing_key );
             $this->ext->delete_option( 'livefyre_secret' );
         } else {
-            $site_id = Livefyre_Apps::get_option( 'livefyre_site_id', false );
+            $site_id = get_option('livefyre_apps-livefyre_site_id', false );
         }
         
-        if ( !Livefyre_Apps::get_option( 'livefyre_domain_name', false) ) {
+        if ( !get_option('livefyre_apps-livefyre_domain_name', false) ) {
             // Initialize default profile domain i.e. livefyre.com
-            $defaultDomainName = Livefyre_Apps::get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN);
-            Livefyre_Apps::update_option( 'livefyre_domain_name', $defaultDomainName );
+            $defaultDomainName = get_option('livefyre_apps-livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN);
+            update_option('livefyre_apps-'. 'livefyre_domain_name', $defaultDomainName );
         }       
-        if ( !Livefyre_Apps::get_option( 'livefyre_auth_delegate_name', false) ) {
-            $defaultDelegate = Livefyre_Apps::get_option( 'livefyre_auth_delegate_name', '');
-            Livefyre_Apps::update_option( 'livefyre_auth_delegate_name', $defaultDelegate );
+        if ( !get_option('livefyre_apps-livefyre_auth_delegate_name', false) ) {
+            $defaultDelegate = get_option('livefyre_apps-livefyre_auth_delegate_name', '');
+            update_option('livefyre_apps-'. 'livefyre_auth_delegate_name', $defaultDelegate );
         }   
-        if ( !Livefyre_Apps::get_option( 'livefyre_domain_key', false) ) {
-            $defaultKey = Livefyre_Apps::get_option( 'livefyre_domain_key', '');            
-            Livefyre_Apps::update_option( 'livefyre_domain_key', $defaultKey );
+        if ( !get_option('livefyre_apps-livefyre_domain_key', false) ) {
+            $defaultKey = get_option('livefyre_apps-livefyre_domain_key', '');            
+            update_option('livefyre_apps-'. 'livefyre_domain_key', $defaultKey );
         }
         
         if ( !$this->ext->get_option( 'livefyre_v3_installed', false ) ) {

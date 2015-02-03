@@ -17,7 +17,7 @@ use Livefyre\Livefyre;
 if (!class_exists('LFAPPS_Chat')) {
 
     class LFAPPS_Chat {
-
+        public static $default_package_version = '3.0.0';
         private static $initiated = false;
 
         public static function init() {
@@ -33,6 +33,7 @@ if (!class_exists('LFAPPS_Chat')) {
          */
         private static function init_hooks() {
             if (LFAPPS_Chat::chat_active()) {
+                add_action('wp_enqueue_scripts', array('LFAPPS_Chat', 'load_strings'));
                 add_action('wp_footer', array('LFAPPS_Chat', 'init_script'));
 
                 // Set comments_template filter to maximum value to always override the default commenting widget
@@ -61,12 +62,12 @@ if (!class_exists('LFAPPS_Chat')) {
             if (comments_open() && self::show_chat()) {   // is this a post page?
                 Livefyre_Apps::init_auth();
 
-                $network = Livefyre_Apps::get_option('livefyre_domain_name', 'livefyre.com');
+                $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
                 $network = ( $network == '' ? 'livefyre.com' : $network );
 
-                $siteId = Livefyre_Apps::get_option('livefyre_site_id');
-                $siteKey = Livefyre_Apps::get_option('livefyre_site_key');
-                $network_key = Livefyre_Apps::get_option('livefyre_domain_key', '');
+                $siteId = get_option('livefyre_apps-livefyre_site_id');
+                $siteKey = get_option('livefyre_apps-livefyre_site_key');
+                $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
                 $post = get_post();
                 $articleId = get_the_ID();
                 $title = get_the_title($articleId);
@@ -86,7 +87,7 @@ if (!class_exists('LFAPPS_Chat')) {
                 $checksum = $site->buildChecksum($title, $url, $tags);
 
                 $strings = null;
-                if (Livefyre_Apps::get_option('livefyre_language', 'English') != 'English') {
+                if (get_option('livefyre_apps-livefyre_language', 'English') != 'English') {
                     $strings = 'customStrings';
                 }
 
@@ -128,12 +129,12 @@ if (!class_exists('LFAPPS_Chat')) {
                 }
             }
             Livefyre_Apps::init_auth();
-            $network = Livefyre_Apps::get_option('livefyre_domain_name', 'livefyre.com');
+            $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
             $network = ( $network == '' ? 'livefyre.com' : $network );
 
-            $siteId = Livefyre_Apps::get_option('livefyre_site_id');
-            $siteKey = Livefyre_Apps::get_option('livefyre_site_key');
-            $network_key = Livefyre_Apps::get_option('livefyre_domain_key', '');
+            $siteId = get_option('livefyre_apps-livefyre_site_id');
+            $siteKey = get_option('livefyre_apps-livefyre_site_key');
+            $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
 
             $network = Livefyre::getNetwork($network, strlen($network_key) > 0 ? $network_key : null);
             $site = $network->getSite($siteId, $siteKey);
@@ -142,7 +143,7 @@ if (!class_exists('LFAPPS_Chat')) {
             $checksum = $site->buildChecksum($title, $url, $tags);
 
             $strings = null;
-            if (Livefyre_Apps::get_option('livefyre_language', 'English') != 'English') {
+            if (get_option('livefyre_apps-livefyre_language', 'English') != 'English') {
                 $strings = 'customStrings';
             }
 
@@ -156,7 +157,7 @@ if (!class_exists('LFAPPS_Chat')) {
          *
          */
         public static function comments_template() {
-            if(!self::show_chat() && LFAPPS_Comments_Display::livefyre_show_comments()) {
+            if(!self::show_chat() && class_exists('LFAPPS_Comments_Display') && LFAPPS_Comments_Display::livefyre_show_comments()) {
                 return LFAPPS_Comments_Display::livefyre_comments_template();
             }
             return LFAPPS__PLUGIN_PATH . 'apps/chat/views/comments-template.php';
@@ -170,7 +171,20 @@ if (!class_exists('LFAPPS_Chat')) {
         public static function comments_number($count) {
 
             global $post;
-            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option('livefyre_site_id', '')) . '" class="livefyre-commentcount">' . $count . '</span>';
+            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '')) . '" class="livefyre-commentcount">' . $count . '</span>';
+        }
+
+        /*
+         * Loads in JS variable to enable the widget to be internationalized.
+         *
+         */
+
+        public static function load_strings() {
+
+            $language = get_option('livefyre_apps-livefyre_language', 'English');
+
+            $lang_file = LFAPPS__PLUGIN_URL . "apps/comments/languages/" . $language . '.js';
+            wp_enqueue_script('livefyre-lang-js', esc_url($lang_file));
         }
 
         /**
@@ -179,7 +193,10 @@ if (!class_exists('LFAPPS_Chat')) {
          */
         private static function set_default_options() {
             //set default display options
-            self::set_display_options();
+            //self::set_display_options();
+            if(get_option('livefyre_apps-livefyre_chat_version', '') === '') {
+                update_option('livefyre_apps-livefyre_chat_version', 'latest');
+            }            
         }
 
         /**
@@ -192,8 +209,8 @@ if (!class_exists('LFAPPS_Chat')) {
             foreach ($post_types as $post_type) {
                 $post_type_name_comments = 'livefyre_display_' . $post_type;
                 $post_type_name_chat = 'livefyre_chat_display_' . $post_type;
-                $display_comments = Livefyre_Apps::get_option($post_type_name_comments, '');
-                $display_chat = Livefyre_Apps::get_option($post_type_name_chat, '');
+                $display_comments = get_option('livefyre_apps-'.$post_type_name_comments, '');
+                $display_chat = get_option('livefyre_apps-'.$post_type_name_chat, '');
                 $display = false;
                 if ($display_chat === '') {
                     if (Livefyre_Apps::is_app_enabled('comments') && ($display_comments === '' || $display_comments === false)) {
@@ -205,7 +222,9 @@ if (!class_exists('LFAPPS_Chat')) {
                         && (!Livefyre_Apps::is_app_enabled('comments') || ($display_comments === '' || $display_comments === false))) {
                     $display = true;
                 }
-                Livefyre_Apps::update_option($post_type_name_chat, $display);
+                update_option('livefyre_apps-'.$post_type_name_chat, $display);
+                
+                var_dump('LFAPPS_CHAT: ' . $post_type_name_chat . '-' . $display);
             }
         }
 
@@ -219,9 +238,9 @@ if (!class_exists('LFAPPS_Chat')) {
 
             global $post;
             /* Is this a post and is the settings checkbox on? */
-            $display_posts = ( is_single() && Livefyre_Apps::get_option('livefyre_chat_display_post', 'true') == 'true' );
+            $display_posts = ( is_single() && get_option('livefyre_apps-livefyre_chat_display_post'));
             /* Is this a page and is the settings checkbox on? */
-            $display_pages = ( is_page() && Livefyre_Apps::get_option('livefyre_chat_display_page', 'true') == 'true' );
+            $display_pages = ( is_page() && get_option('livefyre_apps-livefyre_chat_display_page'));
             /* Are comments open on this post/page? */
             $comments_open = ( $post->comment_status == 'open' );
 
@@ -230,9 +249,8 @@ if (!class_exists('LFAPPS_Chat')) {
             if ($post_type != 'post' && $post_type != 'page') {
 
                 $post_type_name = 'livefyre_chat_display_' . $post_type;
-                $display = ( Livefyre_Apps::get_option($post_type_name, 'true') == 'true' );
+                $display = ( get_option('livefyre_apps-'.$post_type_name, 'true') == 'true' );
             }
-
             return $display && !is_preview() && $comments_open;
         }
 
@@ -254,6 +272,33 @@ if (!class_exists('LFAPPS_Chat')) {
             return ( Livefyre_Apps::active());
         }
 
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_chat_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Chat::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
+        }
     }
 
 }

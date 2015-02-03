@@ -41,7 +41,7 @@ class LFAPPS_Comments_Sync_Impl implements LFAPPS_Comments_Sync {
         }
         $url = $this->site_rest_url() . '/sync/' . $final_path_seg;
         $qstring = 'page_size=' . $inserts_remaining . '&plugin_version=' . LFAPPS_COMMENTS_PLUGIN_VERSION . '&sig_created=' . time();
-        $key = Livefyre_Apps::get_option( 'livefyre_site_key' );
+        $key = get_option('livefyre_apps-livefyre_site_key' );
         $url .= '?' . $qstring . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $qstring ) );
         $http = new LFAPPS_Http_Extension;
         $http_result = $http->request( $url, array('timeout' => 120) );
@@ -213,7 +213,7 @@ class LFAPPS_Comments_Sync_Impl implements LFAPPS_Comments_Sync {
 
     function site_rest_url() {
 
-        return $this->lf_core->http_url . '/site/' . Livefyre_Apps::get_option( 'livefyre_site_id' );
+        return $this->lf_core->http_url . '/site/' . get_option('livefyre_apps-livefyre_site_id' );
 
     }
 

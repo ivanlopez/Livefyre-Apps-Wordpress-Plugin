@@ -17,13 +17,15 @@
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
                 <h3 class="hndle"><span><?php esc_html_e('LiveComments Settings', 'lfapps-comments'); ?></span></h3>
-                <form name="livefyre_comments_general" id="livefyre_comments_general" action="<?php echo esc_url(Livefyre_Apps_Admin::get_page_url('livefyre_apps_comments')); ?>" method="POST">
-                    <?php wp_nonce_field( 'form-livefyre_comments_general' ); ?>
+                <form name="livefyre_comments_general" id="livefyre_comments_general" action="options.php" method="POST">
+                    <?php @settings_fields('livefyre_apps_settings_comments'); ?>
+                    <?php @do_settings_fields('livefyre_apps_settings_comments'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
-                                <th align="left" scope="row">
-                                    <?php esc_html_e('Enable Comments on', 'lfapps-comments'); ?>
+                                <th align="left" scope="row" style="width:40%">
+                                    <?php esc_html_e('Enable Comments on', 'lfapps-comments'); ?><br/>
+                                    <span class="info"><?php esc_html_e('(Select the types of posts on which you wish to enable LiveComments. Note: Only LiveChat or LiveComments may be enabled for each of these options.)', 'lfapps-chat'); ?></span>
                                 </th>
                                 <td align="left" valign="top">
                                     <?php
@@ -32,12 +34,12 @@
                                     $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                                     $used_types = LFAPPS_Comments_Admin::get_chat_display_post_types();
                                     foreach ($post_types as $post_type ) {
-                                        $post_type_name = 'livefyre_display_' .$post_type;
+                                        $post_type_name = 'livefyre_apps-livefyre_display_' .$post_type;
                                         $checked = '';
-                                        if(Livefyre_Apps::get_option($post_type_name) === true) {
+                                        if(get_option($post_type_name) == '1' || get_option($post_type_name) == 'true') {
                                             $checked = 'checked';
                                         } 
-                                        $post_type_name_chat = 'livefyre_chat_display_' .$post_type;
+                                        $post_type_name_chat = 'livefyre_apps-livefyre_chat_display_' .$post_type;
                                         $disabled = false;
                                         if(isset($used_types[$post_type_name_chat])) {
                                             $disabled = true;
@@ -50,11 +52,30 @@
                                     ?>
                                 </td>
                             </tr>
-                            <tr>
-                                <td colspan='2'>
-                                    <?php esc_html_e('(Select the types of posts on which you wish to enable LiveComments. Note: Only LiveChat or LiveComments may be enabled for each of these options.)', 'lfapps-chat'); ?>
+                            <tr>                               
+                                <?php 
+                                $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+                                if(empty($available_versions)) {
+                                    $available_versions = array(LFAPPS_Comments::$default_package_version);
+                                }
+                                $available_versions['latest'] = 'latest';
+                                $available_versions = array_reverse($available_versions);
+                                ?>
+                                <th align="left" scope="row">
+                                    <?php esc_html_e('Package version', 'lfapps-comments'); ?><br/>
+                                    <span class="info"><?php esc_html_e('(If necessary you can revert back to an older version if available)', 'lfapps-comments'); ?></span>
+                                </th>
+                                <td align="left" valign="top">
+                                    <select name="livefyre_apps-livefyre_comments_version">
+                                        <?php foreach($available_versions as $available_version): ?>
+                                        <?php $selected_version = get_option('livefyre_apps-livefyre_comments_version', 'latest') == $available_version ? 'selected="selected"' : ''; ?>
+                                        <option value="<?php echo esc_attr($available_version); ?>" <?php echo esc_html($selected_version); ?>>
+                                            <?php echo ucfirst(esc_html($available_version)); ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </td>
-                            </tr>
+                            </tr>                            
                             <tr>
                                 <td colspan='2' class="info">
                                     <strong>Note:</strong>
@@ -72,8 +93,7 @@
                     </div>
                     <div id="major-publishing-actions">									
                         <div id="publishing-action">
-                            <input type="hidden" name="livefyre_comments_general" value=""/> 
-                            <input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e('Save Changes'); ?>">
+                            <?php @submit_button(); ?>
                         </div>
                         <div class="clear"></div>
                     </div>

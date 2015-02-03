@@ -25,6 +25,8 @@ require_once( dirname( __FILE__ ) . "/src/LFAPPS_Comments_Core.php" );
 
 if ( ! class_exists( 'LFAPPS_Comments' ) ) {
     class LFAPPS_Comments {
+        public static $default_package_version = '3.0.0';
+        
         private static $initiated = false;
         
         public static function init() {
@@ -49,15 +51,19 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
          * + import previous Livefyre plugin options
          */
         private static function set_default_options() {
-            if(!Livefyre_Apps::get_option('livefyre_comments_options_imported')) {
+            if(!get_option('livefyre_apps-livefyre_comments_options_imported')) {
                 self::import_options();
             }
             
             //set default display options
-            self::set_display_options();
+            //self::set_display_options();
             
-            if(Livefyre_Apps::get_option('livefyre_import_status', '') === '') {
-                Livefyre_Apps::update_option('livefyre_import_status', 'uninitialized');
+            if(get_option('livefyre_apps-livefyre_comments_version', '') === '') {
+                update_option('livefyre_apps-livefyre_comments_version', 'latest');
+            }
+            
+            if(get_option('livefyre_apps-livefyre_import_status', '') === '') {
+                update_option('livefyre_apps-livefyre_import_status', 'uninitialized');
             }
         }
         
@@ -67,10 +73,10 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
         private static function import_options() {
             //import display options
             if(get_option('livefyre_display_posts', '') !== '') {
-                Livefyre_Apps::update_option('livefyre_display_post', get_option('livefyre_display_posts') === 'true' ? true : false);
+                update_option('livefyre_apps-livefyre_display_post', get_option('livefyre_apps-livefyre_display_posts') === 'true' ? true : false);
             } 
             if(get_option('livefyre_display_pages', '') !== '') {
-                Livefyre_Apps::update_option('livefyre_display_page', get_option('livefyre_display_pages') === 'true' ? true : false);
+                update_option('livefyre_apps-livefyre_display_page', get_option('livefyre_apps-livefyre_display_pages') === 'true' ? true : false);
             }
             
             $excludes = array( '_builtin' => false );
@@ -79,12 +85,12 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
             foreach ($post_types as $post_type ) {
                 $post_type_name = 'livefyre_display_' .$post_type;
                 if(get_option($post_type_name, '') !== '') {
-                    Livefyre_Apps::update_option($post_type_name, get_option($post_type_name) === 'true' ? true : false);
+                    update_option('livefyre_apps-' . $post_type_name, get_option($post_type_name) === 'true' ? true : false);
                 }
             }
             
             if(get_option('livefyre_import_status', '') !== '') {
-                $import_status = get_option('livefyre_import_status');
+                $import_status = get_option('livefyre_apps-livefyre_import_status');
                 // Handle legacy values
                 if ( $import_status == 'csv_uploaded') {
                     $import_status = 'complete';
@@ -92,16 +98,16 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
                     $import_status = 'pending';
                 }
                 
-                Livefyre_Apps::update_option('livefyre_import_status', $import_status);            
+                update_option('livefyre_apps-livefyre_import_status', $import_status);            
             } else {
-                Livefyre_Apps::update_option('livefyre_import_status', 'uninitialized');            
+                update_option('livefyre_apps-livefyre_import_status', 'uninitialized');            
             }
             
-            if(get_option('livefyre_import_message', '') !== '') {
-                Livefyre_Apps::update_option('livefyre_import_message', get_option('livefyre_import_message'));
+            if(get_option('livefyre_apps-livefyre_import_message', '') !== '') {
+                update_option('livefyre_apps-livefyre_import_message', get_option('livefyre_apps-livefyre_import_message'));
             }
             
-            Livefyre_Apps::update_option('livefyre_comments_options_imported', true);
+            update_option('livefyre_apps-livefyre_comments_options_imported', true);
         }
         
         /**
@@ -114,8 +120,8 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
             foreach($post_types as $post_type) {
                 $post_type_name_comments = 'livefyre_display_' .$post_type;
                 $post_type_name_chat = 'livefyre_chat_display_' .$post_type;
-                $display_comments = Livefyre_Apps::get_option($post_type_name_comments, '');
-                $display_chat = Livefyre_Apps::get_option($post_type_name_chat, '');
+                $display_comments = get_option('livefyre_apps-'.$post_type_name_comments, '');
+                $display_chat = get_option('livefyre_apps-'.$post_type_name_chat, '');
                 $display = false;
                 if($display_comments === '') {
                     if(Livefyre_Apps::is_app_enabled('chat') && ($display_chat === '' || $display_chat === false)) {
@@ -126,7 +132,8 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
                 } elseif($display_comments === true) {
                     $display = true;
                 }
-                Livefyre_Apps::update_option($post_type_name_comments, $display);
+                update_option('livefyre_apps-'.$post_type_name_comments, $display);
+                
             }
         }
         
@@ -136,6 +143,34 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
          */
         public static function comments_active() {
             return ( Livefyre_Apps::active());
+        }
+        
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_comments_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Comments::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
         }
     }
 }

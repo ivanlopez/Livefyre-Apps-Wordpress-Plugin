@@ -24,8 +24,8 @@ class LFAPPS_Comments_Core {
      */
     function define_globals() {
 
-        $client_key = Livefyre_Apps::get_option( 'livefyre_domain_key', '' );
-        $profile_domain = Livefyre_Apps::get_option( 'livefyre_domain_name', 'livefyre.com' );
+        $client_key = get_option('livefyre_apps-livefyre_domain_key', '' );
+        $profile_domain = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com' );
         $dopts = array(
             'livefyre_tld' => LFAPPS_COMMENTS_DEFAULT_TLD
         );
@@ -47,11 +47,11 @@ class LFAPPS_Comments_Core {
             $environment = '';
         }
         
-        $existing_blogname = Livefyre_Apps::get_option( 'livefyre_blogname', false );
+        $existing_blogname = $this->ext->get_option( 'livefyre_blogname', false );
         if ( $existing_blogname ) {
             $site_id = $existing_blogname;
         } else {
-            $site_id = Livefyre_Apps::get_option( 'livefyre_site_id', false );
+            $site_id = get_option('livefyre_apps-livefyre_site_id', false );
         }
 
         self::$bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
