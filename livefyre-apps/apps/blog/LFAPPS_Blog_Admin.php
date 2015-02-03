@@ -41,7 +41,7 @@ if (!class_exists('LFAPPS_Blog_Admin')) {
             }
             else {
                 $source_url = 'http://zor.'
-                    . ( 1 == Livefyre_Apps::get_option( 'livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
+                    . ( 1 == get_option('livefyre_apps-livefyre_environment', '0' ) ?  "livefyre.com" : 't402.livefyre.com' )
                     . '/wjs/v3.0/javascripts/livefyre.js';
             }
             wp_enqueue_script( 'livefyre-js', esc_url( $source_url ) );

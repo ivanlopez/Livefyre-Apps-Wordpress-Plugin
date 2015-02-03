@@ -14,8 +14,9 @@
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
                 <h3 class="hndle"><span><?php esc_html_e('Livefyre Sidenotes Settings', 'lfapps-sidenotes'); ?></span></h3>
-                <form name="livefyre_sidenotes_general" id="livefyre_sidenotes_general" action="<?php echo esc_url(Livefyre_Apps_Admin::get_page_url('livefyre_apps_sidenotes')); ?>" method="POST">
-                    <?php wp_nonce_field( 'form-livefyre_sidenotes_general' ); ?>
+                <form name="livefyre_sidenotes_general" id="livefyre_sidenotes_general" action="options.php" method="POST">
+                    <?php settings_fields('livefyre_apps_settings_sidenotes'); ?>
+                    <?php do_settings_fields('livefyre_apps_settings_sidenotes'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
@@ -31,18 +32,18 @@
                                     foreach ($post_types as $post_type ) {
                                         $post_type_name = 'livefyre_sidenotes_display_' .$post_type;
                                         $checked = '';
-                                        if(Livefyre_Apps::get_option($post_type_name) == true) {
+                                        if(get_option('livefyre_apps-'.$post_type_name)) {
                                             $checked = 'checked';
                                         } 
                                         ?>
-                                        <input type="checkbox" id="<?php echo esc_attr($post_type_name); ?>" name="<?php echo esc_attr($post_type_name); ?>" value="true" <?php echo $checked; ?>/>
-                                        <label for="<?php echo esc_attr($post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-sidenotes'); ?></label><br/>
+                                        <input type="checkbox" id="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" name="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" value="true" <?php echo $checked; ?>/>
+                                        <label for="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-sidenotes'); ?></label><br/>
                                         <?php
                                     }
                                     ?>
                                 </td>
                             </tr>
-                            <?php if(Livefyre_Apps::get_option('package_type') === 'enterprise'): ?>
+                            <?php if(get_option('livefyre_apps-package_type') === 'enterprise'): ?>
                             <tr>
                                 <th align="left" scope="row">
                                     <?php esc_html_e('Selectors', 'lfapps-sidenotes'); ?><br/>
@@ -51,7 +52,7 @@
                             </tr>
                             <tr>
                                 <td align="left" valign="top">
-                                    <textarea id='livefyre_sidenotes_selectors' name='livefyre_sidenotes_selectors' cols='60' rows='6'><?php echo esc_html(Livefyre_Apps::get_option('livefyre_sidenotes_selectors')); ?></textarea>
+                                    <textarea id='livefyre_apps-livefyre_sidenotes_selectors' name='livefyre_apps-livefyre_sidenotes_selectors' cols='60' rows='6'><?php echo esc_html(get_option('livefyre_apps-livefyre_sidenotes_selectors')); ?></textarea>
                                 </td>
                             </tr>
                             <tr>
@@ -72,8 +73,7 @@
                     </div>
                     <div id="major-publishing-actions">									
                         <div id="publishing-action">
-                            <input type="hidden" name="livefyre_sidenotes_general" value=""/> 
-                            <input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e('Save Changes'); ?>">
+                            <?php submit_button(); ?>
                         </div>
                         <div class="clear"></div>
                     </div>

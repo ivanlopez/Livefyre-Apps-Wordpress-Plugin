@@ -24,6 +24,7 @@ add_action( 'init', array( 'Livefyre_Apps', 'init' ) );
  * Load Admin Class if inside wp-admin
  */
 if(is_admin()) {
-    require_once( LFAPPS__PLUGIN_PATH . "/Livefyre_Apps_Admin.php" );    
+    require_once( LFAPPS__PLUGIN_PATH . "/Livefyre_Apps_Admin.php" );  
+    add_action( 'admin_init', array('Livefyre_Apps_Admin', 'init_settings'));
     add_action( 'init', array( 'Livefyre_Apps_Admin', 'init' ) );
 }

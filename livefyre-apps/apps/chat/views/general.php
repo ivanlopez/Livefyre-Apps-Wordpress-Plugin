@@ -15,8 +15,9 @@
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
                 <h3 class="hndle"><span><?php esc_html_e('LiveChat Settings', 'lfapps-chat'); ?></span></h3>
-                <form name="livefyre_chat_general" id="livefyre_chat_general" action="<?php echo esc_url(Livefyre_Apps_Admin::get_page_url('livefyre_apps_chat')); ?>" method="POST">
-                    <?php wp_nonce_field( 'form-livefyre_chat_general' ); ?>
+                <form name="livefyre_chat_general" id="livefyre_chat_general" action="options.php" method="POST">
+                    <?php settings_fields('livefyre_apps_settings_chat'); ?>
+                    <?php do_settings_fields('livefyre_apps_settings_chat'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
@@ -29,20 +30,21 @@
                                     $post_types = get_post_types( $args = $excludes );
                                     $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                                     $used_types = LFAPPS_Chat_Admin::get_comments_display_post_types();
+                                    
                                     foreach ($post_types as $post_type ) {
                                         $post_type_name = 'livefyre_chat_display_' .$post_type;
                                         $checked = '';
-                                        if(Livefyre_Apps::get_option($post_type_name) === true) {
+                                        if(get_option('livefyre_apps-'.$post_type_name)) {
                                             $checked = 'checked';
                                         } 
-                                        $post_type_name_comments = 'livefyre_display_' .$post_type;
+                                        $post_type_name_comments = 'livefyre_apps-livefyre_display_' .$post_type;
                                         $disabled = false;
                                         if(isset($used_types[$post_type_name_comments])) {
                                             $disabled = true;
                                         }
                                         ?>
-                                        <input <?php echo $disabled ? 'disabled' : ''; ?> type="checkbox" id="<?php echo esc_attr($post_type_name); ?>" name="<?php echo esc_attr($post_type_name); ?>" value="true" <?php echo $checked; ?>/>
-                                        <label for="<?php echo esc_attr($post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(LiveComments enabled.)</em></small>' : ''; ?></label><br/>
+                                        <input <?php echo $disabled ? 'disabled' : ''; ?> type="checkbox" id="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" name="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" value="true" <?php echo $checked; ?>/>
+                                        <label for="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(LiveComments enabled.)</em></small>' : ''; ?></label><br/>
                                         <?php
                                     }
                                     ?>
@@ -70,8 +72,7 @@
                     </div>
                     <div id="major-publishing-actions">									
                         <div id="publishing-action">
-                            <input type="hidden" name="livefyre_chat_general" value=""/> 
-                            <input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e('Save Changes'); ?>">
+                            <?php submit_button(); ?>
                         </div>
                         <div class="clear"></div>
                     </div>
