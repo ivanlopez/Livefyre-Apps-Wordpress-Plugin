@@ -58,6 +58,21 @@ if (!class_exists('LFAPPS_Chat_Admin')) {
                 }
             }
             
+            //process settings form
+            if (isset($_POST['livefyre_chat_general']) && check_admin_referer('form-livefyre_chat_general')) {
+                $excludes = array('_builtin' => false);
+                $post_types = get_post_types($args = $excludes);
+                $post_types = array_merge(array('post' => 'post', 'page' => 'page'), $post_types);
+                foreach ($post_types as $post_type) {
+                    $post_type_name = 'livefyre_chat_display_' . $post_type;
+                    if (isset($_POST[$post_type_name])) {
+                        Livefyre_Apps::update_option($post_type_name, true);
+                    } else {
+                        Livefyre_Apps::update_option($post_type_name, false);
+                    }
+                }
+                Livefyre_Apps::$form_saved = true;
+            }
             LFAPPS_View::render('general', array(), 'chat');
         }
                 
@@ -132,8 +147,8 @@ if (!class_exists('LFAPPS_Chat_Admin')) {
                 $post_types = get_post_types( $args = $excludes );
                 $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                 foreach ($post_types as $post_type ) {
-                    $post_type_name = 'livefyre_apps-livefyre_display_' .$post_type;
-                    if(get_option($post_type_name)) {
+                    $post_type_name = 'livefyre_display_' .$post_type;
+                    if(Livefyre_Apps::get_option($post_type_name) === true) {
                         $used_types[$post_type_name] = $post_type_name;
                     } 
                 }

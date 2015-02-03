@@ -1,11 +1,11 @@
 <?php
 require_once(LFAPPS__PLUGIN_PATH . "/libs/php/LFAPPS_JWT.php");
 
-$network_name = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
+$network_name = Livefyre_Apps::get_option('livefyre_domain_name', 'livefyre.com');
 $delegate_auth_url = 'http://admin.' . $network_name;
-$site_id = get_option('livefyre_apps-livefyre_site_id');
+$site_id = Livefyre_Apps::get_option('livefyre_site_id');
 $article_id = get_the_ID();
-$site_key = get_option('livefyre_apps-livefyre_site_key');
+$site_key = Livefyre_Apps::get_option('livefyre_site_key');
 
 $collection_meta = array(
     'title'=>  get_the_title(),
@@ -20,14 +20,14 @@ $conv_config = array(
     'articleId'=>$article_id,
     'collectionMeta'=>$jwtString,
     'network'=>$network_name,
-    'selectors'=>get_option('livefyre_apps-livefyre_sidenotes_selectors'),
+    'selectors'=>Livefyre_Apps::get_option('livefyre_sidenotes_selectors'),
 );
 
 $conv_config_str = json_encode($conv_config);
 ?>
 <script type="text/javascript">
 
-Livefyre.require(['<?php echo LFAPPS_Sidenotes::get_package_reference(); ?>'], function (Sidenotes) {
+Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('sidenotes'); ?>'], function (Sidenotes) {
     load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {

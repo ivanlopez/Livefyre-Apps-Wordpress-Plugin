@@ -46,16 +46,16 @@ if (!class_exists('LFAPPS_Comments_Admin')) {
         public static function menu_comments() {
             //hide import message call
             if (isset($_GET['hide_import_message'])) {
-                update_option('livefyre_apps-livefyre_import_status', 'complete');
+                Livefyre_Apps::update_option('livefyre_import_status', 'complete');
                 wp_redirect(Livefyre_Apps_Admin::get_page_url('livefyre_apps_comments'));
                 exit;
             }
 
             //check for import status updates
             if ( isset( $_GET['status'] ) ) {
-                update_option('livefyre_apps-'. 'livefyre_import_status', sanitize_text_field( $_GET['status'] ) );
+                Livefyre_Apps::update_option( 'livefyre_import_status', sanitize_text_field( $_GET['status'] ) );
                 if ( isset( $_GET['message'] ) ) {
-                    update_option('livefyre_apps-'. 'livefyre_import_message', urldecode( sanitize_text_field( $_GET['message'] ) ) );
+                    Livefyre_Apps::update_option( 'livefyre_import_message', urldecode( sanitize_text_field( $_GET['message'] ) ) );
                 }
             }
             
@@ -81,9 +81,9 @@ if (!class_exists('LFAPPS_Comments_Admin')) {
                 foreach ($post_types as $post_type) {
                     $post_type_name = 'livefyre_display_' . $post_type;
                     if (isset($_POST[$post_type_name])) {
-                        update_option('livefyre_apps-'.$post_type_name, true);
+                        Livefyre_Apps::update_option($post_type_name, true);
                     } else {
-                        update_option('livefyre_apps-'.$post_type_name, false);
+                        Livefyre_Apps::update_option($post_type_name, false);
                     }
                 }
                 Livefyre_Apps::$form_saved = true;
@@ -163,7 +163,7 @@ if (!class_exists('LFAPPS_Comments_Admin')) {
                 $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                 foreach ($post_types as $post_type ) {
                     $post_type_name = 'livefyre_chat_display_' .$post_type;
-                    if(get_option('livefyre_apps-'.$post_type_name) === true) {
+                    if(Livefyre_Apps::get_option($post_type_name) === true) {
                         $used_types[$post_type_name] = $post_type_name;
                     } 
                 }

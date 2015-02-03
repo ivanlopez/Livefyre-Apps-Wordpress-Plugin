@@ -8,6 +8,7 @@ class LFAPPS_Comments_Display {
      *
      */
     function __construct( $lf_core ) {
+        
         if (LFAPPS_Comments::comments_active()) {
             //add_action( 'wp_enqueue_scripts', array( &$this, 'load_strings' ) );
             add_action( 'wp_footer', array( &$this, 'lf_init_script' ) );
@@ -28,7 +29,7 @@ class LFAPPS_Comments_Display {
      */
     function livefyre_comments_off() {
     
-        return ( get_option('livefyre_apps-livefyre_site_id', '' ) == '' || get_option('livefyre_apps-livefyre_site_key', '') == '');
+        return ( Livefyre_Apps::get_option( 'livefyre_site_id', '' ) == '' || Livefyre_Apps::get_option( 'livefyre_site_key', '') == '');
 
     }
 
@@ -38,7 +39,7 @@ class LFAPPS_Comments_Display {
      */
     function lf_widget_priority() {
 
-        return intval( get_option( 'livefyre_apps-livefyre_widget_priority', 99 ) );
+        return intval( get_option( 'livefyre_widget_priority', 99 ) );
 
     }
         
@@ -58,12 +59,12 @@ class LFAPPS_Comments_Display {
         if ( comments_open() && self::livefyre_show_comments() ) {   // is this a post page?
             Livefyre_Apps::init_auth();
             
-            $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com' );
+            $network = Livefyre_Apps::get_option( 'livefyre_domain_name', 'livefyre.com' );
             $network = ( $network == '' ? 'livefyre.com' : $network );
         
-            $siteId = get_option('livefyre_apps-livefyre_site_id' );
-            $siteKey = get_option('livefyre_apps-livefyre_site_key' );
-            $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
+            $siteId = Livefyre_Apps::get_option( 'livefyre_site_id' );
+            $siteKey = Livefyre_Apps::get_option( 'livefyre_site_key' );
+            $network_key = Livefyre_Apps::get_option( 'livefyre_domain_key', '');
             $post = get_post();
             $articleId = get_the_ID();
             $title = get_the_title($articleId);
@@ -83,7 +84,7 @@ class LFAPPS_Comments_Display {
             $checksum = $site->buildChecksum($title, $url, $tags);
             
             $strings = null;
-            if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
+            if ( Livefyre_Apps::get_option( 'livefyre_language', 'English') != 'English' ) {
                 $strings = 'customStrings';
             }
             
@@ -108,9 +109,9 @@ class LFAPPS_Comments_Display {
         global $post;
         $post_type = get_post_type( $post );
         $article_id = $post->ID;
-        $site_id = get_option('livefyre_apps-livefyre_site_id', '' );
-        $display_posts = get_option('livefyre_apps-livefyre_display_posts', 'true' );
-        $display_pages = get_option('livefyre_apps-livefyre_display_pages', 'true' );
+        $site_id = Livefyre_Apps::get_option( 'livefyre_site_id', '' );
+        $display_posts = Livefyre_Apps::get_option( 'livefyre_display_posts', 'true' );
+        $display_pages = Livefyre_Apps::get_option( 'livefyre_display_pages', 'true' );
         echo "\n";
         ?>
             <!-- LF DEBUG
@@ -131,7 +132,7 @@ class LFAPPS_Comments_Display {
      *
      */
     public static function livefyre_comments_template( ) {
-        if(class_exists('LFAPPS_Chat') && !self::livefyre_show_comments() && LFAPPS_Chat::show_chat()) {
+        if(!self::livefyre_show_comments() && LFAPPS_Chat::show_chat()) {
             return LFAPPS_Chat::comments_template();
         }
         return dirname( __FILE__ ) . '/comments-template.php';        
@@ -146,9 +147,9 @@ class LFAPPS_Comments_Display {
         
         global $post;
         /* Is this a post and is the settings checkbox on? */
-        $display_posts = ( is_single() && get_option('livefyre_apps-livefyre_display_post'));
+        $display_posts = ( is_single() && Livefyre_Apps::get_option( 'livefyre_display_post','true') == 'true' );
         /* Is this a page and is the settings checkbox on? */
-        $display_pages = ( is_page() && get_option('livefyre_apps-livefyre_display_page'));
+        $display_pages = ( is_page() && Livefyre_Apps::get_option( 'livefyre_display_page','true') == 'true' );
         /* Are comments open on this post/page? */
         $comments_open = ( $post->comment_status == 'open' );
 
@@ -157,7 +158,7 @@ class LFAPPS_Comments_Display {
         if ( $post_type != 'post' && $post_type != 'page' ) {
             
             $post_type_name = 'livefyre_display_' .$post_type;            
-            $display = ( get_option('livefyre_apps-'. $post_type_name, 'true' ) == 'true' );
+            $display = ( Livefyre_Apps::get_option( $post_type_name, 'true' ) == 'true' );
         }
 
         return $display
@@ -173,7 +174,7 @@ class LFAPPS_Comments_Display {
     function livefyre_comments_number( $count ) {
 
         global $post;
-        return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
+        return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(Livefyre_Apps::get_option( 'livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
 
     }
 
@@ -183,7 +184,7 @@ class LFAPPS_Comments_Display {
      */
     function load_strings() {
 
-        $language = get_option('livefyre_apps-livefyre_language', 'English' );
+        $language = Livefyre_Apps::get_option( 'livefyre_language', 'English' );
         
         $lang_file = LFAPPS__PLUGIN_URL . "apps/comments/languages/" . $language . '.js';
         wp_enqueue_script( 'livefyre-lang-js', esc_url( $lang_file ) );
@@ -219,12 +220,12 @@ class LFAPPS_Comments_Display {
             }
         }
         Livefyre_Apps::init_auth();
-        $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com' );
+        $network = Livefyre_Apps::get_option( 'livefyre_domain_name', 'livefyre.com' );
         $network = ( $network == '' ? 'livefyre.com' : $network );
 
-        $siteId = get_option('livefyre_apps-livefyre_site_id' );
-        $siteKey = get_option('livefyre_apps-livefyre_site_key' );
-        $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
+        $siteId = Livefyre_Apps::get_option( 'livefyre_site_id' );
+        $siteKey = Livefyre_Apps::get_option( 'livefyre_site_key' );
+        $network_key = Livefyre_Apps::get_option( 'livefyre_domain_key', '');
         
         $network = Livefyre::getNetwork($network, strlen($network_key) > 0 ? $network_key : null);            
         $site = $network->getSite($siteId, $siteKey);
@@ -233,7 +234,7 @@ class LFAPPS_Comments_Display {
         $checksum = $site->buildChecksum($title, $url, $tags);
 
         $strings = null;
-        if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
+        if ( Livefyre_Apps::get_option( 'livefyre_language', 'English') != 'English' ) {
             $strings = 'customStrings';
         }
 
