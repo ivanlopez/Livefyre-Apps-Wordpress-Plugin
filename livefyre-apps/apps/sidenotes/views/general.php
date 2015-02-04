@@ -16,7 +16,6 @@
                 <h3 class="hndle"><span><?php esc_html_e('Livefyre Sidenotes Settings', 'lfapps-sidenotes'); ?></span></h3>
                 <form name="livefyre_sidenotes_general" id="livefyre_sidenotes_general" action="options.php" method="POST">
                     <?php settings_fields('livefyre_apps_settings_sidenotes'); ?>
-                    <?php do_settings_fields('livefyre_apps_settings_sidenotes'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>

@@ -25,7 +25,6 @@
                     <h3 class="hndle"><span><?php esc_html_e('Livefyre Access Details', 'lfapps'); ?></span></h3>
                     <form name="livefyre_apps_general" id="livefyre_apps_general" action="options.php" method="POST">
                         <?php settings_fields('livefyre_apps_settings_general'); ?>
-                        <?php do_settings_fields('livefyre_apps_settings_general'); ?>
                         <div class='inside'>
                             <table cellspacing="0" class="lfapps-form-table <?php echo get_option('livefyre_apps-package_type') === 'community' ? 'lfapps-form-table-left' : ''; ?>">
                                 <tbody>
@@ -104,7 +103,6 @@
                     <h3 class="hndle"><span><?php esc_html_e('Livefyre App Management', 'lfapps'); ?></span></h3>
                     <form name="livefyre_apps_management" id="livefyre_apps_management" action="options.php" method="POST">
                         <?php settings_fields('livefyre_apps_settings_apps'); ?>
-                        <?php do_settings_fields('livefyre_apps_settings_apps'); ?>
                         <div class='inside'>
                             <p><?php esc_html_e('Using the options below you can enable/disable the Livefyre Apps available to you.', 'lfapps'); ?></p>
                             <div class='lfapps-appmgt-row clearfix'>

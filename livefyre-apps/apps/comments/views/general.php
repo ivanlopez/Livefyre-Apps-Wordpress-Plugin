@@ -19,7 +19,6 @@
                 <h3 class="hndle"><span><?php esc_html_e('LiveComments Settings', 'lfapps-comments'); ?></span></h3>
                 <form name="livefyre_comments_general" id="livefyre_comments_general" action="options.php" method="POST">
                     <?php settings_fields('livefyre_apps_settings_comments'); ?>
-                    <?php do_settings_fields('livefyre_apps_settings_comments'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>

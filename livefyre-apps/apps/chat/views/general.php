@@ -17,7 +17,6 @@
                 <h3 class="hndle"><span><?php esc_html_e('LiveChat Settings', 'lfapps-chat'); ?></span></h3>
                 <form name="livefyre_chat_general" id="livefyre_chat_general" action="options.php" method="POST">
                     <?php settings_fields('livefyre_apps_settings_chat'); ?>
-                    <?php do_settings_fields('livefyre_apps_settings_chat'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
