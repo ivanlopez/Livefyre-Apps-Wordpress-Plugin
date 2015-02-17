@@ -1,4 +1,4 @@
-<?php $import_status = Livefyre_Apps::get_option('livefyre_import_status'); ?>
+<?php $import_status = get_option('livefyre_apps-livefyre_import_status'); ?>
 <?php if ($import_status !== 'complete'): ?>
     <?php LFAPPS_View::render_partial('import_script', array(), 'comments'); ?>
     <div class="postbox-container postbox-large">
@@ -10,7 +10,7 @@
                 <?php if ($import_status === 'error'): ?>
                     <h4><?php esc_html_e('Status:', 'lfapps-comments'); ?> <span><?php esc_html_e('Failed', 'lfapps-comments'); ?> </span></h4>
 
-                    <?php echo "<p>Message: " . esc_html(Livefyre_Apps::get_option('livefyre_import_message', '')) . "</p>" ?>
+                    <?php echo "<p>Message: " . esc_html(get_option('livefyre_apps-livefyre_import_message', '')) . "</p>" ?>
                     <p>Aw, man. It looks like your comment data gave our importer a hiccup and the import process was derailed. But have no fear, the Livefyre support team is here to help. 
                         If you wouldn't mind following the instructions below, our support team would be more than happy to work with you to get this problem squared away before you know it!
                         E-mail Livefyre at <a href="mailto:support@livefyre.com">support@livefyre.com</a> with the following:</p>

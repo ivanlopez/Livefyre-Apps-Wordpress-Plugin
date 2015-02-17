@@ -25,8 +25,8 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
 
         return; //todo: re-enable this
         if (!is_admin() || $_GET["page"] != "livefyre" ||
-                Livefyre_Apps::get_option('livefyre_import_status', '') != '' ||
-                Livefyre_Apps::get_option('livefyre_site_id', '') == '') {
+                get_option('livefyre_apps-livefyre_import_status', '') != '' ||
+                get_option('livefyre_apps-livefyre_site_id', '') == '') {
             return;
         }
         echo "<div id='livefyre-import-notice' class='updated fade'><p><a href='?page=livefyre&livefyre_import_begin=true'>Click here</a> to import your comments.</p></div>";
@@ -37,7 +37,7 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
         if (!isset($_GET['page']) || $_GET['page'] != 'livefyre_apps_comments' || !isset($_GET['livefyre_import_begin'])) {
             return;
         }
-        $siteId = Livefyre_Apps::get_option('livefyre_site_id', '');
+        $siteId = get_option('livefyre_apps-livefyre_site_id', '');
         if ($siteId == '') {
             return;
         }
@@ -55,11 +55,11 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
         }
 
         if ($status == 'error') {
-            Livefyre_Apps::update_option('livefyre_import_status', 'error');
-            Livefyre_Apps::update_option('livefyre_import_message', $message);
+            update_option('livefyre_apps-livefyre_import_status', 'error');
+            update_option('livefyre_apps-livefyre_import_message', $message);
             $this->ext->delete_option('livefyre_v3_notify_installed');
         } else {
-            Livefyre_Apps::update_option('livefyre_import_status', 'pending');
+            update_option('livefyre_apps-livefyre_import_status', 'pending');
             $this->ext->delete_option('livefyre_v3_notify_installed');
         }
     }
@@ -81,17 +81,17 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
             $i++;
         }
         $this->ext->update_option('livefyre_activity_id', $rowparts[0]);
-        Livefyre_Apps::update_option('livefyre_import_status', 'complete');
+        update_option('livefyre_apps-livefyre_import_status', 'complete');
         $date_formatted = 'Completed on ' . date('d/m/Y') . ' at ' . date('h:i a');
-        Livefyre_Apps::update_option('livefyre_import_message', $date_formatted);
+        update_option('livefyre_apps-livefyre_import_message', $date_formatted);
         $this->ext->delete_option('livefyre_v3_notify_installed');
         echo "ok";
         exit;
     }
 
     function check_import() {
-        if ($this->detect_default_comment() && Livefyre_Apps::get_option('livefyre_import_status', 'uninitialized') == 'uninitialized') {
-            Livefyre_Apps::update_option('livefyre_import_status', 'complete');
+        if ($this->detect_default_comment() && get_option('livefyre_apps-livefyre_import_status', 'uninitialized') == 'uninitialized') {
+            update_option('livefyre_apps-livefyre_import_status', 'complete');
             $this->ext->delete_option('livefyre_v3_notify_installed');
             return;
         }
@@ -103,13 +103,13 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
         $sig = $_POST['sig'];
         $sig_created = urldecode($_POST['sig_created']);
         // Check the signature
-        $key = Livefyre_Apps::get_option('livefyre_site_key');
+        $key = get_option('livefyre_apps-livefyre_site_key');
         $string = 'import|' . sanitize_text_field($_GET['offset']) . '|' . $sig_created;
         if (getHmacsha1Signature(base64_decode($key), $string) != $sig || abs($sig_created - time()) > 259200) {
             echo 'sig-failure';
             exit;
         } else {
-            $siteId = Livefyre_Apps::get_option('livefyre_site_id', '');
+            $siteId = get_option('livefyre_apps-livefyre_site_id', '');
             if ($siteId != '') {
                 $response = $this->extract_xml($siteId, intval(sanitize_text_field($_GET['offset'])));
                 echo esc_html($response);
@@ -246,7 +246,7 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
     function report_error($message) {
 
         $args = array('data' => array('message' => $message, 'method' => 'POST'));
-        $url = $this->lf_core->http_url . '/site/' . Livefyre_Apps::get_option('livefyre_site_id');
+        $url = $this->lf_core->http_url . '/site/' . get_option('livefyre_apps-livefyre_site_id');
         $this->lf_core->lf_domain_object->http->request($url . '/error', $args);
     }
 

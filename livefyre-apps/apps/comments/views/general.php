@@ -17,8 +17,8 @@
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
                 <h3 class="hndle"><span><?php esc_html_e('LiveComments Settings', 'lfapps-comments'); ?></span></h3>
-                <form name="livefyre_comments_general" id="livefyre_comments_general" action="<?php echo esc_url(Livefyre_Apps_Admin::get_page_url('livefyre_apps_comments')); ?>" method="POST">
-                    <?php wp_nonce_field( 'form-livefyre_comments_general' ); ?>
+                <form name="livefyre_comments_general" id="livefyre_comments_general" action="options.php" method="POST">
+                    <?php settings_fields('livefyre_apps_settings_comments'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
@@ -32,12 +32,12 @@
                                     $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                                     $used_types = LFAPPS_Comments_Admin::get_chat_display_post_types();
                                     foreach ($post_types as $post_type ) {
-                                        $post_type_name = 'livefyre_display_' .$post_type;
+                                        $post_type_name = 'livefyre_apps-livefyre_display_' .$post_type;
                                         $checked = '';
-                                        if(Livefyre_Apps::get_option($post_type_name) === true) {
+                                        if(get_option($post_type_name) == '1' || get_option($post_type_name) == 'true') {
                                             $checked = 'checked';
                                         } 
-                                        $post_type_name_chat = 'livefyre_chat_display_' .$post_type;
+                                        $post_type_name_chat = 'livefyre_apps-livefyre_chat_display_' .$post_type;
                                         $disabled = false;
                                         if(isset($used_types[$post_type_name_chat])) {
                                             $disabled = true;
@@ -72,8 +72,7 @@
                     </div>
                     <div id="major-publishing-actions">									
                         <div id="publishing-action">
-                            <input type="hidden" name="livefyre_comments_general" value=""/> 
-                            <input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e('Save Changes'); ?>">
+                            <?php submit_button(); ?>
                         </div>
                         <div class="clear"></div>
                     </div>

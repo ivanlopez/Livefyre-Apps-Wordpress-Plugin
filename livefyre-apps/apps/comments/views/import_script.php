@@ -7,7 +7,7 @@ var secondsPassed = 0;
 var stub = "Progress: ";
 
 function checkStatusLF(){
-    JSONP.get( '<?php echo esc_js(LFAPPS_Comments_Core::$quill_url); ?>/import/wordpress/<?php echo esc_js(Livefyre_Apps::get_option("livefyre_site_id")); ?>/status', {param1:'none'}, function(data){
+    JSONP.get( '<?php echo esc_js(LFAPPS_Comments_Core::$quill_url); ?>/import/wordpress/<?php echo esc_js(get_option("livefyre_apps-livefyre_site_id")); ?>/status', {param1:'none'}, function(data){
         console.log('REPSONSE:', data);
         var status = data['status'],
             loc = '?page=livefyre_apps_comments';

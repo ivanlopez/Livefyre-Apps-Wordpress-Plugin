@@ -11,7 +11,14 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
     
         public static function init() {
             if ( ! self::$initiated ) {
-                self::$initiated = true;                
+                self::$initiated = true;     
+                if(isset($_GET['type'])) {
+                    if($_GET['type'] === 'community' || $_GET['type'] === 'enterprise') {
+                        update_option('livefyre_apps-initial_modal_shown', true);
+                        update_option('livefyre_apps-package_type', sanitize_text_field($_GET['type']));
+                        wp_redirect(self::get_page_url('livefyre_apps') . '&settings-updated=environment_changed');
+                    }
+                }
                 self::init_hooks();     
                 self::init_apps();                 
             }
@@ -20,7 +27,7 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
         /**
          * Initialise WP hooks
          */
-        private static function init_hooks() {
+        private static function init_hooks() {            
             add_action( 'admin_menu', array('Livefyre_Apps_Admin', 'init_admin_menu' ) );           
             add_action( 'admin_enqueue_scripts', array( 'Livefyre_Apps_Admin', 'load_resources' ) );
         }
@@ -44,21 +51,23 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             if(count($conflicting_plugins) > 0) {
                 return;
             }
-            //check if we are inside admin and apps are being switched on/off
-            self::process_app_switches();
+            
             if(isset($_GET['type'])) {
                 if($_GET['type'] === 'community' || $_GET['type'] === 'enterprise') {
-                    Livefyre_Apps::update_option('package_type', sanitize_text_field($_GET['type']));
+                    update_option('livefyre_apps-package_type', sanitize_text_field($_GET['type']));
                 }
             }
             
-            $apps = Livefyre_Apps::get_option('apps');
-            foreach($apps as $app=>$switch) {
-                if(Livefyre_Apps::get_option('package_type') == 'community' && ($app == 'chat' || $app == 'blog')) {
-                    $switch = false;
-                }
-                if($switch) {
-                    self::init_app($app);
+            $apps = get_option('livefyre_apps-apps');
+            if(is_array($apps)) {
+                foreach($apps as $app) {
+                    $switch = true;
+                    if(get_option('livefyre_apps-package_type') == 'community' && ($app == 'chat' || $app == 'blog')) {
+                        $switch = false;
+                    }
+                    if($switch) {
+                        self::init_app($app);
+                    }
                 }
             }
         }
@@ -113,26 +122,40 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
         }
         
         /**
-         * Check if post sent from General settings and manage the apps switched on/off
+         * Declare settings used in Livefyre Apps general options page
          */
-        public static function process_app_switches() {
-            if(isset($_POST['livefyre_app_management']) && check_admin_referer('form-livefyre_apps_management')) {            
-                $apps = array();
-                if(isset($_POST['lfapps_comments_enable'])) {
-                    $apps['comments'] = true;                   
-                }
-                if(isset($_POST['lfapps_sidenotes_enable'])) {
-                    $apps['sidenotes'] = true;                    
-                } 
-                if(isset($_POST['lfapps_blog_enable'])) {
-                    $apps['blog'] = true;                    
-                } 
-                if(isset($_POST['lfapps_chat_enable'])) {
-                    $apps['chat'] = true;                    
-                } 
-                Livefyre_Apps::update_option('apps', $apps);
-                Livefyre_Apps::$form_saved = true;
-            }
+        public static function init_settings() {
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_domain_name');  
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_domain_key'); 
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_site_id'); 
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_site_key');                          
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-auth_type');   
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_auth_delegate_name');   
+            register_setting('livefyre_apps_settings_general', 'livefyre_apps-livefyre_environment');   
+                        
+            register_setting('livefyre_apps_settings_apps', 'livefyre_apps-apps');
+            
+            //LiveComments
+            $excludes = array( '_builtin' => false );
+            $post_types = get_post_types( $args = $excludes );
+            $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
+            foreach ($post_types as $post_type ) {
+                $post_type_name = 'livefyre_apps-livefyre_display_' .$post_type;
+                register_setting('livefyre_apps_settings_comments', $post_type_name);
+            } 
+            
+            //LiveChat
+            foreach ($post_types as $post_type ) {
+                $post_type_name = 'livefyre_apps-livefyre_chat_display_' .$post_type;
+                register_setting('livefyre_apps_settings_chat', $post_type_name);
+            } 
+            
+            //Sidenotes
+            foreach ($post_types as $post_type ) {
+                $post_type_name = 'livefyre_apps-livefyre_sidenotes_display_' .$post_type;
+                register_setting('livefyre_apps_settings_sidenotes', $post_type_name);
+            } 
+            register_setting('livefyre_apps_settings_sidenotes', 'livefyre_apps-livefyre_sidenotes_selectors');
         }
         
         public static function menu_plugin_conflict() {
@@ -148,55 +171,15 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
                 self::menu_plugin_conflict();
                 return;
             }
+                        
             //process data returned from livefyre.com community sign up
             if(self::verified_blog()) {
-                Livefyre_Apps::update_option('livefyre_domain_name', 'livefyre.com');
-                Livefyre_Apps::update_option('livefyre_site_id', sanitize_text_field( $_GET["site_id"] ));
-                Livefyre_Apps::update_option('livefyre_site_key', sanitize_text_field( $_GET["secretkey"] ));
-            }
-            #Livefyre_Apps::update_option('initial_modal_shown', false);
-            if(isset($_GET['type'])) {
-                if($_GET['type'] === 'community' || $_GET['type'] === 'enterprise') {
-                    Livefyre_Apps::update_option('initial_modal_shown', true);
-                    Livefyre_Apps::update_option('package_type', sanitize_text_field($_GET['type']));
-                    wp_redirect(self::get_page_url('livefyre_apps') . '&msg=environment_changed');
-                }
-            }
-            
-            if(isset($_GET['msg'])) {
-                if($_GET['msg'] === 'environment_changed') {
-                    Livefyre_Apps::$form_saved = true;
-                    Livefyre_Apps::$form_saved_msg = 'Livefyre Environment has been changed!';
-                }
+                update_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
+                update_option('livefyre_apps-livefyre_site_id', sanitize_text_field( $_GET["site_id"] ));
+                update_option('livefyre_apps-livefyre_site_key', sanitize_text_field( $_GET["secretkey"] ));
             }
                         
-            //process access form
-            if(isset($_POST['livefyre_app_general']) && check_admin_referer('form-livefyre_apps_general')) {  
-                Livefyre_Apps::update_option('package_type', sanitize_text_field( $_POST["package_type"] ));
-                
-                Livefyre_Apps::update_option('livefyre_site_id', sanitize_text_field( $_POST["livefyre_site_id"] ));
-                Livefyre_Apps::update_option('livefyre_site_key', sanitize_text_field( $_POST["livefyre_site_key"] ));
-                
-                if(Livefyre_Apps::get_option('package_type') === 'enterprise') {                   
-                    
-                    Livefyre_Apps::update_option('livefyre_domain_name', sanitize_text_field( $_POST["livefyre_domain_name"] ));
-                    Livefyre_Apps::update_option('livefyre_domain_key', sanitize_text_field( $_POST["livefyre_domain_key"] ));
-                    Livefyre_Apps::update_option('auth_type', sanitize_text_field($_POST['auth_type']));    
-                    
-                    Livefyre_Apps::update_option('livefyre_auth_delegate_name', sanitize_text_field( $_POST["livefyre_auth_delegate_name"] ));
-                } else {
-                    Livefyre_Apps::update_option('auth_type', 'wordpress'); 
-                }
-                Livefyre_Apps::update_option('livefyre_environment', isset( $_POST["livefyre_environment"] ) ? 'production' : 'staging');
-                Livefyre_Apps::$form_saved = true;
-            }
-            
-            //process language form
-            if(isset($_POST['livefyre_language']) && check_admin_referer('form-livefyre_language')) {   
-                Livefyre_Apps::update_option('livefyre_language', sanitize_text_field( $_POST["lf_language"] ));
-                Livefyre_Apps::$form_saved = true;
-            }
             LFAPPS_View::render('general');
         }
-    }
+    }   
 }

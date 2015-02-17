@@ -45,25 +45,6 @@ if (!class_exists('LFAPPS_Sidenotes_Admin')) {
          */
         public static function menu_sidenotes() {
             
-            
-            //process settings form
-            if (isset($_POST['livefyre_sidenotes_general']) && check_admin_referer('form-livefyre_sidenotes_general')) {
-                $excludes = array('_builtin' => false);
-                $post_types = get_post_types($args = $excludes);
-                $post_types = array_merge(array('post' => 'post', 'page' => 'page'), $post_types);
-                foreach ($post_types as $post_type) {
-                    $post_type_name = 'livefyre_sidenotes_display_' . $post_type;
-                    if (isset($_POST[$post_type_name])) {
-                        Livefyre_Apps::update_option($post_type_name, true);
-                    } else {
-                        Livefyre_Apps::update_option($post_type_name, false);
-                    }
-                }
-                if(isset($_POST['livefyre_sidenotes_selectors'])) {
-                    Livefyre_Apps::update_option('livefyre_sidenotes_selectors', sanitize_text_field($_POST['livefyre_sidenotes_selectors']));
-                }
-                Livefyre_Apps::$form_saved = true;
-            }
             LFAPPS_View::render('general', array(), 'sidenotes');
         }
     }

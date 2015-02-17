@@ -61,12 +61,12 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
                 }
             }
             Livefyre_Apps::init_auth();
-            $network = Livefyre_Apps::get_option( 'livefyre_domain_name', 'livefyre.com' );
+            $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com' );
             $network = ( $network == '' ? 'livefyre.com' : $network );
 
-            $siteId = Livefyre_Apps::get_option( 'livefyre_site_id' );
-            $siteKey = Livefyre_Apps::get_option( 'livefyre_site_key' );
-            $network_key = Livefyre_Apps::get_option( 'livefyre_domain_key', '');
+            $siteId = get_option('livefyre_apps-livefyre_site_id' );
+            $siteKey = get_option('livefyre_apps-livefyre_site_key' );
+            $network_key = get_option('livefyre_apps-livefyre_domain_key', '');
 
             $network = Livefyre::getNetwork($network, strlen($network_key) > 0 ? $network_key : null);            
             $site = $network->getSite($siteId, $siteKey);
@@ -75,7 +75,7 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
             $checksum = $site->buildChecksum($title, $url, $tags);
 
             $strings = null;
-            if ( Livefyre_Apps::get_option( 'livefyre_language', 'English') != 'English' ) {
+            if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
                 $strings = 'customStrings';
             }
 

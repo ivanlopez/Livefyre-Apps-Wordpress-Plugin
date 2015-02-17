@@ -58,20 +58,20 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
          * + import previous Livefyre plugin options
          */
         private static function set_default_options() {
-            if(!Livefyre_Apps::get_option('livefyre_sidenotes_options_imported')) {
+            if(!get_option('livefyre_apps-livefyre_sidenotes_options_imported')) {
                 self::import_options();
             }
             
             //set default display options
-            if(Livefyre_Apps::get_option('livefyre_sidenotes_display_post', '') === '') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_display_post', 'true');
+            if(get_option('livefyre_apps-livefyre_sidenotes_display_post', null) === null) {
+                update_option('livefyre_apps-livefyre_sidenotes_display_post', 'true');
             }
-            if(Livefyre_Apps::get_option('livefyre_sidenotes_display_page', '') === '') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_display_page', 'true');
+            if(get_option('livefyre_apps-livefyre_sidenotes_display_page', null) === null) {
+                update_option('livefyre_apps-livefyre_sidenotes_display_page', 'true');
             }
             
-            if(Livefyre_Apps::get_option('livefyre_sidenotes_selectors', '') === '' || Livefyre_Apps::get_option('livefyre_sidenotes_selectors') === 'true') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_selectors', '#livefyre-sidenotes-wrap p:not(:has(img)),#livefyre-sidenotes-wrap > p img, #livefyre-sidenotes-wrap > ul > li');
+            if(get_option('livefyre_apps-livefyre_sidenotes_selectors', '') === '' || get_option('livefyre_apps-livefyre_sidenotes_selectors') === 'true') {
+                update_option('livefyre_apps-livefyre_sidenotes_selectors', '#livefyre-sidenotes-wrap p:not(:has(img)),#livefyre-sidenotes-wrap > p img, #livefyre-sidenotes-wrap > ul > li');
             }
         }
         
@@ -81,10 +81,10 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
         private static function import_options() {
             //import display options
             if(get_option('livefyre_sidenotes_display_posts', '') !== '') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_display_post', get_option('livefyre_sidenotes_display_posts'));
+                update_option('livefyre_apps-livefyre_sidenotes_display_post', get_option('livefyre_sidenotes_display_posts'));
             } 
             if(get_option('livefyre_sidenotes_display_pages', '') !== '') {
-                Livefyre_Apps::update_option('livefyre_sidenotes_display_page', get_option('livefyre_sidenotes_display_pages'));
+                update_option('livefyre_apps-livefyre_sidenotes_display_page', get_option('livefyre_sidenotes_display_pages'));
             }
             
             $excludes = array( '_builtin' => false );
@@ -93,11 +93,11 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
             foreach ($post_types as $post_type ) {
                 $post_type_name = 'livefyre_sidenotes_display_' .$post_type;
                 if(get_option($post_type_name, '') !== '') {
-                    Livefyre_Apps::update_option($post_type_name, get_option($post_type_name));
+                    update_option('livefyre_apps-'.$post_type_name, get_option($post_type_name));
                 }
             }
             
-            Livefyre_Apps::update_option('livefyre_sidenotes_options_imported', true);
+            update_option('livefyre_apps-livefyre_sidenotes_options_imported', true);
         }
         
         public static function content_wrapper($content) {
@@ -111,9 +111,9 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
         private static function display_sidenotes() {
             global $post;
             /* Is this a post and is the settings checkbox on? */
-            $display_posts = ( is_single() && Livefyre_Apps::get_option( 'livefyre_sidenotes_display_post','true') == 'true' );
+            $display_posts = ( is_single() && get_option('livefyre_apps-livefyre_sidenotes_display_post','true') == 'true' );
             /* Is this a page and is the settings checkbox on? */
-            $display_pages = ( is_page() && Livefyre_Apps::get_option( 'livefyre_sidenotes_display_page','true') == 'true' );
+            $display_pages = ( is_page() && get_option('livefyre_apps-livefyre_sidenotes_display_page','true') == 'true' );
             /* Are comments open on this post/page? */
             $comments_open = ( $post->comment_status == 'open' );
 
@@ -122,7 +122,7 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
             if ( $post_type != 'post' && $post_type != 'page' ) {
 
                 $post_type_name = 'livefyre_sidenotes_display_' .$post_type;            
-                $display = ( Livefyre_Apps::get_option( $post_type_name, 'true' ) == 'true' );
+                $display = ( get_option('livefyre_apps-'. $post_type_name, 'true' ) == 'true' );
             }
 
             return $display
